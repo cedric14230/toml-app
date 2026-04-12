@@ -1,17 +1,13 @@
+import Header from '@/components/Header'
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8">
-      <div className="text-center">
-        <h1 className="text-5xl font-bold tracking-tight text-gray-900">
-          TOML
-        </h1>
-        <p className="mt-2 text-lg text-gray-500 font-medium">
-          Top On My List
-        </p>
-        <p className="mt-6 text-gray-600 max-w-sm mx-auto">
-          Créez et partagez vos wishlists en toute simplicité.
-        </p>
-      </div>
-    </main>
-  );
+    <>
+      <Header />
+      <main className="max-w-5xl mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold text-gray-900">Mes wishlists</h1>
+        <p className="mt-2 text-gray-500">Tes listes apparaîtront ici.</p>
+      </main>
+    </>
+  )
 }
