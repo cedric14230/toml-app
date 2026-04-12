@@ -53,7 +53,7 @@ export default function WishlistGrid({ wishlists }: Props) {
             Aucune wishlist pour l'instant
           </h2>
           <p className="text-sm text-gray-500 mb-6 max-w-xs">
-            Crée ta première liste de souhaits et partage-la avec tes amis.
+            Créez votre première liste de souhaits et partagez-la avec vos amis.
           </p>
           <button
             onClick={() => setModalOpen(true)}

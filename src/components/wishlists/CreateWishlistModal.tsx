@@ -20,7 +20,7 @@ const VISIBILITY_OPTIONS: {
   {
     value: 'private',
     label: 'Privé',
-    description: 'Toi seul',
+    description: 'Vous seul',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
@@ -31,7 +31,7 @@ const VISIBILITY_OPTIONS: {
   {
     value: 'friends',
     label: 'Amis',
-    description: 'Tes amis',
+    description: 'Vos amis',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
@@ -173,7 +173,7 @@ export default function CreateWishlistModal({ onClose, onSuccess }: Props) {
               maxLength={300}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Décris ta liste en quelques mots…"
+              placeholder="Décrivez votre liste en quelques mots…"
               className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition resize-none"
             />
           </div>

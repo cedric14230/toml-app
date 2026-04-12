@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 // Type exporté et réutilisé par WishlistGrid et dashboard/page.tsx
 export type Wishlist = {
   id: string
@@ -47,7 +49,11 @@ export default function WishlistCard({ wishlist }: { wishlist: Wishlist }) {
   const vis = VISIBILITY_CONFIG[wishlist.visibility]
 
   return (
-    <article className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:border-gray-300 hover:shadow-md transition-all duration-150 cursor-pointer group">
+    <Link
+      href={`/dashboard/wishlists/${wishlist.id}`}
+      className="block group rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
+    >
+    <article className="bg-white rounded-2xl border border-gray-200 overflow-hidden group-hover:border-gray-300 group-hover:shadow-md transition-all duration-150">
 
       {/* Zone cover — dégradé placeholder jusqu'à ce qu'une image soit définie */}
       <div className="h-28 bg-gradient-to-br from-gray-100 to-gray-200 group-hover:from-gray-200 group-hover:to-gray-300 transition-colors duration-150 flex items-center justify-center">
@@ -96,5 +102,6 @@ export default function WishlistCard({ wishlist }: { wishlist: Wishlist }) {
         </div>
       </div>
     </article>
+    </Link>
   )
 }

@@ -81,17 +81,17 @@ export default function SignupPage() {
             </div>
 
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Vérifie tes emails
+              Vérifiez vos emails
             </h2>
             <p className="text-sm text-gray-500 leading-relaxed">
               Un lien de confirmation a été envoyé à{' '}
               <span className="font-medium text-gray-700">{email}</span>.
               <br />
-              Clique dessus pour activer ton compte.
+              Cliquez dessus pour activer votre compte.
             </p>
 
             <p className="mt-6 text-sm text-gray-400">
-              Tu n'as rien reçu ?{' '}
+              Vous n'avez rien reçu ?{' '}
               <button
                 onClick={() => setSubmitted(false)}
                 className="text-gray-700 font-medium hover:underline"
@@ -143,7 +143,7 @@ export default function SignupPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
-                placeholder="Ton prénom"
+                placeholder="Votre prénom"
               />
             </div>
 
