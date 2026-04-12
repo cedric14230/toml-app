@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 export default function SignupPage() {
+  const router = useRouter()
   const supabase = createSupabaseBrowserClient()
 
   const [name, setName] = useState('')
@@ -19,7 +21,7 @@ export default function SignupPage() {
     setError(null)
     setLoading(true)
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -36,8 +38,16 @@ export default function SignupPage() {
       return
     }
 
-    // Supabase envoie un email de confirmation.
-    // On affiche un écran de succès plutôt que de rediriger.
+    // data.session est non-null quand la confirmation email est désactivée :
+    // Supabase connecte l'utilisateur immédiatement après signUp().
+    // data.session est null quand Supabase attend la confirmation par email.
+    if (data.session) {
+      router.push('/dashboard')
+      router.refresh()
+      return
+    }
+
+    // Confirmation email activée : on affiche l'écran "Vérifie tes emails".
     setSubmitted(true)
   }
 

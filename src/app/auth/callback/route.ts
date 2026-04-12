@@ -1,56 +1,67 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse, type NextRequest } from 'next/server'
+import type { EmailOtpType } from '@supabase/supabase-js'
 
 /**
- * Route Handler OAuth — appelé par Supabase après authentification Google.
+ * Route Handler Auth — gère deux flux distincts :
  *
- * Flux :
- *   1. L'utilisateur clique "Continuer avec Google"
- *   2. Supabase redirige vers Google
- *   3. Google redirige vers /auth/callback?code=xxx
- *   4. Ce handler échange le code contre une session
- *   5. Il redirige vers la destination finale (/ par défaut)
+ * Flux 1 — OAuth Google (PKCE) :
+ *   Google → /auth/callback?code=xxx
+ *   → exchangeCodeForSession(code)
  *
- * Également utilisé pour la confirmation d'email (signUp) :
- * Supabase envoie un lien vers /auth/callback?code=xxx
+ * Flux 2 — Confirmation d'email / magic link :
+ *   Supabase → /auth/callback?token_hash=xxx&type=signup
+ *   → verifyOtp({ token_hash, type })
+ *
+ * Les deux flux redirigent vers /dashboard en cas de succès.
  */
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get('code')
-  // `next` permet de rediriger vers la page initialement demandée
-  const next = searchParams.get('next') ?? '/'
+  const { searchParams } = new URL(request.url)
 
-  if (code) {
-    const cookieStore = await cookies()
+  const code       = searchParams.get('code')
+  const token_hash = searchParams.get('token_hash')
+  const type       = searchParams.get('type') as EmailOtpType | null
+  const next       = searchParams.get('next') ?? '/dashboard'
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
-          },
+  const successUrl = new URL(next, request.url)
+  const errorUrl   = new URL('/auth/login', request.url)
+  errorUrl.searchParams.set('error', 'auth_callback_error')
+
+  // Instanciation du client une seule fois, partagé par les deux flux
+  const cookieStore = await cookies()
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
         },
-      }
-    )
-
-    // Échange le code d'autorisation contre une session utilisateur.
-    // Supabase pose automatiquement le cookie de session.
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-
-    if (!error) {
-      // Redirection vers la destination finale (page protégée ou /)
-      return NextResponse.redirect(`${origin}${next}`)
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          )
+        },
+      },
     }
+  )
+
+  // ── Flux 1 : OAuth / PKCE ──────────────────────────────────────────
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error) return NextResponse.redirect(successUrl)
   }
 
-  // En cas d'erreur (code absent ou invalide) → retour à la page de login
-  return NextResponse.redirect(`${origin}/auth/login?error=auth_callback_error`)
+  // ── Flux 2 : Confirmation email / magic link ───────────────────────
+  // Supabase envoie token_hash + type (ex: "signup", "magiclink",
+  // "email_change", "recovery") à la place d'un code PKCE.
+  if (token_hash && type) {
+    const { error } = await supabase.auth.verifyOtp({ token_hash, type })
+    if (!error) return NextResponse.redirect(successUrl)
+  }
+
+  // ── Échec des deux flux ────────────────────────────────────────────
+  return NextResponse.redirect(errorUrl)
 }

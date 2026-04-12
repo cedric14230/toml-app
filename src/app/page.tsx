@@ -1,13 +1,7 @@
-import Header from '@/components/Header'
+import { redirect } from 'next/navigation'
 
-export default function Home() {
-  return (
-    <>
-      <Header />
-      <main className="max-w-5xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900">Mes wishlists</h1>
-        <p className="mt-2 text-gray-500">Tes listes apparaîtront ici.</p>
-      </main>
-    </>
-  )
+// La page racine redirige vers /dashboard.
+// Le middleware s'assure que l'utilisateur est connecté avant d'arriver ici.
+export default function RootPage() {
+  redirect('/dashboard')
 }
