@@ -1,11 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
-export default function LoginPage() {
+/**
+ * useSearchParams() oblige Next.js à envelopper le composant dans une
+ * Suspense boundary lors du rendu statique (build Vercel).
+ * On extrait la logique dans LoginInner et on exporte une coque LoginPage
+ * qui fournit le <Suspense>. Ainsi le build ne bloque pas sur l'absence
+ * de boundary.
+ */
+function LoginInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirectTo') ?? '/'
@@ -183,5 +190,13 @@ export default function LoginPage() {
         </p>
       </div>
     </main>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginInner />
+    </Suspense>
   )
 }
