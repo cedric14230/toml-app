@@ -1,5 +1,6 @@
 import Header from '@/components/Header'
 import WishlistGrid from '@/components/wishlists/WishlistGrid'
+import BookmarkletInstall from '@/components/BookmarkletInstall'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import type { Wishlist } from '@/components/wishlists/WishlistCard'
 
@@ -24,6 +25,7 @@ export default async function DashboardPage() {
       <Header />
       <main className="max-w-5xl mx-auto px-4 py-8">
         <WishlistGrid wishlists={wishlists} />
+        <BookmarkletInstall />
       </main>
     </>
   )

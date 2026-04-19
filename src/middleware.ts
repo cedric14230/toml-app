@@ -51,7 +51,7 @@ export async function middleware(request: NextRequest) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/auth/login'
     // On mémorise la destination pour rediriger après connexion
-    redirectUrl.searchParams.set('redirectTo', pathname)
+    redirectUrl.searchParams.set('redirectTo', pathname + request.nextUrl.search)
     return NextResponse.redirect(redirectUrl)
   }
 
