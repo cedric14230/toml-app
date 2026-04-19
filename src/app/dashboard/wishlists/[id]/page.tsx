@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import ItemGrid from '@/components/items/ItemGrid'
+import ShareButton from './ShareButton'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import type { Item } from '@/components/items/ItemCard'
 
@@ -68,10 +69,13 @@ export default async function WishlistDetailPage({
               )}
             </div>
 
-            {/* Badge visibilité */}
-            <span className="flex-shrink-0 text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full mt-1">
-              {visibilityLabel}
-            </span>
+            {/* Badge visibilité + bouton partager */}
+            <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                {visibilityLabel}
+              </span>
+              <ShareButton wishlistId={wishlist.id} />
+            </div>
           </div>
         </div>
 
