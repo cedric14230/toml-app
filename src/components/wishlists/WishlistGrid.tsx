@@ -50,7 +50,7 @@ export default function WishlistGrid({ wishlists }: Props) {
             </svg>
           </div>
           <h2 className="text-lg font-semibold text-gray-900 mb-1">
-            Aucune wishlist pour l'instant
+            Aucune wishlist pour l&apos;instant
           </h2>
           <p className="text-sm text-gray-500 mb-6 max-w-xs">
             Créez votre première liste de souhaits et partagez-la avec vos amis.

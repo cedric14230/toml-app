@@ -58,7 +58,7 @@ export default function ItemGrid({ wishlistId, items }: Props) {
             </svg>
           </div>
           <h3 className="text-base font-semibold text-gray-900 mb-1">
-            Aucun article pour l'instant
+            Aucun article pour l&apos;instant
           </h3>
           <p className="text-sm text-gray-500 mb-5 max-w-xs">
             Ajoutez le premier article à votre wishlist depuis une URL ou manuellement.

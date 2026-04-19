@@ -155,14 +155,12 @@ export default async function PublicWishlistPage({
         {/* Liste des articles */}
         {publicItems.length === 0 ? (
           <p className="text-gray-400 text-sm text-center py-12">
-            Cette wishlist ne contient pas encore d'articles.
+            Cette wishlist ne contient pas encore d&apos;articles.
           </p>
         ) : (
           <ul className="space-y-3">
             {publicItems.map((item) => {
               const stars = PRIORITY_STARS[item.priority] ?? 1
-              const isUnavailable =
-                item.status === 'reserved' || item.status === 'purchased'
 
               return (
                 <li key={item.id}>

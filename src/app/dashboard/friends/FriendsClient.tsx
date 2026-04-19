@@ -136,13 +136,13 @@ export default function FriendsClient({ friends, received, sent }: Props) {
 
         {friends.length === 0 ? (
           <div className="text-center py-10 text-gray-400 text-sm">
-            Vous n'avez pas encore d'amis.
+            Vous n&apos;avez pas encore d&apos;amis.
             <br />
             <button
               onClick={() => setModalOpen(true)}
               className="mt-2 text-gray-900 underline underline-offset-2 font-medium hover:opacity-70 transition-opacity"
             >
-              Ajouter quelqu'un
+              Ajouter quelqu&apos;un
             </button>
           </div>
         ) : (

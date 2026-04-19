@@ -91,7 +91,7 @@ export default function SignupPage() {
             </p>
 
             <p className="mt-6 text-sm text-gray-400">
-              Vous n'avez rien reçu ?{' '}
+              Vous n&apos;avez rien reçu ?{' '}
               <button
                 onClick={() => setSubmitted(false)}
                 className="text-gray-700 font-medium hover:underline"
