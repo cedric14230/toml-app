@@ -44,10 +44,12 @@ export async function middleware(request: NextRequest) {
   const isCallbackRoute = pathname.startsWith('/auth/callback')
   // Routes publiques accessibles sans compte (listes partagées)
   const isPublicShareRoute = pathname.startsWith('/w/')
+  // Widget iframe : gère son propre état d'authentification côté serveur
+  const isWidgetRoute = pathname === '/add-item-widget'
 
   // Non connecté → redirige vers /auth/login
   // (sauf si déjà sur /auth/* ou sur une page de partage publique /w/*)
-  if (!user && !isAuthRoute && !isPublicShareRoute) {
+  if (!user && !isAuthRoute && !isPublicShareRoute && !isWidgetRoute) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/auth/login'
     // On mémorise la destination pour rediriger après connexion
