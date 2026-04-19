@@ -247,22 +247,34 @@ export default function EditItemModal({ item, onClose, onSuccess, onDelete }: Pr
         </div>
 
         {/* Boutons d'action */}
-        <div className="flex gap-3 px-6 py-4 border-t border-gray-100 flex-shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 py-2.5 px-4 border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            form="edit-item-form"
-            disabled={loading || !title.trim()}
-            className="flex-1 py-2.5 px-4 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? 'Enregistrement…' : 'Enregistrer'}
-          </button>
+        <div className="px-6 py-4 border-t border-gray-100 flex-shrink-0 space-y-2">
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2.5 px-4 border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              form="edit-item-form"
+              disabled={loading || !title.trim()}
+              className="flex-1 py-2.5 px-4 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {loading ? 'Enregistrement…' : 'Enregistrer'}
+            </button>
+          </div>
+
+          {onDelete && (
+            <button
+              type="button"
+              onClick={() => onDelete()}
+              className="w-full py-2 text-sm font-medium text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+            >
+              Supprimer cet article
+            </button>
+          )}
         </div>
       </div>
     </div>
