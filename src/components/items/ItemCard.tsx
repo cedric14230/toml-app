@@ -1,4 +1,6 @@
-// Type exporté et réutilisé par ItemGrid et wishlists/[id]/page.tsx
+'use client'
+
+// Type exporté et réutilisé par ItemGrid, wishlists/[id]/page.tsx, etc.
 export type Item = {
   id: string
   title: string
@@ -11,6 +13,13 @@ export type Item = {
   created_at: string
 }
 
+type Props = {
+  item: Item
+  /** Rend la carte cliquable et ouvre EditItemModal au clic */
+  isOwner?: boolean
+  onEdit?: () => void
+}
+
 const PRIORITY_STARS: Record<Item['priority'], number> = {
   low: 1,
   medium: 2,
@@ -21,8 +30,8 @@ const STATUS_CONFIG: Record<
   Item['status'],
   { label: string; className: string } | null
 > = {
-  available: null, // pas de badge pour le statut par défaut
-  reserved: { label: 'Réservé',  className: 'bg-amber-100 text-amber-700' },
+  available: null,
+  reserved: { label: 'Réservé', className: 'bg-amber-100 text-amber-700' },
   purchased: { label: 'Offert',  className: 'bg-green-100 text-green-700' },
 }
 
@@ -31,13 +40,20 @@ const priceFormatter = new Intl.NumberFormat('fr-FR', {
   currency: 'EUR',
 })
 
-export default function ItemCard({ item }: { item: Item }) {
+export default function ItemCard({ item, isOwner = false, onEdit }: Props) {
   const stars = PRIORITY_STARS[item.priority]
   const status = STATUS_CONFIG[item.status]
 
   return (
-    <article className="bg-white rounded-xl border border-gray-200 overflow-hidden flex hover:border-gray-300 hover:shadow-sm transition-all duration-150">
-
+    <article
+      onClick={isOwner ? () => onEdit?.() : undefined}
+      className={[
+        'bg-white rounded-xl border border-gray-200 overflow-hidden flex transition-all duration-150',
+        isOwner
+          ? 'cursor-pointer hover:border-gray-300 hover:shadow-sm hover:bg-gray-50'
+          : 'hover:border-gray-300 hover:shadow-sm',
+      ].join(' ')}
+    >
       {/* Vignette image */}
       <div className="w-24 h-24 flex-shrink-0 bg-gray-100 flex items-center justify-center">
         {item.image_url ? (
@@ -93,7 +109,6 @@ export default function ItemCard({ item }: { item: Item }) {
             }
           </span>
 
-          {/* Étoiles de priorité */}
           <div
             className="flex items-center gap-0.5"
             aria-label={`Priorité : ${item.priority}`}

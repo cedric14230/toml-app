@@ -80,7 +80,7 @@ export default async function WishlistDetailPage({
         </div>
 
         {/* Grille d'articles */}
-        <ItemGrid wishlistId={wishlist.id} items={items} />
+        <ItemGrid wishlistId={wishlist.id} items={items} isOwner={true} />
       </main>
     </>
   )
