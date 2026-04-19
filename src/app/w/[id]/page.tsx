@@ -17,7 +17,12 @@ import ReserveButton from './ReserveButton'
  * - L'identité des réservants n'est jamais exposée côté client.
  * - Le propriétaire ne voit pas les boutons de réservation.
  * - /api/reserve vérifie côté serveur que l'appelant ≠ propriétaire.
+ *
+ * dynamic = 'force-dynamic' : désactive le cache Next.js pour cette route.
+ * Sans ça, supabaseAdmin passe par fetch() mis en cache par Next.js, et
+ * les statuts "reserved" ne s'affichent pas avant la prochaine revalidation.
  */
+export const dynamic = 'force-dynamic'
 
 const PRIORITY_STARS: Record<string, number> = { low: 1, medium: 2, high: 3 }
 
@@ -249,8 +254,11 @@ export default async function PublicWishlistPage({
 
                         {/* Action : réserver ou badge "déjà réservé" */}
                         <div className="flex-shrink-0">
-                          {isUnavailable ? (
-                            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg">
+                          {item.status !== 'available' ? (
+                            <span
+                              className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-lg cursor-not-allowed select-none"
+                              aria-label="Cet article a déjà été réservé"
+                            >
                               Déjà réservé 🎁
                             </span>
                           ) : isOwner ? null : (
