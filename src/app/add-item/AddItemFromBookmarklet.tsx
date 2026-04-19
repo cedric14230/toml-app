@@ -39,14 +39,18 @@ export default function AddItemFromBookmarklet({
   const router = useRouter()
   const supabase = createSupabaseBrowserClient()
 
+  const initialParsedPrice = parsePrice(rawPrice)
+
   const [title, setTitle] = useState(initialTitle)
+  const [editablePrice, setEditablePrice] = useState(
+    initialParsedPrice != null ? String(initialParsedPrice) : ''
+  )
+  const [editableSourceUrl, setEditableSourceUrl] = useState(sourceUrl)
   const [selectedWishlistId, setSelectedWishlistId] = useState(wishlists[0]?.id ?? '')
-  const [priority, setPriority] = useState<Priority>('medium')
   const [note, setNote] = useState('')
+  const [priority, setPriority] = useState<Priority>('medium')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const parsedPrice = parsePrice(rawPrice)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -57,9 +61,9 @@ export default function AddItemFromBookmarklet({
     const { error: insertError } = await supabase.from('items').insert({
       wishlist_id: selectedWishlistId,
       title: title.trim(),
-      source_url: sourceUrl || null,
+      source_url: editableSourceUrl.trim() || null,
       image_url: image || null,
-      price: parsedPrice,
+      price: editablePrice ? parseFloat(editablePrice) : null,
       note: note.trim() || null,
       priority,
     })
@@ -108,8 +112,8 @@ export default function AddItemFromBookmarklet({
             {title && (
               <p className="font-medium text-gray-900 line-clamp-2">{title}</p>
             )}
-            {parsedPrice != null && (
-              <p className="text-sm text-gray-500 mt-1">{parsedPrice.toFixed(2)} €</p>
+            {initialParsedPrice != null && (
+              <p className="text-sm text-gray-500 mt-1">{initialParsedPrice.toFixed(2)} €</p>
             )}
             {sourceUrl && (
               <a
@@ -168,10 +172,47 @@ export default function AddItemFromBookmarklet({
           </select>
         </div>
 
+        {/* Prix */}
+        <div>
+          <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1.5">
+            Prix <span className="text-gray-400 font-normal">(optionnel)</span>
+          </label>
+          <div className="relative">
+            <input
+              id="price"
+              type="number"
+              min="0"
+              step="0.01"
+              value={editablePrice}
+              onChange={(e) => setEditablePrice(e.target.value)}
+              placeholder="0.00"
+              className="w-full pl-3 pr-8 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 pointer-events-none">
+              €
+            </span>
+          </div>
+        </div>
+
+        {/* URL source */}
+        <div>
+          <label htmlFor="source-url" className="block text-sm font-medium text-gray-700 mb-1.5">
+            URL du produit <span className="text-gray-400 font-normal">(optionnel)</span>
+          </label>
+          <input
+            id="source-url"
+            type="url"
+            value={editableSourceUrl}
+            onChange={(e) => setEditableSourceUrl(e.target.value)}
+            placeholder="https://…"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+          />
+        </div>
+
         {/* Note */}
         <div>
           <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-1.5">
-            Note <span className="text-gray-400 font-normal">(optionnel)</span>
+            Note personnelle <span className="text-gray-400 font-normal">(optionnel)</span>
           </label>
           <textarea
             id="note"
