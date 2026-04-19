@@ -30,7 +30,7 @@ import * as cheerio from 'cheerio'
  * maxDuration = 60 s : nécessaire pour Puppeteer (Vercel Pro uniquement).
  * Sur Hobby plan, le niveau 2 sera tronqué ; les niveaux 1 et 3 restent ok.
  */
-export const maxDuration = 60
+export const maxDuration = 30
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
