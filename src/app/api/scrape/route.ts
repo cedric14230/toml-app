@@ -284,6 +284,7 @@ async function scrapeLevel3(url: string): Promise<ScrapeResult | null> {
     `?api_key=${apiKey}` +
     `&url=${encodeURIComponent(url)}` +
     `&render_js=true` +
+    `&stealth_proxy=true` +
     `&block_ads=true` +
     `&wait=2000`
 
