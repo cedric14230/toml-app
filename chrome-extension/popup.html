@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TOML</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      color: #111;
+      background: #fff;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Layout ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .logo {
+      flex-none;
+      width: 22px;
+      height: 22px;
+      background: #111;
+      color: #fff;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: -0.5px;
+    }
+    .header-title { font-weight: 600; font-size: 13px; }
+    .header-domain {
+      margin-left: auto;
+      font-size: 11px;
+      color: #aaa;
+      max-width: 130px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .body { padding: 14px; }
+
+    /* ── Product preview ── */
+    .preview {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding: 10px;
+      background: #f8f8f8;
+      border-radius: 8px;
+    }
+    .preview-img-wrap {
+      flex: none;
+      width: 56px;
+      height: 56px;
+      border-radius: 6px;
+      background: #e8e8e8;
+      overflow: hidden;
+    }
+    .preview-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .preview-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .preview-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+    }
+    .preview-title {
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      color: #111;
+    }
+    .preview-price {
+      font-size: 12px;
+      color: #555;
+      font-weight: 500;
+    }
+    .preview-no-data {
+      font-size: 11px;
+      color: #999;
+      font-style: italic;
+    }
+
+    /* ── Form ── */
+    select {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid #ddd;
+      border-radius: 7px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #111;
+      background: #fff;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    select:focus { outline: none; border-color: #111; }
+    select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Buttons ── */
+    .btn {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 7px;
+      font-size: 13px;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: #111; color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #333; }
+    .btn-outline { background: #fff; color: #111; border: 1px solid #ddd; }
+    .btn-outline:hover:not(:disabled) { border-color: #111; }
+
+    /* ── States ── */
+    .state { display: none; }
+    .state.active { display: block; }
+
+    /* Loading */
+    #s-loading .body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 28px 14px;
+      color: #999;
+      font-size: 12px;
+    }
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f0f0f0;
+      border-top-color: #111;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Auth */
+    #s-auth .body {
+      padding: 24px 14px 18px;
+      text-align: center;
+    }
+    #s-auth .auth-icon {
+      width: 40px;
+      height: 40px;
+      background: #111;
+      color: #fff;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      margin: 0 auto 12px;
+    }
+    #s-auth h2 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    #s-auth p { font-size: 12px; color: #666; line-height: 1.5; margin-bottom: 16px; }
+
+    /* Success */
+    #s-success .body {
+      padding: 24px 14px 18px;
+      text-align: center;
+    }
+    .success-icon {
+      width: 40px;
+      height: 40px;
+      background: #111;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin: 0 auto 10px;
+    }
+    #s-success h2 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    #s-success p { font-size: 12px; color: #666; margin-bottom: 16px; }
+
+    /* Error */
+    #s-error .body { padding: 14px; }
+    .error-box {
+      padding: 10px 12px;
+      background: #fff5f5;
+      border: 1px solid #fcc;
+      border-radius: 7px;
+      color: #c00;
+      font-size: 12px;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── LOADING ─────────────────────────────────────────────────── -->
+  <div id="s-loading" class="state active">
+    <div class="body">
+      <div class="spinner"></div>
+      <span>Chargement…</span>
+    </div>
+  </div>
+
+  <!-- ── AUTH (non connecté) ────────────────────────────────────── -->
+  <div id="s-auth" class="state">
+    <div class="header">
+      <div class="logo">T</div>
+      <span class="header-title">TOML</span>
+    </div>
+    <div class="body">
+      <div class="auth-icon">T</div>
+      <h2>Connexion requise</h2>
+      <p>Connectez-vous à votre compte TOML pour ajouter des articles à votre wishlist.</p>
+      <button id="btn-login" class="btn btn-primary">Se connecter à TOML →</button>
+    </div>
+  </div>
+
+  <!-- ── MAIN (connecté) ────────────────────────────────────────── -->
+  <div id="s-main" class="state">
+    <div class="header">
+      <div class="logo">T</div>
+      <span class="header-title">TOML</span>
+      <span id="header-domain" class="header-domain"></span>
+    </div>
+    <div class="body">
+      <!-- Aperçu produit -->
+      <div class="preview">
+        <div class="preview-img-wrap">
+          <div id="preview-placeholder" class="preview-placeholder">🛍️</div>
+          <img id="preview-img" style="display:none" alt="Aperçu" />
+        </div>
+        <div class="preview-info">
+          <div id="preview-title" class="preview-title"></div>
+          <div id="preview-price" class="preview-price"></div>
+          <div id="preview-no-data" class="preview-no-data" style="display:none">
+            Aucune donnée détectée
+          </div>
+        </div>
+      </div>
+
+      <!-- Choix de la wishlist -->
+      <select id="wishlist-select">
+        <option value="">Choisir une wishlist…</option>
+      </select>
+
+      <!-- Bouton principal -->
+      <button id="btn-add" class="btn btn-primary" disabled>Ajouter à TOML</button>
+    </div>
+  </div>
+
+  <!-- ── SUCCESS ─────────────────────────────────────────────────── -->
+  <div id="s-success" class="state">
+    <div class="header">
+      <div class="logo">T</div>
+      <span class="header-title">TOML</span>
+    </div>
+    <div class="body">
+      <div class="success-icon">✓</div>
+      <h2>Article ajouté !</h2>
+      <p id="success-wishlist-name">L'article a été ajouté à votre wishlist.</p>
+      <button id="btn-open-wishlist" class="btn btn-primary" style="margin-bottom:8px">
+        Voir la wishlist →
+      </button>
+      <button id="btn-add-another" class="btn btn-outline">Ajouter un autre article</button>
+    </div>
+  </div>
+
+  <!-- ── ERROR ───────────────────────────────────────────────────── -->
+  <div id="s-error" class="state">
+    <div class="header">
+      <div class="logo">T</div>
+      <span class="header-title">TOML</span>
+    </div>
+    <div class="body">
+      <div class="error-box" id="error-msg"></div>
+      <button id="btn-retry" class="btn btn-outline">Réessayer</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
