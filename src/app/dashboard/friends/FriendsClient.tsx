@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import AddFriendModal from './AddFriendModal'
 
 export type UserProfile = {
@@ -14,6 +15,7 @@ export type UserProfile = {
 export type FriendEntry = {
   friendshipId: string
   user: UserProfile
+  wishlistCount: number
 }
 
 type Props = {
@@ -147,20 +149,30 @@ export default function FriendsClient({ friends, received, sent }: Props) {
           </div>
         ) : (
           <ul className="space-y-2">
-            {friends.map(({ friendshipId, user }) => (
-              <li
-                key={friendshipId}
-                className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 hover:border-gray-300 transition-colors"
-              >
-                <UserAvatar user={user} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {user.name ?? user.email ?? 'Utilisateur'}
-                  </p>
-                  {user.email && user.name && (
-                    <p className="text-xs text-gray-400 truncate">{user.email}</p>
-                  )}
-                </div>
+            {friends.map(({ friendshipId, user, wishlistCount }) => (
+              <li key={friendshipId}>
+                <Link
+                  href={`/dashboard/friends/${user.id}`}
+                  className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 hover:border-gray-300 hover:shadow-sm cursor-pointer transition-all duration-150"
+                >
+                  <UserAvatar user={user} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {user.name ?? user.email ?? 'Utilisateur'}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {wishlistCount} wishlist{wishlistCount !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <svg
+                    className="w-4 h-4 text-gray-300 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               </li>
             ))}
           </ul>

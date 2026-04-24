@@ -64,19 +64,41 @@ export default async function FriendsPage() {
     for (const p of profiles ?? []) profileMap.set(p.id, p)
   }
 
+  // ── 4b. Nombre de wishlists publiques par ami accepté ───────────────
+  const friendIds = accepted.map((f) =>
+    f.user_id_1 === user.id ? f.user_id_2 : f.user_id_1
+  )
+
+  const wishlistCountMap = new Map<string, number>()
+  if (friendIds.length > 0) {
+    const { data: wlRows } = await supabaseAdmin
+      .from('wishlists')
+      .select('user_id')
+      .in('user_id', friendIds)
+      .eq('visibility', 'public')
+      .eq('archived', false)
+    for (const row of wlRows ?? []) {
+      wishlistCountMap.set(row.user_id, (wishlistCountMap.get(row.user_id) ?? 0) + 1)
+    }
+  }
+
   // ── 5. Assemblage des données ───────────────────────────────────────
-  function toEntry(friendshipId: string, otherId: string): FriendEntry {
+  function toEntry(friendshipId: string, otherId: string, withCount = false): FriendEntry {
     const profile = profileMap.get(otherId) ?? {
       id: otherId,
       name: null,
       email: null,
       avatar_url: null,
     }
-    return { friendshipId, user: profile }
+    return {
+      friendshipId,
+      user: profile,
+      wishlistCount: withCount ? (wishlistCountMap.get(otherId) ?? 0) : 0,
+    }
   }
 
   const friends: FriendEntry[] = accepted.map((f) =>
-    toEntry(f.id, f.user_id_1 === user.id ? f.user_id_2 : f.user_id_1)
+    toEntry(f.id, f.user_id_1 === user.id ? f.user_id_2 : f.user_id_1, true)
   )
 
   const received: FriendEntry[] = pendingReceived.map((f) =>
@@ -86,6 +108,7 @@ export default async function FriendsPage() {
   const sent: FriendEntry[] = pendingSent.map((f) =>
     toEntry(f.id, f.user_id_2)
   )
+
 
   return (
     <>
