@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import ItemGrid from '@/components/items/ItemGrid'
 import ShareButton from './ShareButton'
+import WishlistActions from './WishlistActions'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import type { Item } from '@/components/items/ItemCard'
 
@@ -19,11 +20,16 @@ export default async function WishlistDetailPage({
 }) {
   const supabase = await createSupabaseServerClient()
 
+  // Récupérer l'utilisateur connecté pour déterminer l'ownership
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   // Fetch de la wishlist — la RLS garantit que seuls les accès
   // autorisés (propriétaire, ami, public) retournent une ligne.
   const { data: wishlist } = await supabase
     .from('wishlists')
-    .select('id, title, description, visibility, user_id')
+    .select('id, title, description, visibility, cover_url, user_id')
     .eq('id', params.id)
     .single()
 
@@ -38,6 +44,7 @@ export default async function WishlistDetailPage({
 
   const items = (data ?? []) as Item[]
   const visibilityLabel = VISIBILITY_LABELS[wishlist.visibility as keyof typeof VISIBILITY_LABELS]
+  const isOwner = !!user && user.id === wishlist.user_id
 
   return (
     <>
@@ -55,6 +62,18 @@ export default async function WishlistDetailPage({
           Mes wishlists
         </Link>
 
+        {/* Image de couverture */}
+        {wishlist.cover_url && (
+          <div className="mb-6 rounded-2xl overflow-hidden h-40 bg-gray-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={wishlist.cover_url}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+
         {/* En-tête wishlist */}
         <div className="mb-8">
           <div className="flex items-start gap-3">
@@ -69,18 +88,29 @@ export default async function WishlistDetailPage({
               )}
             </div>
 
-            {/* Badge visibilité + bouton partager */}
+            {/* Badge visibilité + actions */}
             <div className="flex items-center gap-2 flex-shrink-0 mt-1">
               <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
                 {visibilityLabel}
               </span>
+              {isOwner && (
+                <WishlistActions
+                  wishlist={{
+                    id: wishlist.id,
+                    title: wishlist.title,
+                    description: wishlist.description,
+                    visibility: wishlist.visibility as 'private' | 'friends' | 'public',
+                    cover_url: wishlist.cover_url,
+                  }}
+                />
+              )}
               <ShareButton wishlistId={wishlist.id} />
             </div>
           </div>
         </div>
 
         {/* Grille d'articles */}
-        <ItemGrid wishlistId={wishlist.id} items={items} isOwner={true} />
+        <ItemGrid wishlistId={wishlist.id} items={items} isOwner={isOwner} />
       </main>
     </>
   )
