@@ -58,7 +58,7 @@ export default function ItemGrid({ wishlistId, items, isOwner = false }: Props) 
   return (
     <section>
       {/* Barre titre + bouton */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <h2 className="text-lg font-semibold text-gray-900">
           Articles
           {items.length > 0 && (

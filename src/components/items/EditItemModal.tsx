@@ -66,18 +66,27 @@ export default function EditItemModal({ item, onClose, onSuccess, onDelete }: Pr
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-    >
+    <>
+      {/* Overlay */}
+      <div
+        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Sur mobile : ancré fixed bottom-0. Sur desktop : flex centré. */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4"
+        onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+      >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="edit-item-title"
-        className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[92vh]"
+        className="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-x-hidden"
       >
         {/* En-tête */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
           <h2 id="edit-item-title" className="text-lg font-semibold text-gray-900">
             Modifier l&apos;article
           </h2>
@@ -94,8 +103,8 @@ export default function EditItemModal({ item, onClose, onSuccess, onDelete }: Pr
         </div>
 
         {/* Formulaire scrollable */}
-        <div className="overflow-y-auto flex-1">
-          <form id="edit-item-form" onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+        <div className="overflow-y-auto overflow-x-hidden flex-1">
+          <form id="edit-item-form" onSubmit={handleSubmit} className="px-4 sm:px-6 py-5 space-y-4">
             {error && (
               <div role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
                 {error}
@@ -115,7 +124,7 @@ export default function EditItemModal({ item, onClose, onSuccess, onDelete }: Pr
                 maxLength={200}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                className="w-full max-w-full min-w-0 px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
               />
             </div>
 
@@ -131,7 +140,7 @@ export default function EditItemModal({ item, onClose, onSuccess, onDelete }: Pr
                 value={sourceUrl}
                 onChange={(e) => setSourceUrl(e.target.value)}
                 placeholder="https://…"
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                className="w-full max-w-full min-w-0 px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
               />
             </div>
 
@@ -171,7 +180,7 @@ export default function EditItemModal({ item, onClose, onSuccess, onDelete }: Pr
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://…"
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                className="w-full max-w-full min-w-0 px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
               />
             </div>
 
@@ -190,7 +199,7 @@ export default function EditItemModal({ item, onClose, onSuccess, onDelete }: Pr
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="0.00"
-                  className="w-full pl-3 pr-8 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                  className="w-full max-w-full min-w-0 pl-3 pr-8 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 pointer-events-none">
                   €
@@ -211,7 +220,7 @@ export default function EditItemModal({ item, onClose, onSuccess, onDelete }: Pr
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Taille, couleur, modèle exact…"
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition resize-none"
+                className="w-full max-w-full min-w-0 px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition resize-none"
               />
             </div>
 
@@ -247,7 +256,7 @@ export default function EditItemModal({ item, onClose, onSuccess, onDelete }: Pr
         </div>
 
         {/* Boutons d'action */}
-        <div className="px-6 py-4 border-t border-gray-100 flex-shrink-0 space-y-2">
+        <div className="px-4 sm:px-6 pt-4 pb-6 sm:pb-4 border-t border-gray-100 flex-shrink-0 space-y-2">
           <div className="flex gap-3">
             <button
               type="button"
@@ -277,6 +286,7 @@ export default function EditItemModal({ item, onClose, onSuccess, onDelete }: Pr
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
