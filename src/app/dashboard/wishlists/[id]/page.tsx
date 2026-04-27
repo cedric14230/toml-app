@@ -76,36 +76,32 @@ export default async function WishlistDetailPage({
 
         {/* En-tête wishlist */}
         <div className="mb-8">
-          <div className="flex items-start gap-3">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-gray-900 break-words">
-                {wishlist.title}
-              </h1>
-              {wishlist.description && (
-                <p className="mt-1.5 text-gray-500 leading-relaxed">
-                  {wishlist.description}
-                </p>
-              )}
-            </div>
+          <h1 className="text-2xl font-bold text-gray-900 break-words">
+            {wishlist.title}
+          </h1>
+          {wishlist.description && (
+            <p className="mt-1.5 text-gray-500 leading-relaxed">
+              {wishlist.description}
+            </p>
+          )}
 
-            {/* Badge visibilité + actions */}
-            <div className="flex items-center gap-2 flex-shrink-0 mt-1">
-              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
-                {visibilityLabel}
-              </span>
-              {isOwner && (
-                <WishlistActions
-                  wishlist={{
-                    id: wishlist.id,
-                    title: wishlist.title,
-                    description: wishlist.description,
-                    visibility: wishlist.visibility as 'private' | 'friends' | 'public',
-                    cover_url: wishlist.cover_url,
-                  }}
-                />
-              )}
-              <ShareButton wishlistId={wishlist.id} />
-            </div>
+          {/* Badge visibilité + actions */}
+          <div className="flex items-center gap-2 mt-3">
+            <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+              {visibilityLabel}
+            </span>
+            {isOwner && (
+              <WishlistActions
+                wishlist={{
+                  id: wishlist.id,
+                  title: wishlist.title,
+                  description: wishlist.description,
+                  visibility: wishlist.visibility as 'private' | 'friends' | 'public',
+                  cover_url: wishlist.cover_url,
+                }}
+              />
+            )}
+            <ShareButton wishlistId={wishlist.id} />
           </div>
         </div>
 
