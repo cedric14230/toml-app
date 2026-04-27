@@ -8,6 +8,7 @@ type Wishlist = {
   title: string
   description: string | null
   cover_url: string | null
+  visibility: 'public' | 'friends'
   created_at: string
   items: { count: number }[]
 }
@@ -51,16 +52,16 @@ export default async function FriendProfilePage({
 
   if (!friend) notFound()
 
-  // ── Wishlists publiques de l'ami ────────────────────────────────────
+  // ── Wishlists visibles par les amis (public + friends) ─────────────
   const { data: wishlists } = await supabaseAdmin
     .from('wishlists')
-    .select('id, title, description, cover_url, created_at, items(count)')
+    .select('id, title, description, cover_url, visibility, created_at, items(count)')
     .eq('user_id', userId)
-    .eq('visibility', 'public')
+    .in('visibility', ['public', 'friends'])
     .eq('archived', false)
     .order('created_at', { ascending: false })
 
-  const publicWishlists: Wishlist[] = (wishlists ?? []) as Wishlist[]
+  const friendWishlists: Wishlist[] = (wishlists ?? []) as Wishlist[]
 
   const displayName = friend.name ?? friend.email ?? 'Utilisateur'
   const initial = displayName.charAt(0).toUpperCase()
@@ -103,17 +104,17 @@ export default async function FriendProfilePage({
           </div>
         </div>
 
-        {/* ── Wishlists publiques ──────────────────────────────────── */}
+        {/* ── Wishlists ────────────────────────────────────────────── */}
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
-          Wishlists publiques
-          {publicWishlists.length > 0 && (
+          Wishlists
+          {friendWishlists.length > 0 && (
             <span className="ml-2 text-gray-400 font-normal normal-case tracking-normal">
-              ({publicWishlists.length})
+              ({friendWishlists.length})
             </span>
           )}
         </h2>
 
-        {publicWishlists.length === 0 ? (
+        {friendWishlists.length === 0 ? (
           <div className="text-center py-12 text-gray-400 text-sm">
             <svg
               className="w-10 h-10 mx-auto text-gray-200 mb-3"
@@ -124,11 +125,11 @@ export default async function FriendProfilePage({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            Aucune wishlist publique pour le moment.
+            Aucune wishlist partagée pour le moment.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {publicWishlists.map((wl) => {
+            {friendWishlists.map((wl) => {
               const itemCount = wl.items[0]?.count ?? 0
               return (
                 <Link
@@ -172,13 +173,23 @@ export default async function FriendProfilePage({
                         <span className="text-xs text-gray-500">
                           {itemCount} article{itemCount !== 1 ? 's' : ''}
                         </span>
-                        <span className="inline-flex items-center gap-1 text-xs text-gray-400">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                              d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          Public
-                        </span>
+                        {wl.visibility === 'friends' ? (
+                          <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Amis
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Public
+                          </span>
+                        )}
                       </div>
                     </div>
                   </article>
