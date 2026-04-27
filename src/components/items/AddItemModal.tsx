@@ -225,15 +225,25 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
       : manualTitle.trim().length > 0
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-    >
+    <>
+      {/* Overlay */}
+      <div
+        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Sur mobile : ancré fixed bottom-0 left-0 right-0.
+          Sur desktop : flex centré plein écran. */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4"
+        onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+      >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-item-title"
-        className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-x-hidden"
+        className="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-x-hidden"
       >
         {/* En-tête fixe */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
@@ -521,7 +531,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
         </div>
 
         {/* Actions fixées en bas */}
-        <div className="flex gap-3 px-4 sm:px-6 py-4 border-t border-gray-100 flex-shrink-0">
+        <div className="flex gap-3 px-4 sm:px-6 pt-4 pb-6 sm:pb-4 border-t border-gray-100 flex-shrink-0">
           <button
             type="button"
             onClick={onClose}
@@ -539,6 +549,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
