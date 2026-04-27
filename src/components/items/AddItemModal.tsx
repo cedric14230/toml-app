@@ -265,7 +265,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
                   aria-selected={activeTab === tab}
                   onClick={() => setActiveTab(tab)}
                   className={`
-                    flex-1 py-1.5 text-sm font-medium rounded-md transition-all
+                    flex-1 py-1.5 text-sm font-medium rounded-md transition-all whitespace-nowrap
                     ${activeTab === tab
                       ? 'bg-white text-gray-900 shadow-sm'
                       : 'text-gray-500 hover:text-gray-700'
@@ -294,7 +294,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
                   <label htmlFor="source-url" className="block text-sm font-medium text-gray-700 mb-1.5">
                     URL du produit <span className="text-red-500" aria-hidden="true">*</span>
                   </label>
-                  <div className="relative">
+                  <div className="relative min-w-0 overflow-hidden">
                     <input
                       id="source-url"
                       type="url"
@@ -304,7 +304,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
                       onChange={(e) => setSourceUrl(e.target.value)}
                       onBlur={handleUrlBlur}
                       placeholder="https://www.amazon.fr/…"
-                      className="w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                      className="w-full min-w-0 px-3 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     />
                     {/* Spinner visible pendant le scraping */}
                     {scraping && (
