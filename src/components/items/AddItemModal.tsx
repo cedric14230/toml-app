@@ -233,7 +233,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-item-title"
-        className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[92vh]"
+        className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-x-hidden"
       >
         {/* En-tête fixe */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
@@ -253,9 +253,9 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
         </div>
 
         {/* Scroll area */}
-        <div className="overflow-y-auto flex-1">
+        <div className="overflow-y-auto overflow-x-hidden flex-1">
           {/* Sélecteur d'onglets */}
-          <div className="mx-6 mt-5">
+          <div className="mx-4 sm:mx-6 mt-5">
             <div className="flex gap-1 p-1 bg-gray-100 rounded-lg" role="tablist">
               {(['url', 'manual'] as Tab[]).map((tab) => (
                 <button
@@ -279,7 +279,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
           </div>
 
           {/* Formulaire */}
-          <form id="add-item-form" onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+          <form id="add-item-form" onSubmit={handleSubmit} className="px-4 sm:px-6 py-5 space-y-4">
             {error && (
               <div role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
                 {error}
@@ -304,7 +304,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
                       onChange={(e) => setSourceUrl(e.target.value)}
                       onBlur={handleUrlBlur}
                       placeholder="https://www.amazon.fr/…"
-                      className="w-full min-w-0 px-3 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                      className="w-full max-w-full min-w-0 px-3 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     />
                     {/* Spinner visible pendant le scraping */}
                     {scraping && (
@@ -370,7 +370,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
                         ? 'Modifiez le titre du produit…'
                         : 'Nom de l\'article'
                     }
-                    className={`w-full px-3 py-2.5 border rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:border-transparent transition ${
+                    className={`w-full max-w-full min-w-0 px-3 py-2.5 border rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:border-transparent transition ${
                       urlTitleGeneric
                         ? 'border-amber-300 placeholder-amber-500 focus:ring-amber-400'
                         : 'border-gray-300 placeholder-gray-400 focus:ring-gray-900'
@@ -431,7 +431,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
                     value={manualTitle}
                     onChange={(e) => setManualTitle(e.target.value)}
                     placeholder="Ex : Nike Air Max 90, Livre de cuisine…"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                    className="w-full max-w-full min-w-0 px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                   />
                 </div>
 
@@ -445,7 +445,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     placeholder="https://…"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                    className="w-full max-w-full min-w-0 px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                   />
                 </div>
 
@@ -462,7 +462,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
                       placeholder="0.00"
-                      className="w-full pl-3 pr-8 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                      className="w-full max-w-full min-w-0 pl-3 pr-8 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 pointer-events-none">
                       €
@@ -481,7 +481,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     placeholder="Taille, couleur, modèle exact…"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition resize-none"
+                    className="w-full max-w-full min-w-0 px-3 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition resize-none"
                   />
                 </div>
               </>
@@ -521,7 +521,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
         </div>
 
         {/* Actions fixées en bas */}
-        <div className="flex gap-3 px-6 py-4 border-t border-gray-100 flex-shrink-0">
+        <div className="flex gap-3 px-4 sm:px-6 py-4 border-t border-gray-100 flex-shrink-0">
           <button
             type="button"
             onClick={onClose}
