@@ -262,32 +262,32 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
           </button>
         </div>
 
+        {/* Sélecteur d'onglets — hors du scroll, toujours visible */}
+        <div className="flex-shrink-0 px-4 sm:px-6 pt-4 pb-3 border-b border-gray-100">
+          <div className="flex gap-1 p-1 bg-gray-100 rounded-lg" role="tablist">
+            {(['url', 'manual'] as Tab[]).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab}
+                onClick={() => setActiveTab(tab)}
+                className={`
+                  flex-1 py-1.5 text-sm font-medium rounded-md transition-all whitespace-nowrap
+                  ${activeTab === tab
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                  }
+                `}
+              >
+                {tab === 'url' ? 'Depuis une URL' : 'Saisie manuelle'}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Scroll area */}
         <div className="overflow-y-auto overflow-x-hidden flex-1">
-          {/* Sélecteur d'onglets */}
-          <div className="mx-4 sm:mx-6 mt-5">
-            <div className="flex gap-1 p-1 bg-gray-100 rounded-lg" role="tablist">
-              {(['url', 'manual'] as Tab[]).map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`
-                    flex-1 py-1.5 text-sm font-medium rounded-md transition-all whitespace-nowrap
-                    ${activeTab === tab
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
-                    }
-                  `}
-                >
-                  {tab === 'url' ? 'Depuis une URL' : 'Saisie manuelle'}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Formulaire */}
           <form id="add-item-form" onSubmit={handleSubmit} className="px-4 sm:px-6 py-5 space-y-4">
             {error && (
