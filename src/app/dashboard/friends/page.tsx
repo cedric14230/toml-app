@@ -64,7 +64,7 @@ export default async function FriendsPage() {
     for (const p of profiles ?? []) profileMap.set(p.id, p)
   }
 
-  // ── 4b. Nombre de wishlists publiques par ami accepté ───────────────
+  // ── 4b. Nombre de wishlists visibles par ami accepté ───────────────
   const friendIds = accepted.map((f) =>
     f.user_id_1 === user.id ? f.user_id_2 : f.user_id_1
   )
@@ -75,7 +75,7 @@ export default async function FriendsPage() {
       .from('wishlists')
       .select('user_id')
       .in('user_id', friendIds)
-      .eq('visibility', 'public')
+      .in('visibility', ['public', 'friends'])
       .eq('archived', false)
     for (const row of wlRows ?? []) {
       wishlistCountMap.set(row.user_id, (wishlistCountMap.get(row.user_id) ?? 0) + 1)
