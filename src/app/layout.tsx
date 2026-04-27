@@ -16,6 +16,12 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "TOML — Top On My List",
   description: "Créez et partagez vos wishlists avec TOML, l'application Top On My List.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "TOML",
+  },
 };
 
 export default function RootLayout({
@@ -25,6 +31,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
+      <head>
+        <meta name="theme-color" content="#000000" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

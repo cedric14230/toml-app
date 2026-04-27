@@ -1,0 +1,33 @@
+{
+  "name": "TOML — Top On My List",
+  "short_name": "TOML",
+  "description": "Créez et partagez vos wishlists depuis n'importe quel site.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "share_target": {
+    "action": "/add-item",
+    "method": "GET",
+    "params": {
+      "url": "sourceUrl",
+      "title": "title",
+      "text": "text"
+    }
+  }
+}
