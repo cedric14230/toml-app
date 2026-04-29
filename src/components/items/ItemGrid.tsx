@@ -112,16 +112,20 @@ export default function ItemGrid({ wishlistId, items, isOwner = false }: Props) 
           )}
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {items.map((item) => (
-            <ItemCard
+            <div
               key={item.id}
-              item={item}
-              isOwner={isOwner}
-              onEdit={isOwner ? () => setEditingItem(item) : undefined}
-              href={!isOwner ? `/dashboard/wishlists/${wishlistId}/items/${item.id}` : undefined}
-              wishlistId={!isOwner ? wishlistId : undefined}
-            />
+              className={item.priority === 'high' ? 'col-span-2' : 'col-span-1'}
+            >
+              <ItemCard
+                item={item}
+                isOwner={isOwner}
+                onEdit={isOwner ? () => setEditingItem(item) : undefined}
+                href={!isOwner ? `/dashboard/wishlists/${wishlistId}/items/${item.id}` : undefined}
+                wishlistId={!isOwner ? wishlistId : undefined}
+              />
+            </div>
           ))}
         </div>
       )}
