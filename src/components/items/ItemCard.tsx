@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import CopyItemButton from './CopyItemButton'
 
 // Type exporté et réutilisé par ItemGrid, wishlists/[id]/page.tsx, etc.
@@ -20,6 +21,8 @@ type Props = {
   /** Rend la carte cliquable et ouvre EditItemModal au clic */
   isOwner?: boolean
   onEdit?: () => void
+  /** Lien vers la fiche détail (utilisé quand !isOwner) */
+  href?: string
 }
 
 const PRIORITY_STARS: Record<Item['priority'], number> = {
@@ -42,17 +45,19 @@ const priceFormatter = new Intl.NumberFormat('fr-FR', {
   currency: 'EUR',
 })
 
-export default function ItemCard({ item, isOwner = false, onEdit }: Props) {
+export default function ItemCard({ item, isOwner = false, onEdit, href }: Props) {
   const stars = PRIORITY_STARS[item.priority]
   const status = STATUS_CONFIG[item.status]
 
-  return (
+  const article = (
     <article
       onClick={isOwner ? () => onEdit?.() : undefined}
       className={[
         'bg-white rounded-xl border border-gray-200 overflow-hidden flex transition-all duration-150',
         isOwner
           ? 'cursor-pointer hover:border-gray-300 hover:shadow-sm hover:bg-gray-50'
+          : href
+          ? 'hover:border-gray-300 hover:shadow-sm hover:bg-gray-50'
           : 'hover:border-gray-300 hover:shadow-sm',
       ].join(' ')}
     >
@@ -135,4 +140,17 @@ export default function ItemCard({ item, isOwner = false, onEdit }: Props) {
       </div>
     </article>
   )
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-1"
+      >
+        {article}
+      </Link>
+    )
+  }
+
+  return article
 }

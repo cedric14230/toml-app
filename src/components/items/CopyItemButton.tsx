@@ -8,7 +8,14 @@ type Wishlist = {
   title: string
 }
 
-export default function CopyItemButton({ item }: { item: Item }) {
+export default function CopyItemButton({
+  item,
+  variant = 'compact',
+}: {
+  item: Item
+  /** 'compact' : petit bouton inline (dans ItemCard). 'full' : bouton pleine taille (fiche détail). */
+  variant?: 'compact' | 'full'
+}) {
   const [open, setOpen] = useState(false)
   const [wishlists, setWishlists] = useState<Wishlist[] | null>(null)
   const [loadingList, setLoadingList] = useState(false)
@@ -25,6 +32,10 @@ export default function CopyItemButton({ item }: { item: Item }) {
       setFetchError(null)
       try {
         const res = await fetch('/api/wishlists')
+        if (!res.ok) {
+          setFetchError('Impossible de charger vos wishlists.')
+          return
+        }
         const data = await res.json()
         setWishlists(Array.isArray(data) ? data : [])
       } catch {
@@ -71,18 +82,32 @@ export default function CopyItemButton({ item }: { item: Item }) {
 
   return (
     <>
-      {/* Bouton discret */}
-      <button
-        type="button"
-        onClick={handleOpen}
-        aria-label="Ajouter à ma liste"
-        className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
-      >
-        <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-        Ajouter
-      </button>
+      {/* Bouton déclencheur */}
+      {variant === 'full' ? (
+        <button
+          type="button"
+          onClick={handleOpen}
+          aria-label="Ajouter à ma liste"
+          className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Ajouter à ma liste
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={handleOpen}
+          aria-label="Ajouter à ma liste"
+          className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+        >
+          <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Ajouter
+        </button>
+      )}
 
       {/* Toast de confirmation */}
       {toast && (
