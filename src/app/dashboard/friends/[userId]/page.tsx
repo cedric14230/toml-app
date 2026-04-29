@@ -134,7 +134,7 @@ export default async function FriendProfilePage({
               return (
                 <Link
                   key={wl.id}
-                  href={`/w/${wl.id}`}
+                  href={`/dashboard/wishlists/${wl.id}`}
                   className="block group rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
                 >
                   <article className="bg-white rounded-2xl border border-gray-200 overflow-hidden group-hover:border-gray-300 group-hover:shadow-md transition-all duration-150">

@@ -197,23 +197,26 @@ export default async function PublicWishlistPage({
                     <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
                       <div>
                         <h2 className="text-sm font-medium text-gray-900 leading-snug line-clamp-2">
-                          {item.source_url ? (
-                            <a
-                              href={item.source_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:underline"
-                            >
-                              {item.title}
-                            </a>
-                          ) : (
-                            item.title
-                          )}
+                          {item.title}
                         </h2>
                         {item.note && (
                           <p className="text-xs text-gray-500 mt-1 line-clamp-1">
                             {item.note}
                           </p>
+                        )}
+                        {item.source_url && (
+                          <a
+                            href={item.source_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 mt-1 text-xs text-gray-400 hover:text-gray-700 transition-colors"
+                          >
+                            <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            Voir sur le site
+                          </a>
                         )}
                       </div>
 
