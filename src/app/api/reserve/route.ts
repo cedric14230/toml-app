@@ -92,3 +92,73 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ success: true })
 }
+
+/**
+ * DELETE /api/reserve
+ * Body : { itemId: string, wishlistId: string }
+ *
+ * Annule une réservation appartenant à l'utilisateur connecté :
+ *  1. Vérifie que l'utilisateur est bien le réservant
+ *  2. Supprime la ligne dans reservations
+ *  3. Remet item.status = 'available'
+ */
+export async function DELETE(request: NextRequest) {
+  const supabase = await createSupabaseServerClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  }
+
+  let itemId: string, wishlistId: string
+  try {
+    const body = await request.json()
+    itemId = body.itemId
+    wishlistId = body.wishlistId
+    if (!itemId || !wishlistId) throw new Error()
+  } catch {
+    return NextResponse.json({ error: 'Corps de requête invalide' }, { status: 400 })
+  }
+
+  // ── Vérifie que l'utilisateur est bien le réservant ──────────────────
+  const { data: reservation } = await supabaseAdmin
+    .from('reservations')
+    .select('id')
+    .eq('item_id', itemId)
+    .eq('reserver_user_id', user.id)
+    .single()
+
+  if (!reservation) {
+    return NextResponse.json(
+      { error: 'Réservation introuvable ou vous n\'en êtes pas l\'auteur' },
+      { status: 403 }
+    )
+  }
+
+  // ── Suppression de la réservation ────────────────────────────────────
+  const { error: deleteError } = await supabaseAdmin
+    .from('reservations')
+    .delete()
+    .eq('id', reservation.id)
+
+  if (deleteError) {
+    return NextResponse.json({ error: deleteError.message }, { status: 500 })
+  }
+
+  // ── Remise en disponible ─────────────────────────────────────────────
+  const { error: updateError } = await supabaseAdmin
+    .from('items')
+    .update({ status: 'available' })
+    .eq('id', itemId)
+    .eq('wishlist_id', wishlistId)
+    .eq('status', 'reserved')
+
+  if (updateError) {
+    return NextResponse.json({ error: updateError.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ success: true })
+}

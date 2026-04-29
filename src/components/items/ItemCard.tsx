@@ -34,15 +34,6 @@ const PRIORITY_STARS: Record<Item['priority'], number> = {
   high: 3,
 }
 
-const STATUS_BADGE: Record<
-  Item['status'],
-  { label: string; className: string } | null
-> = {
-  available: null,
-  reserved: { label: 'Réservé', className: 'bg-orange-100 text-orange-700' },
-  purchased: { label: 'Offert',  className: 'bg-green-100 text-green-700'  },
-}
-
 const priceFormatter = new Intl.NumberFormat('fr-FR', {
   style: 'currency',
   currency: 'EUR',
@@ -51,7 +42,6 @@ const priceFormatter = new Intl.NumberFormat('fr-FR', {
 export default function ItemCard({ item, isOwner = false, onEdit, href, wishlistId }: Props) {
   const router = useRouter()
   const stars = PRIORITY_STARS[item.priority]
-  const badge = STATUS_BADGE[item.status]
   // Priorité haute → tuile large (aspect-[4/3]), sinon carrée
   const isLarge = item.priority === 'high'
 
@@ -90,35 +80,49 @@ export default function ItemCard({ item, isOwner = false, onEdit, href, wishlist
           </div>
         )}
 
-        {/* Badge statut — top right */}
-        {badge && (
-          <span className={`absolute top-2 right-2 text-xs font-medium px-2 py-0.5 rounded-full ${badge.className}`}>
-            {badge.label}
-          </span>
-        )}
-
-        {/* Overlay actions — non-propriétaire ─────────────────────────── */}
-        {!isOwner && (
+        {/* Overlay bas — badge statut + actions
+            Masqué pour isOwner+available (rien à afficher).
+            Sur mobile : toujours visible. Sur desktop : au hover. */}
+        {!(isOwner && item.status === 'available') && (
           <div
             className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent
+                       flex items-center justify-between
                        opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-end gap-1.5">
-              {wishlistId && item.status === 'available' && (
-                <div className="bg-white/90 backdrop-blur-sm rounded-md">
+            {/* Gauche : Offrir / Annuler / badge Réservé / badge Offert */}
+            <div>
+              {/* Non-proprio : ReserveButton gère available + reserved (Offrir / Annuler / badge) */}
+              {!isOwner && item.status !== 'purchased' && wishlistId && (
+                <div className="rounded-full bg-white/90 backdrop-blur-sm overflow-hidden">
                   <ReserveButton
                     itemId={item.id}
                     wishlistId={wishlistId}
-                    initialReserved={false}
+                    initialReserved={item.status === 'reserved'}
                     compact
                   />
                 </div>
               )}
-              <div className="bg-white/90 backdrop-blur-sm rounded-md">
+              {/* Proprio : badge statique si réservé */}
+              {isOwner && item.status === 'reserved' && (
+                <span className="inline-block text-xs font-medium px-2.5 py-1.5 rounded-full bg-white/90 backdrop-blur-sm text-orange-700">
+                  Réservé
+                </span>
+              )}
+              {/* Badge "Offert" pour tous quand purchased */}
+              {item.status === 'purchased' && (
+                <span className="inline-block text-xs font-medium px-2.5 py-1.5 rounded-full bg-white/90 backdrop-blur-sm text-green-700">
+                  Offert
+                </span>
+              )}
+            </div>
+
+            {/* Droite : + Ajouter (toujours si !isOwner) */}
+            {!isOwner && (
+              <div className="rounded-full bg-white/90 backdrop-blur-sm overflow-hidden">
                 <CopyItemButton item={item} />
               </div>
-            </div>
+            )}
           </div>
         )}
 
