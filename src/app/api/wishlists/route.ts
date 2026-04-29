@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     .select('id, title')
     .eq('user_id', user.id)
     .eq('archived', false)
-    .order('created_at', { ascending: false })
+    .order('updated_at', { ascending: false })
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500, headers })

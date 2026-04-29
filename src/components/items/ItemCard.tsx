@@ -1,5 +1,7 @@
 'use client'
 
+import CopyItemButton from './CopyItemButton'
+
 // Type exporté et réutilisé par ItemGrid, wishlists/[id]/page.tsx, etc.
 export type Item = {
   id: string
@@ -96,9 +98,9 @@ export default function ItemCard({ item, isOwner = false, onEdit }: Props) {
           )}
         </div>
 
-        {/* Prix + priorité */}
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-sm font-semibold text-gray-900">
+        {/* Prix + priorité + copie */}
+        <div className="flex items-center justify-between mt-2 gap-1">
+          <span className="text-sm font-semibold text-gray-900 flex-shrink-0">
             {item.price != null
               ? priceFormatter.format(item.price)
               : (
@@ -109,22 +111,25 @@ export default function ItemCard({ item, isOwner = false, onEdit }: Props) {
             }
           </span>
 
-          <div
-            className="flex items-center gap-0.5"
-            aria-label={`Priorité : ${item.priority}`}
-            role="img"
-          >
-            {[1, 2, 3].map((n) => (
-              <svg
-                key={n}
-                className={`w-3.5 h-3.5 ${n <= stars ? 'text-amber-400' : 'text-gray-200'}`}
-                fill="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-              </svg>
-            ))}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div
+              className="flex items-center gap-0.5"
+              aria-label={`Priorité : ${item.priority}`}
+              role="img"
+            >
+              {[1, 2, 3].map((n) => (
+                <svg
+                  key={n}
+                  className={`w-3.5 h-3.5 ${n <= stars ? 'text-amber-400' : 'text-gray-200'}`}
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              ))}
+            </div>
+            {!isOwner && <CopyItemButton item={item} />}
           </div>
         </div>
       </div>
