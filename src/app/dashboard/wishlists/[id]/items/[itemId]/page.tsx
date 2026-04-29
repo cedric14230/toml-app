@@ -179,14 +179,14 @@ export default async function ItemDetailPage({
                 </a>
               )}
 
-              {/* Actions non-propriétaire : réserver + ajouter à ma liste */}
+              {/* Actions non-propriétaire : réserver / annuler + ajouter à ma liste */}
               {!isOwner && (
                 <>
-                  {item.status === 'available' && (
+                  {item.status !== 'purchased' && (
                     <ReserveButton
                       itemId={item.id}
                       wishlistId={params.id}
-                      initialReserved={false}
+                      initialReserved={item.status === 'reserved'}
                     />
                   )}
                   <div className="flex-shrink-0">
