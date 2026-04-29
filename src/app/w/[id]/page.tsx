@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import ReserveButton from './ReserveButton'
+import ReserveButton from '@/components/items/ReserveButton'
 
 /**
  * Page publique de partage d'une wishlist.

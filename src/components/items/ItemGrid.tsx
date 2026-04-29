@@ -120,6 +120,7 @@ export default function ItemGrid({ wishlistId, items, isOwner = false }: Props) 
               isOwner={isOwner}
               onEdit={isOwner ? () => setEditingItem(item) : undefined}
               href={!isOwner ? `/dashboard/wishlists/${wishlistId}/items/${item.id}` : undefined}
+              wishlistId={!isOwner ? wishlistId : undefined}
             />
           ))}
         </div>

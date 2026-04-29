@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import CopyItemButton from '@/components/items/CopyItemButton'
+import ReserveButton from '@/components/items/ReserveButton'
 import { createSupabaseServerClient, supabaseAdmin } from '@/lib/supabase/server'
 import type { Item } from '@/components/items/ItemCard'
 
@@ -178,11 +179,20 @@ export default async function ItemDetailPage({
                 </a>
               )}
 
-              {/* Ajouter à ma liste (non-propriétaire) */}
+              {/* Actions non-propriétaire : réserver + ajouter à ma liste */}
               {!isOwner && (
-                <div className="flex-shrink-0">
-                  <CopyItemButton item={typedItem} variant="full" />
-                </div>
+                <>
+                  {item.status === 'available' && (
+                    <ReserveButton
+                      itemId={item.id}
+                      wishlistId={params.id}
+                      initialReserved={false}
+                    />
+                  )}
+                  <div className="flex-shrink-0">
+                    <CopyItemButton item={typedItem} variant="full" />
+                  </div>
+                </>
               )}
 
               {/* Modifier (propriétaire) */}

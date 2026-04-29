@@ -1,7 +1,8 @@
 'use client'
 
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import CopyItemButton from './CopyItemButton'
+import ReserveButton from './ReserveButton'
 
 // Type exporté et réutilisé par ItemGrid, wishlists/[id]/page.tsx, etc.
 export type Item = {
@@ -23,6 +24,8 @@ type Props = {
   onEdit?: () => void
   /** Lien vers la fiche détail (utilisé quand !isOwner) */
   href?: string
+  /** ID de la wishlist — requis pour afficher le bouton ReserveButton quand !isOwner */
+  wishlistId?: string
 }
 
 const PRIORITY_STARS: Record<Item['priority'], number> = {
@@ -45,19 +48,28 @@ const priceFormatter = new Intl.NumberFormat('fr-FR', {
   currency: 'EUR',
 })
 
-export default function ItemCard({ item, isOwner = false, onEdit, href }: Props) {
+export default function ItemCard({ item, isOwner = false, onEdit, href, wishlistId }: Props) {
+  const router = useRouter()
   const stars = PRIORITY_STARS[item.priority]
   const status = STATUS_CONFIG[item.status]
 
-  const article = (
+  console.log('[ItemCard] isOwner:', isOwner, 'wishlistId:', wishlistId, 'status:', item.status)
+
+  function handleCardClick() {
+    if (isOwner) {
+      onEdit?.()
+    } else if (href) {
+      router.push(href)
+    }
+  }
+
+  return (
     <article
-      onClick={isOwner ? () => onEdit?.() : undefined}
+      onClick={handleCardClick}
       className={[
         'bg-white rounded-xl border border-gray-200 overflow-hidden flex transition-all duration-150',
-        isOwner
+        isOwner || href
           ? 'cursor-pointer hover:border-gray-300 hover:shadow-sm hover:bg-gray-50'
-          : href
-          ? 'hover:border-gray-300 hover:shadow-sm hover:bg-gray-50'
           : 'hover:border-gray-300 hover:shadow-sm',
       ].join(' ')}
     >
@@ -134,23 +146,25 @@ export default function ItemCard({ item, isOwner = false, onEdit, href }: Props)
                 </svg>
               ))}
             </div>
-            {!isOwner && <CopyItemButton item={item} />}
+            {!isOwner && (
+              <div
+                className="flex items-center gap-1.5"
+                onClick={e => e.stopPropagation()}
+              >
+                {wishlistId && item.status === 'available' && (
+                  <ReserveButton
+                    itemId={item.id}
+                    wishlistId={wishlistId}
+                    initialReserved={false}
+                    compact
+                  />
+                )}
+                <CopyItemButton item={item} />
+              </div>
+            )}
           </div>
         </div>
       </div>
     </article>
   )
-
-  if (href) {
-    return (
-      <Link
-        href={href}
-        className="block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-1"
-      >
-        {article}
-      </Link>
-    )
-  }
-
-  return article
 }
