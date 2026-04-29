@@ -48,10 +48,12 @@ export async function middleware(request: NextRequest) {
   const isWidgetRoute = pathname === '/add-item-widget'
   // Homepage publique : les visiteurs non connectés voient la landing page
   const isHomepage = pathname === '/'
+  // Routes cron : sécurisées par Authorization Bearer dans la route elle-même
+  const isCronRoute = pathname.startsWith('/api/cron/')
 
   // Non connecté → redirige vers /auth/login
   // (sauf si déjà sur /auth/* ou sur une page de partage publique /w/*)
-  if (!user && !isAuthRoute && !isPublicShareRoute && !isWidgetRoute && !isHomepage) {
+  if (!user && !isAuthRoute && !isPublicShareRoute && !isWidgetRoute && !isHomepage && !isCronRoute) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/auth/login'
     // On mémorise la destination pour rediriger après connexion
