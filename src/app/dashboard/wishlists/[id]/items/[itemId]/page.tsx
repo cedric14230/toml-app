@@ -72,7 +72,7 @@ export default async function ItemDetailPage({
           href={
             isOwner
               ? `/dashboard/wishlists/${params.id}`
-              : `/dashboard/friends/${wishlist.user_id}`
+              : `/dashboard/wishlists/${params.id}`
           }
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-8 transition-colors min-w-0 max-w-full"
         >
