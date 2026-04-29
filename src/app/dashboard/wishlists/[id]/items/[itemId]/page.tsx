@@ -69,11 +69,7 @@ export default async function ItemDetailPage({
 
         {/* Fil d'Ariane */}
         <Link
-          href={
-            isOwner
-              ? `/dashboard/wishlists/${params.id}`
-              : `/dashboard/wishlists/${params.id}`
-          }
+          href={`/dashboard/wishlists/${params.id}`}
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-8 transition-colors min-w-0 max-w-full"
         >
           <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
