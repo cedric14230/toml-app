@@ -264,7 +264,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
 
         {/* Sélecteur d'onglets — hors du scroll, toujours visible */}
         <div className="flex-shrink-0 px-4 sm:px-6 pt-4 pb-3 border-b border-gray-100">
-          <div className="flex gap-1 p-1 bg-gray-100 rounded-lg" role="tablist">
+          <div className="flex gap-1 p-1 bg-gray-100 rounded-lg overflow-hidden" role="tablist">
             {(['url', 'manual'] as Tab[]).map((tab) => (
               <button
                 key={tab}
@@ -273,7 +273,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
                 aria-selected={activeTab === tab}
                 onClick={() => setActiveTab(tab)}
                 className={`
-                  flex-1 py-1.5 text-sm font-medium rounded-md transition-all whitespace-nowrap
+                  flex-1 min-w-0 py-1.5 text-sm font-medium rounded-md transition-all text-center
                   ${activeTab === tab
                     ? 'bg-white text-gray-900 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
@@ -300,7 +300,7 @@ export default function AddItemModal({ wishlistId, onClose, onSuccess }: Props) 
             {activeTab === 'url' && (
               <>
                 {/* Champ URL avec spinner de scraping */}
-                <div>
+                <div className="min-w-0 overflow-hidden">
                   <label htmlFor="source-url" className="block text-sm font-medium text-gray-700 mb-1.5">
                     URL du produit <span className="text-red-500" aria-hidden="true">*</span>
                   </label>
