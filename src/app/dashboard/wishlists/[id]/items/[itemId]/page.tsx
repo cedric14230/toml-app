@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import CopyItemButton from '@/components/items/CopyItemButton'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, supabaseAdmin } from '@/lib/supabase/server'
 import type { Item } from '@/components/items/ItemCard'
 
 const PRIORITY_STARS: Record<string, number> = { low: 1, medium: 2, high: 3 }
@@ -43,6 +43,21 @@ export default async function ItemDetailPage({
   if (!item) notFound()
 
   const isOwner = !!user && user.id === wishlist.user_id
+
+  // Nom du propriétaire pour le fil d'Ariane (seulement si non-propriétaire)
+  let ownerDisplayName: string | null = null
+  if (!isOwner) {
+    const { data: ownerProfile } = await supabaseAdmin
+      .from('users')
+      .select('name, email')
+      .eq('id', wishlist.user_id)
+      .single()
+    ownerDisplayName =
+      ownerProfile?.name ??
+      ownerProfile?.email?.split('@')[0] ??
+      null
+  }
+
   const typedItem = item as Item
   const stars = PRIORITY_STARS[item.priority] ?? 1
 
@@ -51,15 +66,26 @@ export default async function ItemDetailPage({
       <Header />
       <main className="max-w-2xl mx-auto px-4 py-8">
 
-        {/* Lien retour */}
+        {/* Fil d'Ariane */}
         <Link
-          href={`/dashboard/wishlists/${params.id}`}
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-8 transition-colors"
+          href={
+            isOwner
+              ? `/dashboard/wishlists/${params.id}`
+              : `/dashboard/friends/${wishlist.user_id}`
+          }
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-8 transition-colors min-w-0 max-w-full"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          {wishlist.title}
+          <span className="truncate">
+            {isOwner
+              ? wishlist.title
+              : ownerDisplayName
+                ? `${ownerDisplayName} — ${wishlist.title}`
+                : wishlist.title
+            }
+          </span>
         </Link>
 
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
