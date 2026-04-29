@@ -4,7 +4,7 @@ import Header from '@/components/Header'
 import ItemGrid from '@/components/items/ItemGrid'
 import ShareButton from './ShareButton'
 import WishlistActions from './WishlistActions'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, supabaseAdmin } from '@/lib/supabase/server'
 import type { Item } from '@/components/items/ItemCard'
 
 const VISIBILITY_LABELS = {
@@ -46,6 +46,20 @@ export default async function WishlistDetailPage({
   const visibilityLabel = VISIBILITY_LABELS[wishlist.visibility as keyof typeof VISIBILITY_LABELS]
   const isOwner = !!user && user.id === wishlist.user_id
 
+  // Prénom du propriétaire pour le fil d'Ariane (seulement si non-propriétaire)
+  let ownerName: string | null = null
+  if (!isOwner) {
+    const { data: ownerProfile } = await supabaseAdmin
+      .from('users')
+      .select('name, email')
+      .eq('id', wishlist.user_id)
+      .single()
+    ownerName =
+      ownerProfile?.name ??
+      ownerProfile?.email?.split('@')[0] ??
+      null
+  }
+
   return (
     <>
       <Header />
@@ -53,13 +67,13 @@ export default async function WishlistDetailPage({
 
         {/* Lien retour */}
         <Link
-          href="/dashboard"
+          href={isOwner ? '/dashboard' : `/dashboard/friends/${wishlist.user_id}`}
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-6 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Mes wishlists
+          {isOwner ? 'Mes wishlists' : (ownerName ?? 'Retour')}
         </Link>
 
         {/* Image de couverture */}
