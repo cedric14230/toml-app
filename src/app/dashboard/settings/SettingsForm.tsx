@@ -46,6 +46,8 @@ export default function SettingsForm({ userId, initialProfile }: Props) {
   // WhatsApp
   const [phone, setPhone]             = useState(initialProfile.phone_number ?? '')
   const [phoneVerified, setPhoneVerified] = useState(initialProfile.phone_verified)
+  const [editMode, setEditMode]           = useState(false)   // mode "changer de numéro"
+  const [editPhone, setEditPhone]         = useState('')       // nouveau numéro en cours de saisie
   const [phoneSending, setPhoneSending]   = useState(false)
   const [phoneMsg, setPhoneMsg]           = useState<{ type: 'ok' | 'error'; text: string } | null>(null)
 
@@ -107,35 +109,42 @@ export default function SettingsForm({ userId, initialProfile }: Props) {
     router.refresh()
   }
 
-  async function handleSendVerification() {
+  /**
+   * Envoie le lien de vérification WhatsApp.
+   * - isChange=false → premier enregistrement : appelle POST /api/whatsapp/verify (pas de modif DB)
+   * - isChange=true  → changement de numéro vérifié : appelle PATCH /api/whatsapp/update-phone
+   *                    (met phone_verified=false en DB, puis envoie le lien)
+   */
+  async function handleVerify(phoneToVerify: string, isChange: boolean) {
     setPhoneSending(true)
     setPhoneMsg(null)
     try {
-      const res = await fetch('/api/whatsapp/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
-      })
+      const res = await fetch(
+        isChange ? '/api/whatsapp/update-phone' : '/api/whatsapp/verify',
+        {
+          method: isChange ? 'PATCH' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: phoneToVerify }),
+        }
+      )
       const data = await res.json()
       if (!res.ok) {
         setPhoneMsg({ type: 'error', text: data.error ?? 'Erreur inconnue' })
       } else {
-        setPhoneMsg({ type: 'ok', text: 'Lien envoyé sur WhatsApp ! Cliquez dessus pour confirmer.' })
+        if (isChange) {
+          // Bascule l'UI en "en attente" avec le nouveau numéro
+          setPhone(phoneToVerify)
+          setPhoneVerified(false)
+          setEditMode(false)
+          setEditPhone('')
+        }
+        setPhoneMsg({ type: 'ok', text: 'Lien de vérification envoyé sur WhatsApp ! Cliquez dessus pour confirmer.' })
       }
     } catch {
       setPhoneMsg({ type: 'error', text: 'Impossible de contacter le serveur.' })
     } finally {
       setPhoneSending(false)
     }
-  }
-
-  async function handleDisconnectPhone() {
-    const supabase = createSupabaseBrowserClient()
-    await supabase.from('users').update({ phone_number: null, phone_verified: false }).eq('id', userId)
-    setPhone('')
-    setPhoneVerified(false)
-    setPhoneMsg(null)
-    router.refresh()
   }
 
   const displayedAvatar = avatarPreview ?? avatarUrl
@@ -280,24 +289,61 @@ export default function SettingsForm({ userId, initialProfile }: Props) {
           Connectez votre WhatsApp pour ajouter des articles en envoyant un lien.
         </p>
 
-        {phoneVerified ? (
-          /* Numéro vérifié */
-          <div className="flex items-center gap-3 p-3 rounded-lg border border-emerald-200 bg-emerald-50">
-            <svg className="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span className="text-sm text-emerald-800 font-medium flex-1">{phone}</span>
-            <span className="text-xs font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Vérifié</span>
+        {phoneVerified && !editMode ? (
+          /* ── Numéro vérifié — mode lecture ── */
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-emerald-200 bg-emerald-50">
+              <svg className="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="text-sm text-emerald-800 font-medium flex-1">{phone}</span>
+              <span className="text-xs font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Vérifié</span>
+            </div>
             <button
               type="button"
-              onClick={handleDisconnectPhone}
-              className="text-xs text-red-500 hover:text-red-700 transition-colors ml-2"
+              onClick={() => { setEditPhone(phone); setEditMode(true); setPhoneMsg(null) }}
+              className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
             >
-              Déconnecter
+              Changer de numéro
             </button>
           </div>
+        ) : phoneVerified && editMode ? (
+          /* ── Mode édition — saisie du nouveau numéro ── */
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <input
+                type="tel"
+                value={editPhone}
+                onChange={e => { setEditPhone(e.target.value); setPhoneMsg(null) }}
+                placeholder="+33612345678"
+                autoFocus
+                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+              />
+              <button
+                type="button"
+                onClick={() => handleVerify(editPhone, true)}
+                disabled={phoneSending || !editPhone.trim()}
+                className="px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+              >
+                {phoneSending ? 'Envoi…' : 'Vérifier'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setEditMode(false); setEditPhone(''); setPhoneMsg(null) }}
+                className="px-3 py-2 text-sm font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
+              >
+                Annuler
+              </button>
+            </div>
+            <p className="text-xs text-gray-400">Format international requis, ex : +33612345678</p>
+            {phoneMsg && (
+              <p className={['text-xs px-3 py-2 rounded-lg border', phoneMsg.type === 'ok' ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-600 bg-red-50 border-red-200'].join(' ')}>
+                {phoneMsg.text}
+              </p>
+            )}
+          </div>
         ) : (
-          /* Saisie / en attente */
+          /* ── Pas de numéro ou non vérifié — saisie initiale ── */
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
               <input
@@ -309,7 +355,7 @@ export default function SettingsForm({ userId, initialProfile }: Props) {
               />
               <button
                 type="button"
-                onClick={handleSendVerification}
+                onClick={() => handleVerify(phone, false)}
                 disabled={phoneSending || !phone.trim()}
                 className="px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
               >
@@ -318,12 +364,7 @@ export default function SettingsForm({ userId, initialProfile }: Props) {
             </div>
             <p className="text-xs text-gray-400">Format international requis, ex : +33612345678</p>
             {phoneMsg && (
-              <p className={[
-                'text-xs px-3 py-2 rounded-lg border',
-                phoneMsg.type === 'ok'
-                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
-                  : 'text-red-600 bg-red-50 border-red-200',
-              ].join(' ')}>
+              <p className={['text-xs px-3 py-2 rounded-lg border', phoneMsg.type === 'ok' ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-600 bg-red-50 border-red-200'].join(' ')}>
                 {phoneMsg.text}
               </p>
             )}
