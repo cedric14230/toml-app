@@ -10,6 +10,8 @@ type Profile = {
   bio: string | null
   birthday: string | null
   default_visibility: string | null
+  phone_number: string | null
+  phone_verified: boolean
 }
 
 type Props = {
@@ -40,6 +42,12 @@ export default function SettingsForm({ userId, initialProfile }: Props) {
   const [saving, setSaving]           = useState(false)
   const [error, setError]             = useState<string | null>(null)
   const [success, setSuccess]         = useState(false)
+
+  // WhatsApp
+  const [phone, setPhone]             = useState(initialProfile.phone_number ?? '')
+  const [phoneVerified, setPhoneVerified] = useState(initialProfile.phone_verified)
+  const [phoneSending, setPhoneSending]   = useState(false)
+  const [phoneMsg, setPhoneMsg]           = useState<{ type: 'ok' | 'error'; text: string } | null>(null)
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -96,6 +104,37 @@ export default function SettingsForm({ userId, initialProfile }: Props) {
     setSaving(false)
     setSuccess(true)
     setTimeout(() => setSuccess(false), 3000)
+    router.refresh()
+  }
+
+  async function handleSendVerification() {
+    setPhoneSending(true)
+    setPhoneMsg(null)
+    try {
+      const res = await fetch('/api/whatsapp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setPhoneMsg({ type: 'error', text: data.error ?? 'Erreur inconnue' })
+      } else {
+        setPhoneMsg({ type: 'ok', text: 'Lien envoyé sur WhatsApp ! Cliquez dessus pour confirmer.' })
+      }
+    } catch {
+      setPhoneMsg({ type: 'error', text: 'Impossible de contacter le serveur.' })
+    } finally {
+      setPhoneSending(false)
+    }
+  }
+
+  async function handleDisconnectPhone() {
+    const supabase = createSupabaseBrowserClient()
+    await supabase.from('users').update({ phone_number: null, phone_verified: false }).eq('id', userId)
+    setPhone('')
+    setPhoneVerified(false)
+    setPhoneMsg(null)
     router.refresh()
   }
 
@@ -229,6 +268,67 @@ export default function SettingsForm({ userId, initialProfile }: Props) {
             </label>
           ))}
         </div>
+      </div>
+
+      {/* WhatsApp */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          WhatsApp
+          <span className="ml-1.5 text-xs font-normal text-gray-400">optionnel</span>
+        </label>
+        <p className="text-xs text-gray-500 mb-3">
+          Connectez votre WhatsApp pour ajouter des articles en envoyant un lien.
+        </p>
+
+        {phoneVerified ? (
+          /* Numéro vérifié */
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-emerald-200 bg-emerald-50">
+            <svg className="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-sm text-emerald-800 font-medium flex-1">{phone}</span>
+            <span className="text-xs font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Vérifié</span>
+            <button
+              type="button"
+              onClick={handleDisconnectPhone}
+              className="text-xs text-red-500 hover:text-red-700 transition-colors ml-2"
+            >
+              Déconnecter
+            </button>
+          </div>
+        ) : (
+          /* Saisie / en attente */
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <input
+                type="tel"
+                value={phone}
+                onChange={e => { setPhone(e.target.value); setPhoneMsg(null) }}
+                placeholder="+33612345678"
+                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+              />
+              <button
+                type="button"
+                onClick={handleSendVerification}
+                disabled={phoneSending || !phone.trim()}
+                className="px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+              >
+                {phoneSending ? 'Envoi…' : 'Vérifier'}
+              </button>
+            </div>
+            <p className="text-xs text-gray-400">Format international requis, ex : +33612345678</p>
+            {phoneMsg && (
+              <p className={[
+                'text-xs px-3 py-2 rounded-lg border',
+                phoneMsg.type === 'ok'
+                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                  : 'text-red-600 bg-red-50 border-red-200',
+              ].join(' ')}>
+                {phoneMsg.text}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Feedback */}

@@ -1,0 +1,79 @@
+import { NextRequest, NextResponse } from 'next/server'
+import twilio from 'twilio'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { signVerificationToken } from '@/lib/whatsapp-token'
+
+/**
+ * POST /api/whatsapp/verify
+ *
+ * Route authentifiée. Reçoit { phone: "+33612345678" },
+ * signe un token HMAC et envoie le lien de confirmation par WhatsApp.
+ *
+ * Body JSON : { phone: string }
+ */
+export async function POST(request: NextRequest) {
+  // Vérification de l'authentification via session Supabase
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  }
+
+  // Lecture et validation du numéro
+  let phone: string
+  try {
+    const body = await request.json()
+    phone = (body.phone ?? '').trim()
+  } catch {
+    return NextResponse.json({ error: 'Corps JSON invalide' }, { status: 400 })
+  }
+
+  // Format international strict : +XXXXXXXXXXXX (7 à 15 chiffres)
+  if (!/^\+\d{7,15}$/.test(phone)) {
+    return NextResponse.json(
+      { error: 'Format invalide. Utilisez le format international, ex : +33612345678' },
+      { status: 400 }
+    )
+  }
+
+  // Génère le token HMAC signé
+  const token = signVerificationToken(user.id, phone)
+
+  // URL de confirmation (même domaine que la requête entrante)
+  const origin = request.nextUrl.origin
+  const confirmUrl = `${origin}/api/whatsapp/confirm?token=${encodeURIComponent(token)}`
+
+  // Envoi du message WhatsApp via Twilio
+  const accountSid = process.env.TWILIO_ACCOUNT_SID
+  const authToken  = process.env.TWILIO_AUTH_TOKEN
+  const fromNumber = process.env.TWILIO_WHATSAPP_NUMBER
+
+  if (!accountSid || !authToken || !fromNumber) {
+    return NextResponse.json(
+      { error: 'Configuration Twilio manquante' },
+      { status: 500 }
+    )
+  }
+
+  try {
+    const client = twilio(accountSid, authToken)
+    await client.messages.create({
+      from: fromNumber,
+      to:   `whatsapp:${phone}`,
+      body:
+        `Bonjour ! Pour connecter votre WhatsApp à TOML, ` +
+        `cliquez sur ce lien (valable 30 min) :\n${confirmUrl}`,
+    })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    return NextResponse.json(
+      { error: `Échec d'envoi WhatsApp : ${message}` },
+      { status: 502 }
+    )
+  }
+
+  return NextResponse.json({ ok: true })
+}

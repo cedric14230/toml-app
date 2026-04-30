@@ -50,10 +50,13 @@ export async function middleware(request: NextRequest) {
   const isHomepage = pathname === '/'
   // Routes cron : sécurisées par Authorization Bearer dans la route elle-même
   const isCronRoute = pathname.startsWith('/api/cron/')
+  // Routes WhatsApp : webhook public (Twilio), confirm public (lien par SMS)
+  // verify est authentifiée côté route mais exclue du middleware pour éviter la double vérification
+  const isWhatsappRoute = pathname.startsWith('/api/whatsapp/')
 
   // Non connecté → redirige vers /auth/login
   // (sauf si déjà sur /auth/* ou sur une page de partage publique /w/*)
-  if (!user && !isAuthRoute && !isPublicShareRoute && !isWidgetRoute && !isHomepage && !isCronRoute) {
+  if (!user && !isAuthRoute && !isPublicShareRoute && !isWidgetRoute && !isHomepage && !isCronRoute && !isWhatsappRoute) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/auth/login'
     // On mémorise la destination pour rediriger après connexion
