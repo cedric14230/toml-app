@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
   // Envoi du message WhatsApp via Twilio
   const accountSid = process.env.TWILIO_ACCOUNT_SID
   const authToken  = process.env.TWILIO_AUTH_TOKEN
-  const fromNumber = process.env.TWILIO_WHATSAPP_NUMBER
+  const fromNumber = (process.env.TWILIO_WHATSAPP_NUMBER ?? '').replace(/\s/g, '')
 
   if (!accountSid || !authToken || !fromNumber) {
     return NextResponse.json(
