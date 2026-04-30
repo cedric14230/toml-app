@@ -28,7 +28,7 @@ export default function PwaMobileBanner() {
     const detectedOs = detectOS()
     if (!detectedOs) return // desktop → rien à faire
 
-    const dismissed  = localStorage.getItem('toml-pwa-banner') === 'dismissed'
+    const dismissed  = localStorage.getItem('pwa_banner_dismissed') === 'true'
     const standalone = window.matchMedia('(display-mode: standalone)').matches
     if (!dismissed && !standalone) {
       setOs(detectedOs)
@@ -37,7 +37,7 @@ export default function PwaMobileBanner() {
   }, [])
 
   function handleDismiss() {
-    localStorage.setItem('toml-pwa-banner', 'dismissed')
+    localStorage.setItem('pwa_banner_dismissed', 'true')
     setVisible(false)
   }
 
