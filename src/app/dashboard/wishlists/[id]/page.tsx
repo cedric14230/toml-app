@@ -4,6 +4,7 @@ import Header from '@/components/Header'
 import ItemGrid from '@/components/items/ItemGrid'
 import ShareButton from './ShareButton'
 import WishlistActions from './WishlistActions'
+import WhatsAppOnboardingCard from '@/components/onboarding/WhatsAppOnboardingCard'
 import { createSupabaseServerClient, supabaseAdmin } from '@/lib/supabase/server'
 import type { Item } from '@/components/items/ItemCard'
 
@@ -45,6 +46,17 @@ export default async function WishlistDetailPage({
   const items = (data ?? []) as Item[]
   const visibilityLabel = VISIBILITY_LABELS[wishlist.visibility as keyof typeof VISIBILITY_LABELS]
   const isOwner = !!user && user.id === wishlist.user_id
+
+  // phone_verified pour la carte d'onboarding WhatsApp (seulement si propriétaire)
+  let phoneVerified = false
+  if (isOwner) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('phone_verified')
+      .eq('id', user!.id)
+      .single()
+    phoneVerified = profile?.phone_verified ?? false
+  }
 
   // Prénom du propriétaire pour le fil d'Ariane (seulement si non-propriétaire)
   let ownerName: string | null = null
@@ -118,6 +130,9 @@ export default async function WishlistDetailPage({
             <ShareButton wishlistId={wishlist.id} />
           </div>
         </div>
+
+        {/* Carte onboarding WhatsApp (mobile, propriétaire non vérifié) */}
+        {isOwner && <WhatsAppOnboardingCard phoneVerified={phoneVerified} />}
 
         {/* Grille d'articles */}
         <ItemGrid wishlistId={wishlist.id} items={items} isOwner={isOwner} />

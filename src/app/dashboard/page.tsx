@@ -2,6 +2,7 @@ import Header from '@/components/Header'
 import WishlistGrid from '@/components/wishlists/WishlistGrid'
 import BookmarkletInstall from '@/components/BookmarkletInstall'
 import PwaMobileBanner from '@/components/PwaMobileBanner'
+import WhatsAppOnboardingCard from '@/components/onboarding/WhatsAppOnboardingCard'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import type { Wishlist } from '@/components/wishlists/WishlistCard'
 
@@ -21,10 +22,19 @@ export default async function DashboardPage() {
 
   const wishlists = (data ?? []) as Wishlist[]
 
+  const { data: profile } = await supabase
+    .from('users')
+    .select('phone_verified')
+    .eq('id', user!.id)
+    .single()
+
+  const phoneVerified = profile?.phone_verified ?? false
+
   return (
     <>
       <Header />
       <main className="max-w-5xl mx-auto px-4 py-8">
+        <WhatsAppOnboardingCard phoneVerified={phoneVerified} />
         <WishlistGrid wishlists={wishlists} />
         <PwaMobileBanner />
         <BookmarkletInstall />
