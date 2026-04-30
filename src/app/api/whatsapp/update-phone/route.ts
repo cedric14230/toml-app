@@ -52,7 +52,7 @@ export async function PATCH(request: NextRequest) {
 
   if (conflict) {
     return NextResponse.json(
-      { error: 'Ce numéro est déjà associé à un autre compte.' },
+      { error: 'Ce numéro est déjà associé à un autre compte TOML. Si c\'est le tien, connecte-toi avec ce compte ou contacte-nous.' },
       { status: 409 }
     )
   }

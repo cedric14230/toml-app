@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import twilio from 'twilio'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabaseServerClient, supabaseAdmin } from '@/lib/supabase/server'
 import { signVerificationToken } from '@/lib/whatsapp-token'
 
 /**
@@ -36,6 +36,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: 'Format invalide. Utilisez le format international, ex : +33612345678' },
       { status: 400 }
+    )
+  }
+
+  // Vérifie qu'aucun autre compte n'utilise déjà ce numéro (vérifié)
+  const { data: conflict } = await supabaseAdmin
+    .from('users')
+    .select('id')
+    .eq('phone_number', phone)
+    .eq('phone_verified', true)
+    .neq('id', user.id)
+    .maybeSingle()
+
+  if (conflict) {
+    return NextResponse.json(
+      { error: 'Ce numéro est déjà associé à un autre compte TOML. Si c\'est le tien, connecte-toi avec ce compte ou contacte-nous.' },
+      { status: 409 }
     )
   }
 
