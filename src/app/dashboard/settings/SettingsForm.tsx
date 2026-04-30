@@ -299,13 +299,15 @@ export default function SettingsForm({ userId, initialProfile }: Props) {
               <span className="text-sm text-emerald-800 font-medium flex-1">{phone}</span>
               <span className="text-xs font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Vérifié</span>
             </div>
-            <button
-              type="button"
-              onClick={() => { setEditPhone(phone); setEditMode(true); setPhoneMsg(null) }}
-              className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              Changer de numéro
-            </button>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => { setEditPhone(phone); setEditMode(true); setPhoneMsg(null) }}
+                className="text-sm text-gray-500 underline hover:text-gray-700 transition-colors"
+              >
+                Modifier
+              </button>
+            </div>
           </div>
         ) : phoneVerified && editMode ? (
           /* ── Mode édition — saisie du nouveau numéro ── */
