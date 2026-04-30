@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 export default function BookmarkletInstall() {
+  const isMobile = useIsMobile()
   const linkRef = useRef<HTMLAnchorElement>(null)
   const [ready, setReady] = useState(false)
 
@@ -43,6 +45,8 @@ window.open('${origin}/add-item?'+new URLSearchParams({title:t,image:im,price:pr
     linkRef.current.setAttribute('href', 'javascript:' + code)
     setReady(true)
   }, [])
+
+  if (isMobile) return null
 
   return (
     <div className="mt-12 border-t border-gray-100 pt-8">
