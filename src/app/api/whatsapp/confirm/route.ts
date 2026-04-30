@@ -66,9 +66,13 @@ export async function GET(request: NextRequest) {
   const fromNumber = process.env.TWILIO_WHATSAPP_NUMBER
 
   if (accountSid && authToken && fromNumber) {
+    const fromWhatsapp = fromNumber.startsWith('whatsapp:')
+      ? fromNumber
+      : `whatsapp:${fromNumber}`
+
     twilio(accountSid, authToken)
       .messages.create({
-        from: fromNumber,
+        from: fromWhatsapp,
         to:   `whatsapp:${phone}`,
         body:
           'Votre WhatsApp est connecté à TOML ! ' +

@@ -58,10 +58,15 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  // Normalise : s'assure que from a toujours le préfixe whatsapp:
+  const fromWhatsapp = fromNumber.startsWith('whatsapp:')
+    ? fromNumber
+    : `whatsapp:${fromNumber}`
+
   try {
     const client = twilio(accountSid, authToken)
     await client.messages.create({
-      from: fromNumber,
+      from: fromWhatsapp,
       to:   `whatsapp:${phone}`,
       body:
         `Bonjour ! Pour connecter votre WhatsApp à TOML, ` +
