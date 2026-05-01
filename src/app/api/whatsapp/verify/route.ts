@@ -63,11 +63,12 @@ export async function POST(request: NextRequest) {
   const confirmUrl = `${origin}/api/whatsapp/confirm?token=${encodeURIComponent(token)}`
 
   // Envoi du message WhatsApp via Twilio
-  const accountSid = process.env.TWILIO_ACCOUNT_SID
-  const authToken  = process.env.TWILIO_AUTH_TOKEN
-  const fromNumber = (process.env.TWILIO_WHATSAPP_NUMBER ?? '').replace(/\s/g, '')
+  const accountSid   = process.env.TWILIO_ACCOUNT_SID
+  const authToken    = process.env.TWILIO_AUTH_TOKEN
+  const fromNumber   = (process.env.TWILIO_WHATSAPP_NUMBER ?? '').replace(/\s/g, '')
+  const templateSid  = process.env.TWILIO_VERIFICATION_TEMPLATE_SID
 
-  if (!accountSid || !authToken || !fromNumber) {
+  if (!accountSid || !authToken || !fromNumber || !templateSid) {
     return NextResponse.json(
       { error: 'Configuration Twilio manquante' },
       { status: 500 }
@@ -81,12 +82,14 @@ export async function POST(request: NextRequest) {
 
   try {
     const client = twilio(accountSid, authToken)
+    // Utilise un Message Template approuvé pour les messages sortants
+    // (obligatoire quand l'utilisateur n'a pas encore écrit au numéro).
+    // La variable {{1}} du template reçoit le lien de confirmation.
     await client.messages.create({
-      from: fromWhatsapp,
-      to:   `whatsapp:${phone}`,
-      body:
-        `Bonjour ! Pour connecter votre WhatsApp à TOML, ` +
-        `cliquez sur ce lien (valable 30 min) :\n${confirmUrl}`,
+      from:             fromWhatsapp,
+      to:               `whatsapp:${phone}`,
+      contentSid:       templateSid,
+      contentVariables: JSON.stringify({ '1': confirmUrl }),
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
