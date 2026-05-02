@@ -7,15 +7,15 @@ import { signVerificationToken } from '@/lib/whatsapp-token'
  * PATCH /api/whatsapp/update-phone
  *
  * Route authentifiée. Utilisée quand un utilisateur veut changer un numéro
- * déjà vérifié. Contrairement à /verify (qui ne touche pas à la DB avant
- * confirmation), cette route :
- *   1. Met à jour phone_number + phone_verified = false en DB immédiatement
- *   2. Puis envoie le lien de vérification WhatsApp au nouveau numéro
+ * déjà vérifié.
+ *   1. Vérifie l'unicité du nouveau numéro
+ *   2. Met à jour phone_number + phone_verified = false en DB immédiatement
+ *   3. Sauvegarde le token HMAC dans verification_tokens
+ *   4. Envoie l'URL courte (/api/whatsapp/confirm?id=UUID) par WhatsApp
  *
  * Body JSON : { phone: string }
  */
 export async function PATCH(request: NextRequest) {
-  // Auth
   const supabase = await createSupabaseServerClient()
   const {
     data: { user },
@@ -25,7 +25,6 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
   }
 
-  // Lecture et validation du numéro
   let phone: string
   try {
     const body = await request.json()
@@ -67,7 +66,26 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: dbError.message }, { status: 500 })
   }
 
-  // Envoi du lien de vérification WhatsApp
+  // Génère le token HMAC et le persiste en base (durée 30 min)
+  const hmacToken = signVerificationToken(user.id, phone)
+
+  const { data: tokenRow, error: insertError } = await supabaseAdmin
+    .from('verification_tokens')
+    .insert({ token: hmacToken, user_id: user.id, phone })
+    .select('id')
+    .single()
+
+  if (insertError || !tokenRow) {
+    return NextResponse.json(
+      { error: 'Impossible de créer le lien de vérification.' },
+      { status: 500 }
+    )
+  }
+
+  // URL courte : seul l'UUID est transmis
+  const origin     = request.nextUrl.origin
+  const confirmUrl = `${origin}/api/whatsapp/confirm?id=${tokenRow.id}`
+
   const accountSid = process.env.TWILIO_ACCOUNT_SID
   const authToken  = process.env.TWILIO_AUTH_TOKEN
   const rawFrom    = (process.env.TWILIO_WHATSAPP_NUMBER ?? '').replace(/\s/g, '')
@@ -80,18 +98,13 @@ export async function PATCH(request: NextRequest) {
   }
 
   const fromWhatsapp = rawFrom.startsWith('whatsapp:') ? rawFrom : `whatsapp:${rawFrom}`
-  const token      = signVerificationToken(user.id, phone)
-  const origin     = request.nextUrl.origin
-  const confirmUrl = `${origin}/api/whatsapp/confirm?token=${encodeURIComponent(token)}`
 
   try {
     const client = twilio(accountSid, authToken)
     await client.messages.create({
       from: fromWhatsapp,
       to:   `whatsapp:${phone}`,
-      body:
-        `Bonjour ! Pour confirmer votre nouveau numéro WhatsApp sur TOML, ` +
-        `cliquez sur ce lien (valable 30 min) :\n${confirmUrl}`,
+      body: `Pour confirmer votre nouveau numéro WhatsApp sur TOML, cliquez ici (valable 30 min) :\n${confirmUrl}`,
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)

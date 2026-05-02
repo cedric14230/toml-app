@@ -6,13 +6,14 @@ import { signVerificationToken } from '@/lib/whatsapp-token'
 /**
  * POST /api/whatsapp/verify
  *
- * Route authentifiée. Reçoit { phone: "+33612345678" },
- * signe un token HMAC et envoie le lien de confirmation par WhatsApp.
+ * Route authentifiée. Reçoit { phone: "+33612345678" }.
+ * Sauvegarde le token HMAC dans verification_tokens et envoie
+ * une URL courte (/api/whatsapp/confirm?id=UUID) par WhatsApp
+ * via un Message Template approuvé.
  *
  * Body JSON : { phone: string }
  */
 export async function POST(request: NextRequest) {
-  // Vérification de l'authentification via session Supabase
   const supabase = await createSupabaseServerClient()
   const {
     data: { user },
@@ -22,7 +23,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
   }
 
-  // Lecture et validation du numéro
   let phone: string
   try {
     const body = await request.json()
@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Corps JSON invalide' }, { status: 400 })
   }
 
-  // Format international strict : +XXXXXXXXXXXX (7 à 15 chiffres)
   if (!/^\+\d{7,15}$/.test(phone)) {
     return NextResponse.json(
       { error: 'Format invalide. Utilisez le format international, ex : +33612345678' },
@@ -55,18 +54,30 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Génère le token HMAC signé
-  const token = signVerificationToken(user.id, phone)
+  // Génère le token HMAC et le persiste en base (durée 30 min)
+  const hmacToken = signVerificationToken(user.id, phone)
 
-  // URL de confirmation (même domaine que la requête entrante)
-  const origin = request.nextUrl.origin
-  const confirmUrl = `${origin}/api/whatsapp/confirm?token=${encodeURIComponent(token)}`
+  const { data: tokenRow, error: insertError } = await supabaseAdmin
+    .from('verification_tokens')
+    .insert({ token: hmacToken, user_id: user.id, phone })
+    .select('id')
+    .single()
 
-  // Envoi du message WhatsApp via Twilio
-  const accountSid   = process.env.TWILIO_ACCOUNT_SID
-  const authToken    = process.env.TWILIO_AUTH_TOKEN
-  const fromNumber   = (process.env.TWILIO_WHATSAPP_NUMBER ?? '').replace(/\s/g, '')
-  const templateSid  = process.env.TWILIO_VERIFICATION_TEMPLATE_SID
+  if (insertError || !tokenRow) {
+    return NextResponse.json(
+      { error: 'Impossible de créer le lien de vérification.' },
+      { status: 500 }
+    )
+  }
+
+  // URL courte : seul l'UUID est transmis, pas le token HMAC complet
+  const origin     = request.nextUrl.origin
+  const confirmUrl = `${origin}/api/whatsapp/confirm?id=${tokenRow.id}`
+
+  const accountSid  = process.env.TWILIO_ACCOUNT_SID
+  const authToken   = process.env.TWILIO_AUTH_TOKEN
+  const fromNumber  = (process.env.TWILIO_WHATSAPP_NUMBER ?? '').replace(/\s/g, '')
+  const templateSid = process.env.TWILIO_VERIFICATION_TEMPLATE_SID
 
   if (!accountSid || !authToken || !fromNumber || !templateSid) {
     return NextResponse.json(
@@ -75,16 +86,12 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Normalise : s'assure que from a toujours le préfixe whatsapp:
   const fromWhatsapp = fromNumber.startsWith('whatsapp:')
     ? fromNumber
     : `whatsapp:${fromNumber}`
 
   try {
     const client = twilio(accountSid, authToken)
-    // Utilise un Message Template approuvé pour les messages sortants
-    // (obligatoire quand l'utilisateur n'a pas encore écrit au numéro).
-    // La variable {{1}} du template reçoit le lien de confirmation.
     await client.messages.create({
       from:             fromWhatsapp,
       to:               `whatsapp:${phone}`,
