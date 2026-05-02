@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
   if (!userRecord) {
     return twimlReply(
       'Votre numéro WhatsApp n\'est pas associé à un compte TOML. ' +
-      'Configurez-le depuis vos paramètres : toml-app.vercel.app/dashboard/settings'
+      'Configurez-le depuis vos paramètres : toml.fr/dashboard/settings'
     )
   }
 
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
   if (!wishlist) {
     return twimlReply(
-      'Vous n\'avez pas encore de wishlist. Créez-en une sur toml-app.vercel.app/dashboard'
+      'Vous n\'avez pas encore de wishlist. Créez-en une sur toml.fr/dashboard'
     )
   }
 

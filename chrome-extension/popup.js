@@ -8,7 +8,7 @@
  *  4. POST /api/items au clic sur "Ajouter à TOML"
  */
 
-const BASE = 'https://toml-app.vercel.app'
+const BASE = 'https://toml.fr'
 
 // ── Références DOM ────────────────────────────────────────────────────────
 const states = {

@@ -6,7 +6,7 @@ Extension Chrome (Manifest V3) qui ajoute l'article affiché sur la page active 
 
 1. Vous naviguez sur n'importe quelle page produit (Zara, Amazon, Sézane…)
 2. Vous cliquez sur l'icône **T** dans la barre Chrome
-3. Un nouvel onglet s'ouvre sur `toml-app.vercel.app/add-item`, pré-rempli avec le titre, l'image, le prix et l'URL source détectés automatiquement (via les OG tags et le schema JSON-LD de la page)
+3. Un nouvel onglet s'ouvre sur `toml.fr/add-item`, pré-rempli avec le titre, l'image, le prix et l'URL source détectés automatiquement (via les OG tags et le schema JSON-LD de la page)
 
 ## Installation (mode développeur)
 
