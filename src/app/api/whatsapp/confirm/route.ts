@@ -19,8 +19,14 @@ export async function GET(request: NextRequest) {
 
   console.log('[confirm] ── début ──────────────────────────────────────')
   console.log('[confirm] token reçu :', token ? token.slice(0, 40) + '…' : 'ABSENT')
-  console.log('[confirm] WHATSAPP_TOKEN_SECRET défini :', !!process.env.WHATSAPP_TOKEN_SECRET)
-  console.log('[confirm] CRON_SECRET défini :', !!process.env.CRON_SECRET)
+
+  // Affiche les 10 premiers caractères de chaque secret pour comparer
+  // avec celui utilisé lors de la signature (sans révéler la valeur complète)
+  const wtsSecret  = process.env.WHATSAPP_TOKEN_SECRET ?? ''
+  const cronSecret = process.env.CRON_SECRET ?? ''
+  console.log('[confirm] WHATSAPP_TOKEN_SECRET :', wtsSecret  ? wtsSecret.slice(0, 10)  + '…' : 'NON DÉFINI')
+  console.log('[confirm] CRON_SECRET           :', cronSecret ? cronSecret.slice(0, 10) + '…' : 'NON DÉFINI')
+  console.log('[confirm] secret effectif utilisé :', wtsSecret ? 'WHATSAPP_TOKEN_SECRET' : cronSecret ? 'CRON_SECRET' : 'dev-fallback-secret')
 
   if (!token) {
     console.log('[confirm] → redirect : token_missing')
@@ -33,15 +39,18 @@ export async function GET(request: NextRequest) {
   try {
     const decoded = Buffer.from(token, 'base64url').toString('utf8')
     const parts   = decoded.split('|')
-    console.log('[confirm] parties dans le token :', parts.length)
+    console.log('[confirm] nombre de parties dans le token :', parts.length, '(attendu : 4)')
     if (parts.length === 4) {
-      const [userId, phone, ts] = parts
-      const ageMs  = Date.now() - Number(ts)
-      const ttlMs  = 30 * 60 * 1000
-      console.log('[confirm] userId :', userId)
-      console.log('[confirm] phone :', phone)
-      console.log('[confirm] âge du token :', Math.round(ageMs / 1000), 's / TTL :', ttlMs / 1000, 's')
-      console.log('[confirm] token expiré :', ageMs > ttlMs)
+      const [userId, phone, ts, sigPreview] = parts
+      const ageMs = Date.now() - Number(ts)
+      const ttlMs = 30 * 60 * 1000
+      console.log('[confirm] userId  :', userId)
+      console.log('[confirm] phone   :', phone)
+      console.log('[confirm] ts      :', ts, '→ âge :', Math.round(ageMs / 1000), 's / TTL :', ttlMs / 1000, 's')
+      console.log('[confirm] expiré  :', ageMs > ttlMs)
+      console.log('[confirm] sig (10 premiers chars) :', sigPreview?.slice(0, 10) + '…')
+    } else {
+      console.log('[confirm] parties brutes :', parts)
     }
   } catch (e) {
     console.log('[confirm] impossible de décoder le token :', e)
