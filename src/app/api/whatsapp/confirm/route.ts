@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
   const origin = request.nextUrl.origin
   const id     = request.nextUrl.searchParams.get('id')
 
+  console.log('[confirm] id reçu :', id)
+
   if (!id) {
     return NextResponse.redirect(
       new URL('/dashboard/settings?phone_error=token_missing', origin)
@@ -26,12 +28,15 @@ export async function GET(request: NextRequest) {
   }
 
   // Récupère le token depuis la base — vérifie l'expiration côté DB
-  const { data: tokenRow } = await supabaseAdmin
+  const { data: tokenRow, error: selectError } = await supabaseAdmin
     .from('verification_tokens')
     .select('token, user_id, phone')
     .eq('id', id)
     .gt('expires_at', new Date().toISOString())
     .maybeSingle()
+
+  console.log('[confirm] token trouvé :', tokenRow ? 'oui' : 'non')
+  if (selectError) console.log('[confirm] erreur SELECT verification_tokens :', selectError.message, selectError.code)
 
   if (!tokenRow) {
     return NextResponse.redirect(
@@ -40,12 +45,14 @@ export async function GET(request: NextRequest) {
   }
 
   const { token: hmacToken, user_id: userId, phone } = tokenRow
+  console.log('[confirm] user_id :', userId)
+  console.log('[confirm] phone :', phone)
 
   // Vérifie la signature HMAC du token stocké
   const payload = verifyVerificationToken(hmacToken)
+  console.log('[confirm] vérification HMAC :', payload ? 'valide' : 'invalide/expiré')
 
   if (!payload) {
-    // Token HMAC corrompu ou expiré — supprime par précaution
     await supabaseAdmin.from('verification_tokens').delete().eq('id', id)
     return NextResponse.redirect(
       new URL('/dashboard/settings?phone_error=token_invalid', origin)
@@ -62,6 +69,7 @@ export async function GET(request: NextRequest) {
     .maybeSingle()
 
   if (conflictUser) {
+    console.log('[confirm] conflit numéro — autre compte :', conflictUser.id)
     await supabaseAdmin.from('verification_tokens').delete().eq('id', id)
     return NextResponse.redirect(
       new URL('/dashboard/settings?phone_error=phone_taken', origin)
@@ -75,10 +83,12 @@ export async function GET(request: NextRequest) {
     .eq('id', userId)
 
   if (updateError) {
+    console.log('[confirm] résultat UPDATE users : erreur —', updateError.message, '| code :', updateError.code)
     return NextResponse.redirect(
       new URL('/dashboard/settings?phone_error=db_error', origin)
     )
   }
+  console.log('[confirm] résultat UPDATE users : succès — phone_verified = true pour', userId)
 
   // Supprime le token — usage unique
   await supabaseAdmin.from('verification_tokens').delete().eq('id', id)
