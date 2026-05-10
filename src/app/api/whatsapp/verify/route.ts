@@ -74,28 +74,22 @@ export async function POST(request: NextRequest) {
   const origin     = request.nextUrl.origin
   const confirmUrl = `${origin}/api/whatsapp/confirm?id=${tokenRow.id}`
 
-  const accountSid  = process.env.TWILIO_ACCOUNT_SID
-  const authToken   = process.env.TWILIO_AUTH_TOKEN
-  const fromNumber  = (process.env.TWILIO_WHATSAPP_NUMBER ?? '').replace(/\s/g, '')
-  const templateSid = process.env.TWILIO_VERIFICATION_TEMPLATE_SID
+  const accountSid = process.env.TWILIO_ACCOUNT_SID
+  const authToken  = process.env.TWILIO_AUTH_TOKEN
 
-  if (!accountSid || !authToken || !fromNumber || !templateSid) {
+  if (!accountSid || !authToken) {
     return NextResponse.json(
       { error: 'Configuration Twilio manquante' },
       { status: 500 }
     )
   }
 
-  const fromWhatsapp = fromNumber.startsWith('whatsapp:')
-    ? fromNumber
-    : `whatsapp:${fromNumber}`
-
   try {
     const client = twilio(accountSid, authToken)
     await client.messages.create({
-      from:             fromWhatsapp,
+      from:             'whatsapp:+17079863698',
       to:               `whatsapp:${phone}`,
-      contentSid:       templateSid,
+      contentSid:       'HX34d014e3764efcc4f6aceb286155a6d8',
       contentVariables: JSON.stringify({ '1': confirmUrl }),
     })
   } catch (err) {
