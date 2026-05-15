@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import twilio from 'twilio'
 import { createSupabaseServerClient, supabaseAdmin } from '@/lib/supabase/server'
 import { signVerificationToken } from '@/lib/whatsapp-token'
 
@@ -86,26 +85,52 @@ export async function PATCH(request: NextRequest) {
   const origin     = request.nextUrl.origin
   const confirmUrl = `${origin}/api/whatsapp/confirm?id=${tokenRow.id}`
 
-  const accountSid = process.env.TWILIO_ACCOUNT_SID
-  const authToken  = process.env.TWILIO_AUTH_TOKEN
-  const rawFrom    = (process.env.TWILIO_WHATSAPP_NUMBER ?? '').replace(/\s/g, '')
+  const phoneNumberId = process.env.META_WHATSAPP_PHONE_NUMBER_ID
+  const metaToken     = process.env.META_WHATSAPP_TOKEN
 
-  if (!accountSid || !authToken || !rawFrom) {
+  if (!phoneNumberId || !metaToken) {
     return NextResponse.json(
-      { error: 'Configuration Twilio manquante' },
+      { error: 'Configuration Meta WhatsApp manquante' },
       { status: 500 }
     )
   }
 
-  const fromWhatsapp = rawFrom.startsWith('whatsapp:') ? rawFrom : `whatsapp:${rawFrom}`
-
   try {
-    const client = twilio(accountSid, authToken)
-    await client.messages.create({
-      from: fromWhatsapp,
-      to:   `whatsapp:${phone}`,
-      body: `Pour confirmer votre nouveau numéro WhatsApp sur TOML, cliquez ici (valable 30 min) :\n${confirmUrl}`,
-    })
+    const res = await fetch(
+      `https://graph.facebook.com/v19.0/${phoneNumberId}/messages`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${metaToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          to: phone,
+          type: 'template',
+          template: {
+            name: 'validation_compte_toml',
+            language: { code: 'fr' },
+            components: [
+              {
+                type: 'button',
+                sub_type: 'url',
+                index: '0',
+                parameters: [{ type: 'text', text: confirmUrl }],
+              },
+            ],
+          },
+        }),
+      }
+    )
+
+    if (!res.ok) {
+      const body = await res.text()
+      return NextResponse.json(
+        { error: `Échec d'envoi WhatsApp : ${body}` },
+        { status: 502 }
+      )
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     return NextResponse.json(
