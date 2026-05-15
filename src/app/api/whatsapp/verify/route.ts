@@ -84,6 +84,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    console.log('[verify] appel Meta API', { phoneNumberId, to: phone })
     const res = await fetch(
       `https://graph.facebook.com/v19.0/${phoneNumberId}/messages`,
       {
@@ -112,8 +113,11 @@ export async function POST(request: NextRequest) {
       }
     )
 
+    console.log('[verify] réponse Meta', { status: res.status, ok: res.ok })
+
     if (!res.ok) {
       const body = await res.text()
+      console.log('[verify] erreur Meta', body)
       return NextResponse.json(
         { error: `Échec d'envoi WhatsApp : ${body}` },
         { status: 502 }
