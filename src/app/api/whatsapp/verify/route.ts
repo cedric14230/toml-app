@@ -5,9 +5,9 @@ import { createSupabaseServerClient, supabaseAdmin } from '@/lib/supabase/server
  * POST /api/whatsapp/verify
  *
  * Route authentifiée. Génère un UUID stocké dans verification_tokens
- * (15 min d'expiration) et retourne une URL wa.me avec un message
- * pré-rempli. L'utilisateur envoie ce message à TOML sur WhatsApp ;
- * le webhook détecte le token et lie le numéro au compte.
+ * (15 min d'expiration) et retourne une URL wa.me avec un message pré-rempli
+ * contenant le code UUID en clair (pas d'URL, évite les previews 404).
+ * Le webhook détecte "Code de liaison : <UUID>" et lie le numéro au compte.
  *
  * Body JSON : (aucun)
  * Réponse   : { waUrl: string }
@@ -36,8 +36,7 @@ export async function POST() {
     )
   }
 
-  const linkUrl = `https://www.toml.fr/api/whatsapp/link/${id}`
-  const message = `Je souhaite connecter mon compte TOML : ${linkUrl}`
+  const message = `Je souhaite connecter mon compte TOML. Code de liaison : ${id}`
   const waUrl   = `https://wa.me/17079863698?text=${encodeURIComponent(message)}`
 
   return NextResponse.json({ waUrl })

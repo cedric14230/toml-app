@@ -32,10 +32,9 @@ export async function POST(request: NextRequest) {
   const phone = from.replace(/^whatsapp:/i, '').trim()
 
   // ── Détection du token de vérification de compte ─────────────────────────
-  // L'utilisateur a cliqué "Connecter WhatsApp" → son message contient
-  // une URL toml.fr/api/whatsapp/link/<UUID>. On lie son numéro au compte.
-  if (bodyText.includes('toml.fr/api/whatsapp/link/')) {
-    const uuidMatch = bodyText.match(/toml\.fr\/api\/whatsapp\/link\/([0-9a-f-]{36})/i)
+  // L'utilisateur a envoyé le message pré-rempli contenant son code de liaison.
+  if (bodyText.includes('Code de liaison :')) {
+    const uuidMatch = bodyText.match(/Code de liaison\s*:\s*([0-9a-f-]{36})/i)
     if (uuidMatch) {
       const uuid = uuidMatch[1]
 
