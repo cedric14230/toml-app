@@ -1,3 +1,7 @@
+// DEPRECATED — ce flow (clic sur lien depuis WhatsApp) est remplacé par la détection
+// du token UUID directement dans le webhook entrant (webhook/route.ts).
+// Fichier conservé pour compatibilité avec d'éventuels liens déjà envoyés.
+
 import { NextRequest, NextResponse } from 'next/server'
 import twilio from 'twilio'
 import { supabaseAdmin } from '@/lib/supabase/server'

@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import twilio from 'twilio'
 import { createSupabaseServerClient, supabaseAdmin } from '@/lib/supabase/server'
-import { signVerificationToken } from '@/lib/whatsapp-token'
 
 /**
  * POST /api/whatsapp/verify
  *
- * Route authentifiée. Reçoit { phone: "+33612345678" }.
- * Sauvegarde le token HMAC dans verification_tokens et envoie
- * une URL courte (/api/whatsapp/confirm?id=UUID) par WhatsApp
- * via un Message Template approuvé.
+ * Route authentifiée. Génère un UUID stocké dans verification_tokens
+ * (15 min d'expiration) et retourne une URL wa.me avec un message
+ * pré-rempli. L'utilisateur envoie ce message à TOML sur WhatsApp ;
+ * le webhook détecte le token et lie le numéro au compte.
  *
- * Body JSON : { phone: string }
+ * Body JSON : (aucun)
+ * Réponse   : { waUrl: string }
  */
 export async function POST(request: NextRequest) {
   const supabase = await createSupabaseServerClient()
@@ -23,82 +22,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
   }
 
-  let phone: string
-  try {
-    const body = await request.json()
-    phone = (body.phone ?? '').trim()
-  } catch {
-    return NextResponse.json({ error: 'Corps JSON invalide' }, { status: 400 })
-  }
+  const id         = crypto.randomUUID()
+  const expiresAt  = new Date(Date.now() + 15 * 60 * 1000).toISOString()
 
-  if (!/^\+\d{7,15}$/.test(phone)) {
-    return NextResponse.json(
-      { error: 'Format invalide. Utilisez le format international, ex : +33612345678' },
-      { status: 400 }
-    )
-  }
-
-  // Vérifie qu'aucun autre compte n'utilise déjà ce numéro (vérifié)
-  const { data: conflict } = await supabaseAdmin
-    .from('users')
-    .select('id')
-    .eq('phone_number', phone)
-    .eq('phone_verified', true)
-    .neq('id', user.id)
-    .maybeSingle()
-
-  if (conflict) {
-    return NextResponse.json(
-      { error: 'Ce numéro est déjà associé à un autre compte TOML. Si c\'est le tien, connecte-toi avec ce compte ou contacte-nous.' },
-      { status: 409 }
-    )
-  }
-
-  // Génère le token HMAC et le persiste en base (durée 30 min)
-  const hmacToken = signVerificationToken(user.id, phone)
-
-  const { data: tokenRow, error: insertError } = await supabaseAdmin
+  const { error: insertError } = await supabaseAdmin
     .from('verification_tokens')
-    .insert({ token: hmacToken, user_id: user.id, phone })
-    .select('id')
-    .single()
+    .insert({ id, user_id: user.id, expires_at: expiresAt })
 
-  if (insertError || !tokenRow) {
+  if (insertError) {
     return NextResponse.json(
       { error: 'Impossible de créer le lien de vérification.' },
       { status: 500 }
     )
   }
 
-  // URL courte : seul l'UUID est transmis, pas le token HMAC complet
-  const origin     = request.nextUrl.origin
-  const confirmUrl = `${origin}/api/whatsapp/confirm?id=${tokenRow.id}`
+  const linkUrl = `https://www.toml.fr/api/whatsapp/link/${id}`
+  const message = `Je souhaite connecter mon compte TOML : ${linkUrl}`
+  const waUrl   = `https://wa.me/17079863698?text=${encodeURIComponent(message)}`
 
-  const accountSid = process.env.TWILIO_ACCOUNT_SID
-  const authToken  = process.env.TWILIO_AUTH_TOKEN
-
-  if (!accountSid || !authToken) {
-    return NextResponse.json(
-      { error: 'Configuration Twilio manquante' },
-      { status: 500 }
-    )
-  }
-
-  try {
-    const client = twilio(accountSid, authToken)
-    await client.messages.create({
-      from:             'whatsapp:+17079863698',
-      to:               `whatsapp:${phone}`,
-      contentSid:       'HX34d014e3764efcc4f6aceb286155a6d8',
-      contentVariables: JSON.stringify({ '1': confirmUrl }),
-    })
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    return NextResponse.json(
-      { error: `Échec d'envoi WhatsApp : ${message}` },
-      { status: 502 }
-    )
-  }
-
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ waUrl })
 }

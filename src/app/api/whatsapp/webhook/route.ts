@@ -31,6 +31,46 @@ export async function POST(request: NextRequest) {
   // Normalise le numéro : supprime le préfixe "whatsapp:"
   const phone = from.replace(/^whatsapp:/i, '').trim()
 
+  // ── Détection du token de vérification de compte ─────────────────────────
+  // L'utilisateur a cliqué "Connecter WhatsApp" → son message contient
+  // une URL toml.fr/api/whatsapp/link/<UUID>. On lie son numéro au compte.
+  if (bodyText.includes('toml.fr/api/whatsapp/link/')) {
+    const uuidMatch = bodyText.match(/toml\.fr\/api\/whatsapp\/link\/([0-9a-f-]{36})/i)
+    if (uuidMatch) {
+      const uuid = uuidMatch[1]
+
+      const { data: tokenRow } = await supabaseAdmin
+        .from('verification_tokens')
+        .select('user_id')
+        .eq('id', uuid)
+        .gt('expires_at', new Date().toISOString())
+        .maybeSingle()
+
+      if (!tokenRow) {
+        return twimlReply(
+          'Ce lien est expiré ou invalide. Génère un nouveau lien depuis ton profil TOML.'
+        )
+      }
+
+      await supabaseAdmin
+        .from('users')
+        .update({ phone_number: phone, phone_verified: true })
+        .eq('id', tokenRow.user_id)
+
+      await supabaseAdmin
+        .from('verification_tokens')
+        .delete()
+        .eq('id', uuid)
+
+      return twimlReply(
+        '✅ Ton numéro est connecté à TOML !\n\n' +
+        "Envoie-moi maintenant n'importe quelle URL de produit pour l'ajouter à ta wishlist 🛍️\n\n" +
+        'Pense à enregistrer ce numéro dans tes contacts sous le nom "TOML" 📱'
+      )
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   // Cherche l'utilisateur par numéro vérifié
   const { data: userRecord } = await supabaseAdmin
     .from('users')
