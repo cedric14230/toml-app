@@ -13,13 +13,12 @@ import * as cheerio from 'cheerio'
  * │   Lit les balises meta OG et les blocs <script type="ld+json">.    │
  * │   Couvre ~70% des sites qui publient leurs données pour le SEO.    │
  * ├─────────────────────────────────────────────────────────────────────┤
- * │ NIVEAU 2 — Puppeteer + Claude Vision (coûte ~0,003 $ / appel)      │
- * │   Lance Chromium via @sparticuz/chromium (optimisé serverless).    │
- * │   Prend un screenshot JPEG 1280×800 après rendu JS complet.        │
- * │   Envoie l'image à claude-sonnet-4-6 pour extraction structurée.   │
+ * │ NIVEAU 2 — Fetch HTML + Claude texte (~0,001 $ / appel, <8 s)      │
+ * │   Re-fetch le HTML brut avec headers Chrome réalistes.             │
+ * │   Envoie jusqu'à 30 000 chars à claude-sonnet-4-6 en mode texte.   │
+ * │   Claude retourne un JSON structuré {title, image_url, price…}.    │
+ * │   Si image_url est null, tente un fallback image via ScrapingBee.  │
  * │   Nécessite ANTHROPIC_API_KEY. Skip si la clé est absente.         │
- * │   ⚠️  Vercel Hobby : timeout 10s probablement insuffisant.         │
- * │       Vercel Pro (maxDuration=60) ou déploiement Node.js autonome. │
  * ├─────────────────────────────────────────────────────────────────────┤
  * │ NIVEAU 3 — ScrapingBee render_js (proxies résidentiels, ~0,002 $)  │
  * │   Exécute la page dans un vrai Chromium avec IP résidentielle.     │
@@ -27,10 +26,9 @@ import * as cheerio from 'cheerio'
  * │   Nécessite SCRAPINGBEE_KEY. Skip si la clé est absente.           │
  * └─────────────────────────────────────────────────────────────────────┘
  *
- * maxDuration = 60 s : nécessaire pour Puppeteer (Vercel Pro uniquement).
- * Sur Hobby plan, le niveau 2 sera tronqué ; les niveaux 1 et 3 restent ok.
+ * maxDuration = 10 s : compatible Vercel Hobby.
  */
-export const maxDuration = 30
+export const maxDuration = 10
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
@@ -174,7 +172,7 @@ async function scrapeLevel1(url: string): Promise<ScrapeResult | null> {
   return { title, image, price }
 }
 
-// ── Niveau 2 : Puppeteer + Claude Vision ─────────────────────────────────────
+// ── Niveau 2 : Claude texte sur HTML brut ────────────────────────────────────
 
 async function scrapeLevel2(url: string): Promise<ScrapeResult | null> {
   const apiKey = process.env.ANTHROPIC_API_KEY
@@ -183,91 +181,123 @@ async function scrapeLevel2(url: string): Promise<ScrapeResult | null> {
     return null
   }
 
-  // Imports dynamiques pour ne charger ces modules lourds qu'au besoin
-  const [{ default: chromium }, { default: puppeteer }] = await Promise.all([
-    import('@sparticuz/chromium'),
-    import('puppeteer-core'),
-  ])
-
-  // v147+ : headless déjà inclus dans chromium.args (--headless='shell')
-  const browser = await puppeteer.launch({
-    args: chromium.args,
-    defaultViewport: { width: 1280, height: 800 },
-    executablePath: await chromium.executablePath(),
-  })
-
-  let screenshotBase64: string
+  // ── Étape 1 : Fetch HTML + extraction Claude texte ────────────────────
+  let html: string
   try {
-    const page = await browser.newPage()
-    await page.setUserAgent(CHROME_UA)
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20_000 })
-    // Petit délai pour laisser le JS critique s'exécuter
-    await new Promise((r) => setTimeout(r, 2000))
-
-    const buffer = await page.screenshot({
-      type: 'jpeg',
-      quality: 75,
-      clip: { x: 0, y: 0, width: 1280, height: 800 },
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': CHROME_UA,
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Accept-Encoding': 'gzip, deflate, br',
+      },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(8_000),
     })
-    screenshotBase64 = Buffer.from(buffer).toString('base64')
-  } finally {
-    await browser.close()
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    html = await res.text()
+  } catch (err) {
+    console.warn('[scrape] niveau 2 : fetch échoué', err)
+    return null
   }
 
-  // ── Appel Claude Vision ─────────────────────────────────────────────────
+  // Tronquer pour limiter les tokens (≈7 500 tokens pour ~30 000 chars)
+  const htmlSnippet = html.length > 30_000 ? html.slice(0, 30_000) : html
+
   const { default: Anthropic } = await import('@anthropic-ai/sdk')
   const anthropic = new Anthropic({ apiKey })
 
-  const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 512,
-    messages: [
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 8_000)
+
+  let parsed: Record<string, unknown>
+  try {
+    const message = await anthropic.messages.create(
       {
-        role: 'user',
-        content: [
-          {
-            type: 'image',
-            source: {
-              type: 'base64',
-              media_type: 'image/jpeg',
-              data: screenshotBase64,
-            },
-          },
-          {
-            type: 'text',
-            text:
-              'Tu es un assistant d\u2019extraction de donn\u00e9es produit. ' +
-              'Analyse cette page e-commerce et extrais en JSON : ' +
-              '{ "title": string, "price": string | null, "currency": string | null, ' +
-              '"imageUrl": string | null, "description": string | null }. ' +
-              'R\u00e9ponds UNIQUEMENT avec le JSON, sans texte autour.',
-          },
-        ],
+        model: 'claude-sonnet-4-6',
+        max_tokens: 512,
+        system:
+          'Tu es un extracteur de données produit. ' +
+          'Analyse ce HTML et retourne UNIQUEMENT un JSON valide avec ces clés : ' +
+          '{ "title": string | null, "image_url": string | null, "price": string | null, ' +
+          '"currency": string | null, "description": string | null }. ' +
+          'Si une donnée est introuvable, mets null. Aucun texte hors du JSON.',
+        messages: [{ role: 'user', content: htmlSnippet }],
       },
-    ],
-  })
+      { signal: controller.signal },
+    )
 
-  const raw =
-    message.content[0].type === 'text' ? message.content[0].text : ''
+    const raw = message.content[0].type === 'text' ? message.content[0].text : ''
+    const jsonMatch = raw.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) return null
 
-  // Extrait le bloc JSON même si Claude ajoute du texte autour
-  const jsonMatch = raw.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) return null
+    parsed = JSON.parse(jsonMatch[0])
+  } catch (err) {
+    console.warn('[scrape] niveau 2 : Claude échoué', err)
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
 
-  const parsed: Record<string, unknown> = JSON.parse(jsonMatch[0])
-
-  const title =
-    typeof parsed.title === 'string' && parsed.title ? parsed.title : null
+  const title = typeof parsed.title === 'string' && parsed.title ? parsed.title : null
   if (!title) return null
 
-  return {
-    title,
-    image: typeof parsed.imageUrl === 'string' ? parsed.imageUrl : null,
-    price:
-      parsed.price != null
-        ? `${parsed.price}${parsed.currency ? ' ' + parsed.currency : ''}`
-        : null,
+  const price =
+    parsed.price != null
+      ? `${parsed.price}${parsed.currency ? ' ' + parsed.currency : ''}`
+      : null
+
+  let image =
+    typeof parsed.image_url === 'string' && parsed.image_url ? parsed.image_url : null
+
+  // ── Étape 2 : Fallback image via ScrapingBee si Claude n'a pas trouvé ─
+  if (!image) {
+    const sbKey = process.env.SCRAPINGBEE_KEY
+    if (sbKey) {
+      try {
+        const endpoint =
+          `https://app.scrapingbee.com/api/v1/` +
+          `?api_key=${sbKey}` +
+          `&url=${encodeURIComponent(url)}` +
+          `&render_js=true` +
+          `&stealth_proxy=true` +
+          `&block_ads=true` +
+          `&wait=2000`
+
+        const sbRes = await fetch(endpoint, { signal: AbortSignal.timeout(8_000) })
+        if (sbRes.ok) {
+          const sbHtml = await sbRes.text()
+          const $ = cheerio.load(sbHtml)
+
+          image =
+            $('meta[property="og:image"]').attr('content') ??
+            $('meta[name="twitter:image"]').attr('content') ??
+            null
+
+          if (!image) {
+            $('img').each((_, el) => {
+              if (image) return
+              const widthAttr = $(el).attr('width')
+              const styleMatch = ($(el).attr('style') ?? '').match(/width\s*:\s*(\d+)/)
+              const width = widthAttr
+                ? parseInt(widthAttr, 10)
+                : styleMatch
+                ? parseInt(styleMatch[1], 10)
+                : 0
+              if (width > 200) {
+                image = $(el).attr('src') ?? null
+              }
+            })
+          }
+        }
+      } catch (err) {
+        console.warn('[scrape] niveau 2 : fallback image ScrapingBee échoué', err)
+      }
+    }
   }
+
+  return { title, image, price }
 }
 
 // ── Niveau 3 : ScrapingBee ────────────────────────────────────────────────────
