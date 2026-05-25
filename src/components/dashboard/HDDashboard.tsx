@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { HDShell } from '@/components/landing/shells'
 import { TomlBookmarklet } from '@/components/toml-ds/toml-kit'
 import { TomlIcon } from '@/components/toml-ds/toml-icons'
+import CreateWishlistModal from '@/components/wishlists/CreateWishlistModal'
 import type { WishlistRow } from './types'
 
 type Filter = 'all' | 'public' | 'friends' | 'private' | 'archived'
@@ -83,7 +85,9 @@ interface HDDashboardProps {
 }
 
 export const HDDashboard = ({ wishlists, firstName }: HDDashboardProps) => {
+  const router = useRouter()
   const [activeFilter, setActiveFilter] = useState<Filter>('all')
+  const [createOpen, setCreateOpen]     = useState(false)
 
   const counts = {
     all:     wishlists.length,
@@ -129,14 +133,14 @@ export const HDDashboard = ({ wishlists, firstName }: HDDashboardProps) => {
                 {label}
               </button>
             ))}
-            <Link
-              href="/wishlist/new"
+            <button
+              onClick={() => setCreateOpen(true)}
               className="btn btn-primary btn-stamp"
-              style={{ marginLeft: 8, textDecoration: 'none' }}
+              style={{ marginLeft: 8 }}
             >
               <TomlIcon name="plus" size={14} />
               Créer une wishlist
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -145,8 +149,9 @@ export const HDDashboard = ({ wishlists, firstName }: HDDashboardProps) => {
           {displayed.map(w => <DashboardCard key={w.id} w={w} />)}
 
           {/* Dashed create card */}
-          <Link href="/wishlist/new" style={{ textDecoration: 'none' }}>
-            <button style={{
+          <button
+            onClick={() => setCreateOpen(true)}
+            style={{
               width: '100%',
               background: 'transparent',
               border: '1.5px dashed var(--t-ink-3)',
@@ -155,22 +160,22 @@ export const HDDashboard = ({ wishlists, firstName }: HDDashboardProps) => {
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10,
               color: 'var(--t-ink-3)', cursor: 'pointer', minHeight: 360,
               fontFamily: 'var(--t-font-ui)', fontWeight: 600, fontSize: 14,
+            }}
+          >
+            <div style={{
+              width: 56, height: 56, borderRadius: 999,
+              background: 'var(--t-bg-2)', border: '1.5px dashed var(--t-ink-3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <div style={{
-                width: 56, height: 56, borderRadius: 999,
-                background: 'var(--t-bg-2)', border: '1.5px dashed var(--t-ink-3)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <TomlIcon name="plus" size={24} />
-              </div>
-              <div className="display-2" style={{ fontSize: 17, color: 'var(--t-ink-2)' }}>
-                Nouvelle wishlist
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--t-ink-3)', textAlign: 'center', maxWidth: 200 }}>
-                Anniversaire, déménagement, liste de naissance…
-              </div>
-            </button>
-          </Link>
+              <TomlIcon name="plus" size={24} />
+            </div>
+            <div className="display-2" style={{ fontSize: 17, color: 'var(--t-ink-2)' }}>
+              Nouvelle wishlist
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--t-ink-3)', textAlign: 'center', maxWidth: 200 }}>
+              Anniversaire, déménagement, liste de naissance…
+            </div>
+          </button>
         </div>
 
         {/* Bookmarklet promo */}
@@ -202,6 +207,13 @@ export const HDDashboard = ({ wishlists, firstName }: HDDashboardProps) => {
           </div>
         </div>
       </div>
+
+      {createOpen && (
+        <CreateWishlistModal
+          onClose={() => setCreateOpen(false)}
+          onSuccess={id => router.push(`/wishlist/${id}`)}
+        />
+      )}
     </HDShell>
   )
 }
