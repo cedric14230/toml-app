@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { HDShell } from '@/components/landing/shells'
 import { TomlStars } from '@/components/toml-ds/toml-kit'
 import { TomlIcon } from '@/components/toml-ds/toml-icons'
+import AddItemModal from '@/components/items/AddItemModal'
 import type { ItemRow, WishlistData, WishlistStats } from './types'
 
 // ── Visibility helpers ────────────────────────────────────────────────────────
@@ -49,16 +51,6 @@ const ItemCard = ({
           <span className="dot dot-reserved" style={{ marginRight: 4 }} />
           Réservé
         </span>
-      )}
-      {isOwner && (
-        <button className="btn btn-ghost" style={{
-          position: 'absolute', top: 10, right: 10,
-          width: 32, height: 32, padding: 0, borderRadius: 999,
-          background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(4px)',
-          border: '1px solid var(--t-line)',
-        }}>
-          <TomlIcon name="menu" size={14} />
-        </button>
       )}
     </div>
 
@@ -105,7 +97,9 @@ interface HDWishlistProps {
 }
 
 export const HDWishlist = ({ wishlist, items, stats, isOwner }: HDWishlistProps) => {
+  const router = useRouter()
   const [activeFilter, setActiveFilter] = useState<Filter>('all')
+  const [addItemOpen, setAddItemOpen]   = useState(false)
 
   const displayed =
     activeFilter === 'available' ? items.filter(it => it.status === 'available')
@@ -118,6 +112,7 @@ export const HDWishlist = ({ wishlist, items, stats, isOwner }: HDWishlistProps)
   const visIcon  = VIS_ICON[wishlist.visibility]
 
   return (
+    <>
     <HDShell active="lists" authed>
       <div style={{ padding: '24px 40px 60px' }}>
         {/* Breadcrumb */}
@@ -182,7 +177,7 @@ export const HDWishlist = ({ wishlist, items, stats, isOwner }: HDWishlistProps)
                 <TomlIcon name="menu" size={14} />
                 Modifier
               </button>
-              <button className="btn btn-primary btn-stamp">
+              <button className="btn btn-primary btn-stamp" onClick={() => setAddItemOpen(true)}>
                 <TomlIcon name="plus" size={14} />
                 Ajouter un article
               </button>
@@ -229,11 +224,26 @@ export const HDWishlist = ({ wishlist, items, stats, isOwner }: HDWishlistProps)
         ) : (
           <div style={{ columnCount: 3, columnGap: 18 }}>
             {displayed.map(it => (
-              <ItemCard key={it.id} item={it} isOwner={isOwner} big={it.stars === 3} />
+              <Link
+                key={it.id}
+                href={`/wishlist/${wishlist.id}/item/${it.id}`}
+                style={{ textDecoration: 'none', display: 'block' }}
+              >
+                <ItemCard item={it} isOwner={isOwner} big={it.stars === 3} />
+              </Link>
             ))}
           </div>
         )}
       </div>
     </HDShell>
+
+    {addItemOpen && (
+      <AddItemModal
+        wishlistId={wishlist.id}
+        onClose={() => setAddItemOpen(false)}
+        onSuccess={() => { setAddItemOpen(false); router.refresh() }}
+      />
+    )}
+    </>
   )
 }

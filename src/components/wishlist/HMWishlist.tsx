@@ -1,8 +1,12 @@
 'use client'
 
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { HMShell, HMTopBar } from '@/components/landing/shells'
 import { TomlStars } from '@/components/toml-ds/toml-kit'
 import { TomlIcon } from '@/components/toml-ds/toml-icons'
+import AddItemModal from '@/components/items/AddItemModal'
 import type { ItemRow, WishlistData, WishlistStats } from './types'
 
 // ── Visibility helpers ────────────────────────────────────────────────────────
@@ -125,6 +129,9 @@ interface HMWishlistProps {
 }
 
 export const HMWishlist = ({ wishlist, items, stats, isOwner }: HMWishlistProps) => {
+  const router = useRouter()
+  const [addItemOpen, setAddItemOpen] = useState(false)
+
   const featured = items.filter(it => it.stars === 3)
   const others   = items.filter(it => it.stars < 3)
   const col1     = others.filter((_, i) => i % 2 === 0)
@@ -134,10 +141,19 @@ export const HMWishlist = ({ wishlist, items, stats, isOwner }: HMWishlistProps)
   const visIcon  = VIS_ICON[wishlist.visibility]
 
   return (
+    <>
     <HMShell>
       <HMTopBar
-        back
         title={wishlist.title}
+        left={
+          <button
+            className="btn btn-ghost"
+            onClick={() => router.back()}
+            style={{ width: 36, height: 36, padding: 0, borderRadius: 999, background: 'var(--t-paper)', border: '1px solid var(--t-line)' }}
+          >
+            <TomlIcon name="arrow" size={16} style={{ transform: 'rotate(180deg)' }} />
+          </button>
+        }
         right={
           <>
             <button className="btn btn-ghost" style={{
@@ -177,7 +193,7 @@ export const HMWishlist = ({ wishlist, items, stats, isOwner }: HMWishlistProps)
       {/* Add button (owner only) */}
       {isOwner && (
         <div style={{ padding: '8px 18px 4px' }}>
-          <button className="btn btn-primary btn-stamp btn-sm" style={{ width: '100%' }}>
+          <button className="btn btn-primary btn-stamp btn-sm" style={{ width: '100%' }} onClick={() => setAddItemOpen(true)}>
             <TomlIcon name="plus" size={14} />
             Ajouter un article
           </button>
@@ -197,7 +213,11 @@ export const HMWishlist = ({ wishlist, items, stats, isOwner }: HMWishlistProps)
       {/* Featured 3★ — full width */}
       {featured.length > 0 && (
         <div style={{ padding: '12px 18px 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {featured.map(it => <FeaturedCard key={it.id} item={it} isOwner={isOwner} />)}
+          {featured.map(it => (
+            <Link key={it.id} href={`/wishlist/${wishlist.id}/item/${it.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+              <FeaturedCard item={it} isOwner={isOwner} />
+            </Link>
+          ))}
         </div>
       )}
 
@@ -209,14 +229,31 @@ export const HMWishlist = ({ wishlist, items, stats, isOwner }: HMWishlistProps)
           </div>
           <div style={{ padding: '0 14px 24px', display: 'flex', gap: 10 }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              {col1.map((it, i) => <SmallCard key={it.id} item={it} h={HEIGHTS[i % HEIGHTS.length]} />)}
+              {col1.map((it, i) => (
+                <Link key={it.id} href={`/wishlist/${wishlist.id}/item/${it.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+                  <SmallCard item={it} h={HEIGHTS[i % HEIGHTS.length]} />
+                </Link>
+              ))}
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              {col2.map((it, i) => <SmallCard key={it.id} item={it} h={HEIGHTS[(i + 1) % HEIGHTS.length]} />)}
+              {col2.map((it, i) => (
+                <Link key={it.id} href={`/wishlist/${wishlist.id}/item/${it.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+                  <SmallCard item={it} h={HEIGHTS[(i + 1) % HEIGHTS.length]} />
+                </Link>
+              ))}
             </div>
           </div>
         </>
       )}
     </HMShell>
+
+    {addItemOpen && (
+      <AddItemModal
+        wishlistId={wishlist.id}
+        onClose={() => setAddItemOpen(false)}
+        onSuccess={() => { setAddItemOpen(false); router.refresh() }}
+      />
+    )}
+    </>
   )
 }
