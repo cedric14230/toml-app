@@ -32,10 +32,18 @@ export async function createSupabaseServerClient() {
  * Client Supabase admin (Service Role Key).
  * Bypass les politiques RLS — UNIQUEMENT côté serveur.
  * Ne jamais exposer au navigateur.
+ * Initialisation lazy : ne crash pas si SUPABASE_SERVICE_ROLE_KEY est absent en dev local.
  */
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-})
+export const supabaseAdmin = (() => {
+  if (!supabaseServiceRoleKey) {
+    // En dev local sans service role key, retourne null casté pour éviter le crash au boot.
+    // Les routes qui utilisent supabaseAdmin échoueront à l'usage — pas au démarrage.
+    return null as unknown as ReturnType<typeof createClient>
+  }
+  return createClient(supabaseUrl, supabaseServiceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  })
+})()
