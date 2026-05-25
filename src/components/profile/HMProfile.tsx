@@ -56,6 +56,7 @@ const SettingRow = ({ icon, title, value, badge, danger = false, last = false }:
 export const HMProfile = () => (
   <HMShell>
     <HMTopBar
+      showBurger
       left={<div className="display-2" style={{ fontSize: 22 }}>Profil</div>}
       right={
         <button className="btn btn-ghost" style={{

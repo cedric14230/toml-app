@@ -210,6 +210,7 @@ export const HMFeed = ({ events, birthdays, myReservations }: HMFeedProps) => {
   return (
     <HMShell>
       <HMTopBar
+        showBurger
         left={
           <div>
             <div className="label" style={{ marginBottom: 2 }}>Activité</div>

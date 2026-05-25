@@ -127,6 +127,7 @@ const PENDING = [
 export const HMFriends = () => (
   <HMShell>
     <HMTopBar
+      showBurger
       left={
         <div>
           <div className="label" style={{ marginBottom: 2 }}>Mes cercles</div>

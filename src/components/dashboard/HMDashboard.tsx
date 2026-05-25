@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { HMShell, HMTopBar, HMLogo } from '@/components/landing/shells'
+import { HMShell, HMTopBar } from '@/components/landing/shells'
 import { TomlAvatar } from '@/components/toml-ds/toml-kit'
 import { TomlIcon } from '@/components/toml-ds/toml-icons'
 import CreateWishlistModal from '@/components/wishlists/CreateWishlistModal'
@@ -125,7 +125,7 @@ export const HMDashboard = ({ wishlists, firstName, phoneVerified }: HMDashboard
   return (
     <HMShell>
       <HMTopBar
-        left={<HMLogo size={20} />}
+        showBurger
         right={
           <>
             <button className="btn btn-ghost" style={{
