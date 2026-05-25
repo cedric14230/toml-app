@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>TOML — DS v2 : Snap Family / Snapchat / Vinted / Pinterest</title>
+<meta name="viewport" content="width=1440" />
+<link rel="stylesheet" href="design-systems/styles.css" />
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="design-systems/screens.jsx"></script>
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "snapfamPalette": "Bleu glacé · Denim · Rose terre"
+}/*EDITMODE-END*/;
+
+// 9 palettes for Snap Family (P0 = original cream reference, P1-8 sans crème)
+const SNAPFAM_PALETTES = {
+  "Crème · Indigo · Corail (référence)": {
+    bg: '#fdf9f0', ink: '#1a1a2e',
+    yellow: '#f5c948', yellowSoft: '#fef0c4',
+    indigo: '#3d4a8c', indigoLight: '#c8d0e8',
+    coral: '#e87358', coralLight: '#fbdcd0',
+    teal: '#5a8c87', line: '#e3dcc8',
+  },
+  "Blanc cassé · Indigo · Corail": {
+    bg: '#f4f1ec', ink: '#1a1a2e',
+    yellow: '#f5c948', yellowSoft: '#fef0c4',
+    indigo: '#3d4a8c', indigoLight: '#c8d0e8',
+    coral: '#e87358', coralLight: '#fbdcd0',
+    teal: '#5a8c87', line: '#dcd8d0',
+  },
+  "Gris perle · Sapin · Brique": {
+    bg: '#ebe8e3', ink: '#1f2418',
+    yellow: '#e8b942', yellowSoft: '#f5e0b0',
+    indigo: '#2e5945', indigoLight: '#c4d8cc',
+    coral: '#c75a3c', coralLight: '#f0c8b8',
+    teal: '#8a6f4a', line: '#d8d4cc',
+  },
+  "Bleu glacé · Denim · Rose terre": {
+    bg: '#e6ecf2', ink: '#1a1f2e',
+    yellow: '#d4a73c', yellowSoft: '#f0dca8',
+    indigo: '#5a6f9c', indigoLight: '#c8d0e0',
+    coral: '#c47884', coralLight: '#ecd0d4',
+    teal: '#7a8a9c', line: '#d4dae0',
+  },
+  "Vert tilleul · Sauge · Terracotta": {
+    bg: '#e8edd8', ink: '#1f2a18',
+    yellow: '#f0c068', yellowSoft: '#f8e0b8',
+    indigo: '#4a7a6c', indigoLight: '#c4d8cc',
+    coral: '#d87858', coralLight: '#f0d0c0',
+    teal: '#8aa098', line: '#d4d8c4',
+  },
+  "Lavande · Aubergine · Rose pâle": {
+    bg: '#ebe6ef', ink: '#2a1a2a',
+    yellow: '#d4a040', yellowSoft: '#f0d8a0',
+    indigo: '#6b3a5c', indigoLight: '#d8c0d0',
+    coral: '#d89090', coralLight: '#f3d8d8',
+    teal: '#b08a78', line: '#d8d2dc',
+  },
+  "Sable rosé · Denim · Tomate": {
+    bg: '#f1e9e2', ink: '#1a1f2e',
+    yellow: '#f0b840', yellowSoft: '#fae0a0',
+    indigo: '#3a5878', indigoLight: '#c4d4e4',
+    coral: '#d85842', coralLight: '#f0c8c0',
+    teal: '#7a6a4a', line: '#dcd4cc',
+  },
+  "Gris chaud · Bordeaux · Olive": {
+    bg: '#e8e3dc', ink: '#1f1a18',
+    yellow: '#d8a85c', yellowSoft: '#f0d8b0',
+    indigo: '#6b1e2e', indigoLight: '#ecd0d4',
+    coral: '#8a8a3c', coralLight: '#d8d8a8',
+    teal: '#b08864', line: '#d4cec4',
+  },
+  "Jade pâle · Pétrole · Pêche": {
+    bg: '#dee8e5', ink: '#1a2424',
+    yellow: '#e8b85c', yellowSoft: '#f5dca0',
+    indigo: '#1f4a52', indigoLight: '#b8d0d4',
+    coral: '#e88a6a', coralLight: '#f3d4c8',
+    teal: '#7a8a8a', line: '#cad4d0',
+  },
+};
+
+function applyPalette(name) {
+  const p = SNAPFAM_PALETTES[name];
+  if (!p) return;
+  // Override CSS vars on every .ds-snapfam scope
+  const sheetId = '__snapfam_palette_override';
+  let sheet = document.getElementById(sheetId);
+  if (!sheet) { sheet = document.createElement('style'); sheet.id = sheetId; document.head.appendChild(sheet); }
+  sheet.textContent = `
+    .ds-snapfam {
+      --bg: ${p.bg} !important;
+      --bg-2: ${p.line} !important;
+      --ink: ${p.ink} !important;
+      --yellow: ${p.yellow} !important;
+      --yellow-soft: ${p.yellowSoft} !important;
+      --indigo: ${p.indigo} !important;
+      --coral: ${p.coral} !important;
+      --coral-soft: ${p.coralLight} !important;
+      --teal: ${p.teal} !important;
+      --line: ${p.line} !important;
+    }
+    .ds-snapfam .img-1 { background: linear-gradient(140deg, ${p.coralLight}, ${p.coral}) !important; }
+    .ds-snapfam .img-2 { background: linear-gradient(140deg, ${p.indigoLight}, ${p.indigo}) !important; }
+    .ds-snapfam .img-3 { background: linear-gradient(140deg, ${p.yellowSoft}, ${p.teal}) !important; }
+    .ds-snapfam .img-4 { background: linear-gradient(140deg, ${p.yellowSoft}, ${p.yellow}) !important; }
+    .ds-snapfam .avatar { background: linear-gradient(140deg, ${p.yellow}, ${p.coral}) !important; }
+  `;
+}
+
+function PaletteSwatches({ name }) {
+  const p = SNAPFAM_PALETTES[name];
+  if (!p) return null;
+  const swatches = [
+    ['Bg', p.bg], ['Ink', p.ink], ['Jaune', p.yellow], ['Indigo', p.indigo], ['Coral', p.coral],
+  ];
+  return (
+    <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+      {swatches.map(([n, c]) => (
+        <div key={n} title={`${n} ${c}`} style={{
+          width: 28, height: 28, borderRadius: 6, background: c,
+          border: '1px solid rgba(0,0,0,0.2)', flexShrink: 0,
+        }}></div>
+      ))}
+    </div>
+  );
+}
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  React.useEffect(() => {
+    applyPalette(t.snapfamPalette);
+  }, [t.snapfamPalette]);
+
+  return (
+    <>
+      <DesignCanvas>
+        <DCSection id="ds-snapfam" title="Snap Family — version chaleureuse" subtitle="Esprit Snap (formes rondes, jaune, ombres tampon) ton adulte & familial · activez Tweaks pour changer la palette">
+          <DCArtboard id="ab-snapfam" label="Snap Family DS" width={1100} height={1500}>
+            <DSSnapFam />
+          </DCArtboard>
+        </DCSection>
+        <DCSection id="ds-snap" title="Option 01 — Snapchat" subtitle="Playful & jeune · jaune électrique + noir franc · Sora display + Inter">
+          <DCArtboard id="ab-snap" label="Snapchat DS" width={1100} height={1500}>
+            <DSSnap />
+          </DCArtboard>
+        </DCSection>
+        <DCSection id="ds-vinted" title="Option 02 — Vinted" subtitle="Friendly & trust · vert sapin + blanc · Inter Tight + badges">
+          <DCArtboard id="ab-vinted" label="Vinted DS" width={1100} height={1500}>
+            <DSVinted />
+          </DCArtboard>
+        </DCSection>
+        <DCSection id="ds-pin" title="Option 03 — Pinterest" subtitle="Editorial & tactile · serif italique + rouge + masonry">
+          <DCArtboard id="ab-pin" label="Pinterest DS" width={1100} height={1500}>
+            <DSPin />
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection title="Snap Family — palette">
+          <TweakSelect
+            label="Variation"
+            value={t.snapfamPalette}
+            options={Object.keys(SNAPFAM_PALETTES)}
+            onChange={(v) => setTweak('snapfamPalette', v)}
+          />
+          <div style={{ padding: '0 4px' }}>
+            <PaletteSwatches name={t.snapfamPalette} />
+          </div>
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

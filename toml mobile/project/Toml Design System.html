@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>Toml — Design System v1</title>
+<meta name="viewport" content="width=1440" />
+<link rel="stylesheet" href="toml-ds/toml.css" />
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="toml-ds/sections-1.jsx"></script>
+<script type="text/babel" src="toml-ds/sections-2.jsx"></script>
+<script type="text/babel" src="toml-ds/sections-3.jsx"></script>
+<script type="text/babel" src="toml-ds/sections-4.jsx"></script>
+<script type="text/babel" src="toml-ds/sections-5.jsx"></script>
+<script type="text/babel">
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="cover" title="Toml Design System" subtitle="v1 · Mai 2026 · Direction Snap Family — palette Bleu glacé · Denim · Rose terre">
+        <DCArtboard id="ab-cover" label="Cover" width={1200} height={820}>
+          <SCover />
+        </DCArtboard>
+        <DCArtboard id="ab-logo" label="Logo wordmark — 3 explorations" width={1200} height={780}>
+          <SLogo />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="foundations" title="Foundations" subtitle="Couleurs · typographie · espacements · ombres · icônes">
+        <DCArtboard id="ab-colors" label="01 · Couleurs" width={1200} height={1100}>
+          <SColors />
+        </DCArtboard>
+        <DCArtboard id="ab-typo" label="02 · Typographie" width={1200} height={1100}>
+          <STypo />
+        </DCArtboard>
+        <DCArtboard id="ab-found" label="03 · Espacements · Radii · Ombres" width={1200} height={780}>
+          <SFoundations />
+        </DCArtboard>
+        <DCArtboard id="ab-icons" label="04 · Iconographie" width={1200} height={780}>
+          <SIcons />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="components" title="Composants" subtitle="Atoms (boutons, inputs, chips, stickers) · molecules (avatars, cards)">
+        <DCArtboard id="ab-atoms" label="01 · Atoms" width={1200} height={1200}>
+          <SAtoms />
+        </DCArtboard>
+        <DCArtboard id="ab-molecules" label="02 · Molecules" width={1200} height={900}>
+          <SMolecules />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="patterns" title="Patterns produit" subtitle="Item card · Wishlist card · Feed post · Comments · Gift-giver · Bookmarklet · Empty states">
+        <DCArtboard id="ab-pat-items" label="03 · Cartes produit & liste" width={1200} height={1100}>
+          <SPatternsItems />
+        </DCArtboard>
+        <DCArtboard id="ab-pat-social" label="04 · Social & moments clés" width={1200} height={1180}>
+          <SPatternsSocial />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="voice" title="Identité éditoriale" subtitle="Comment Toml parle">
+        <DCArtboard id="ab-voice" label="Microcopy & ton" width={1200} height={1000}>
+          <SMicrocopy />
+        </DCArtboard>
+        <DCArtboard id="ab-voice-alt" label="Notes personnelles — 4 alternatives au manuscrit" width={1320} height={1800}>
+          <SVoiceAlternatives />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="usage" title="Utilisation" subtitle="Comment importer le DS Toml dans un autre projet — package, snippets, API rapide">
+        <DCArtboard id="ab-usage" label="Package · Import · API" width={1200} height={1500}>
+          <SUsage />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>TOML — Hi-fi mobile</title>
+<meta name="viewport" content="width=1440" />
+<link rel="stylesheet" href="hifi-mobile/toml.css" />
+<style>
+  html, body { margin: 0; padding: 0; background: #d4dae0; font-family: 'Inter', sans-serif; }
+  .dc-card { background: var(--t-bg) !important; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="hifi-mobile/toml-icons.jsx"></script>
+<script type="text/babel" src="hifi-mobile/toml-kit.jsx"></script>
+<script type="text/babel" src="hifi-mobile/mobile-shell.jsx"></script>
+<script type="text/babel" src="hifi-mobile/screen-landing.jsx"></script>
+<script type="text/babel" src="hifi-mobile/screen-dashboard.jsx"></script>
+<script type="text/babel" src="hifi-mobile/screen-wishlist.jsx"></script>
+<script type="text/babel" src="hifi-mobile/screen-feed.jsx"></script>
+<script type="text/babel" src="hifi-mobile/screen-friends.jsx"></script>
+<script type="text/babel" src="hifi-mobile/screen-profile.jsx"></script>
+<script type="text/babel">
+
+// Color variations for the landing — each option is a 4-color palette
+// [base bg, glow A top-left, glow B top-right, glow C bottom].
+// Stored as an array so TweakColor renders it as a swatch tile.
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "palette": [
+    "#f5ede0",
+    "#ecd0d4",
+    "#f0dca8",
+    "#f5d9c4"
+  ]
+}/*EDITMODE-END*/;
+
+const HM_PALETTE_OPTIONS = [
+  // Bleu glacé (default) — cool base, rose & mustard warm glows
+  ["#e6ecf2", "#ecd0d4", "#f0dca8", "#f0e4d8"],
+  // Crème chaud — warm paper base, very inviting
+  ["#f5ede0", "#ecd0d4", "#f0dca8", "#f5d9c4"],
+  // Rose coton — rose dominant, soft & feminine
+  ["#fae6e6", "#f0dca8", "#ecd0d4", "#f5d9c4"],
+  // Sauge fraîcheur — sage base, calmer & natural
+  ["#dde6e0", "#ecd0d4", "#f0dca8", "#f5ede0"],
+  // Mustard soleil — sunny mustard, high energy
+  ["#f5e6c4", "#ecd0d4", "#f5d9c4", "#f0dca8"]
+];
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  return (
+    <>
+    <DesignCanvas>
+      <DCSection
+        id="hifi-intro"
+        title="Hi-fi mobile · v1"
+        subtitle="Les 3 wireframes mobile retenus, déclinés au design system Toml — palette Bleu glacé · Denim · Rose terre · Sora + Inter"
+      >
+        <DCArtboard id="hm-notes" label="Système appliqué" width={560} height={760}>
+          <div className="toml-ds" style={{
+            width: 560, height: 760, padding: 36,
+            background: 'var(--t-bg)',
+            overflow: 'auto',
+          }}>
+            <div className="label" style={{ marginBottom: 6 }}>Hi-fi mobile · v1</div>
+            <h2 className="display-2" style={{ fontSize: 28, marginBottom: 12 }}>
+              Le DS Toml appliqué aux 3 écrans mobile.
+            </h2>
+            <p style={{ fontSize: 14, color: 'var(--t-ink-2)', lineHeight: 1.55, marginTop: 0 }}>
+              On garde la grammaire des wireframes (nav par tab bar bas, vignette WhatsApp,
+              cards 3★ pleine largeur) et on y pose la peau Snap Family : fond bleu glacé,
+              CTAs encre avec <strong>ombre stamp 3px</strong>, accents rose terre pour la voix,
+              mustard pour les stickers/priorité.
+            </p>
+
+            <hr className="divider" style={{ margin: '20px 0 16px' }} />
+
+            <div className="label" style={{ marginBottom: 10 }}>Tokens utilisés</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, marginBottom: 20 }}>
+              {[
+                ['Bg',     '#e6ecf2', 'var(--t-bg)'],
+                ['Paper',  '#ffffff', 'var(--t-paper)'],
+                ['Ink',    '#1a1f2e', 'var(--t-ink)'],
+                ['Denim',  '#5a6f9c', 'var(--t-denim)'],
+                ['Rose',   '#c47884', 'var(--t-rose)'],
+                ['Must.',  '#d4a73c', 'var(--t-mustard)'],
+              ].map(([n, c, t]) => (
+                <div key={n} style={{ textAlign: 'center' }}>
+                  <div className="swatch-flat" style={{ background: c, marginBottom: 4 }}></div>
+                  <div style={{ fontSize: 11, fontWeight: 700 }}>{n}</div>
+                  <div style={{ fontSize: 9, color: 'var(--t-ink-3)', fontFamily: 'monospace' }}>{c}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="label" style={{ marginBottom: 10 }}>Mapping wireframe → hi-fi</div>
+            <ul style={{
+              margin: 0, paddingLeft: 18, fontSize: 13.5,
+              lineHeight: 1.6, color: 'var(--t-ink-2)',
+            }}>
+              <li><strong>Hand-written annotations</strong> (Kalam orange) → supprimées, le design system parle pour lui-même.</li>
+              <li><strong>Border 1.5px + ombre stamp 3px</strong> sur les CTAs primaires et les cards d'item.</li>
+              <li><strong>Voice</strong> = Sora italic rose pour les notes perso « En taille S ».</li>
+              <li><strong>Sticker mustard</strong> "top wishlist" en tilt -3° sur les featured 3★.</li>
+              <li><strong>Vignette WhatsApp</strong> en card stamp paper-white, icône en pastille verte WhatsApp (#25D366) + CTA vert.</li>
+              <li><strong>Avatars</strong> avec les 5 gradients du DS, attribués selon l'initiale.</li>
+            </ul>
+
+            <hr className="divider" style={{ margin: '20px 0 16px' }} />
+
+            <div className="label" style={{ marginBottom: 10 }}>Specimen</div>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
+              <button className="btn btn-primary btn-stamp">Créer ma wishlist</button>
+              <button className="btn btn-outline">Découvrir</button>
+              <span className="chip chip-mustard">★★★</span>
+              <span className="chip chip-rose">Coup de cœur</span>
+              <span className="sticker">top wishlist</span>
+            </div>
+            <div className="voice" style={{ fontSize: 20 }}>« Ma liste de cette année, avec amour 🎄 »</div>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="hm-landing"
+        title="1 · Landing — hi-fi mobile"
+        subtitle="Hero Sora 48px · CTAs stamp · 2 cards tiltées en bas de hero"
+      >
+        <DCArtboard id="hm-landing-a" label="Landing · hi-fi" width={460} height={920}>
+          <div style={{ width: 460, height: 920, padding: 30, display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--t-bg-2)' }}>
+            <HMLanding palette={t.palette} />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="hm-dashboard"
+        title="2 · Dashboard — hi-fi mobile"
+        subtitle="Mes wishlists · vignette WhatsApp · tab bar bas avec + central stamp"
+      >
+        <DCArtboard id="hm-dashboard-a" label="Dashboard · WhatsApp non connecté" width={460} height={920}>
+          <div style={{ width: 460, height: 920, padding: 30, display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--t-bg-2)' }}>
+            <HMDashboard />
+          </div>
+        </DCArtboard>
+        <DCArtboard id="hm-dashboard-b" label="Dashboard · WhatsApp connecté (vignette masquée)" width={460} height={920}>
+          <div style={{ width: 460, height: 920, padding: 30, display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--t-bg-2)' }}>
+            <HMDashboard whatsappConnected />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="hm-wishlist"
+        title="3 · Wishlist masonry — hi-fi mobile"
+        subtitle="3★ en cards pleine largeur (stamp) · 1-2★ en 2 colonnes soft · voice Sora italic rose"
+      >
+        <DCArtboard id="hm-wishlist-a" label="Wishlist Noël 2026 · hi-fi" width={460} height={1100}>
+          <div style={{ width: 460, height: 1100, padding: 30, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', background: 'var(--t-bg-2)' }}>
+            <HMLandingContext>
+              <HMWishlistMasonry />
+            </HMLandingContext>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="hm-feed"
+        title="4 · Feed — Activité sociale"
+        subtitle="Stream chrono · events compacts + cards d'item pleine largeur · filtres en chips"
+      >
+        <DCArtboard id="hm-feed-a" label="Feed · Tout" width={460} height={1200}>
+          <div style={{ width: 460, height: 1200, padding: 30, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', background: 'var(--t-bg-2)' }}>
+            <HMFeed />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="hm-friends"
+        title="5 · Amis — Cercles & contacts"
+        subtitle="Search · 4 cercles colorés · anniversaires à venir · demandes · liste amis"
+      >
+        <DCArtboard id="hm-friends-a" label="Amis · Tous mes cercles" width={460} height={1200}>
+          <div style={{ width: 460, height: 1200, padding: 30, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', background: 'var(--t-bg-2)' }}>
+            <HMFriends />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="hm-profile"
+        title="6 · Profil — Compte"
+        subtitle="Hero avatar XL + voice · stats cards stamp · bookmarklet · WhatsApp connecté · réglages"
+      >
+        <DCArtboard id="hm-profile-a" label="Profil · WhatsApp non connecté" width={460} height={1200}>
+          <div style={{ width: 460, height: 1200, padding: 30, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', background: 'var(--t-bg-2)' }}>
+            <HMProfile />
+          </div>
+        </DCArtboard>
+        <DCArtboard id="hm-profile-b" label="Profil · WhatsApp connecté" width={460} height={1200}>
+          <div style={{ width: 460, height: 1200, padding: 30, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', background: 'var(--t-bg-2)' }}>
+            <HMProfile whatsappConnected />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="hm-compare"
+        title="Les 6 écrans côte à côte"
+        subtitle="Pour comparer le rythme global du système"
+      >
+        <DCArtboard id="hm-row" label="Les 6 écrans" width={2280} height={920}>
+          <div style={{
+            width: 2280, height: 920, padding: 30,
+            display: 'flex', gap: 36, justifyContent: 'center', alignItems: 'center',
+            background: 'var(--t-bg-2)',
+          }}>
+            <HMLanding palette={t.palette} />
+            <HMDashboard />
+            <HMWishlistMasonry />
+            <HMFeed />
+            <HMFriends />
+            <HMProfile />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+    </DesignCanvas>
+    <TweaksPanel title="Tweaks">
+      <TweakSection label="Landing — Ambiance couleur" />
+      <TweakColor label="Palette" value={t.palette} options={HM_PALETTE_OPTIONS}
+                  onChange={(v) => setTweak('palette', v)} />
+    </TweaksPanel>
+    </>
+  );
+}
+
+// Wrap for any scroll-clipped artboard (no-op container)
+const HMLandingContext = ({ children }) => <>{children}</>;
+window.HMLandingContext = HMLandingContext;
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

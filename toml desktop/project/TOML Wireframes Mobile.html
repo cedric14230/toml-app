@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>TOML — Wireframes mobile</title>
+<meta name="viewport" content="width=1440" />
+<link rel="stylesheet" href="wireframes/styles.css" />
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; font-family: 'Kalam', sans-serif; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="wireframes/primitives.jsx"></script>
+<script type="text/babel" src="wireframes/mobile-primitives.jsx"></script>
+<script type="text/babel" src="wireframes/screens-4-mobile.jsx"></script>
+<script type="text/babel">
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection
+        id="intro"
+        title="Wireframes mobile · v1"
+        subtitle="Déclinaison des 3 écrans retenus en desktop · low-fi B&W · iPhone 390×844 · nav par tab bar bas"
+      >
+        <DCArtboard id="m-notes" label="Décisions design" width={520} height={680}>
+          <div style={{
+            width: 520, height: 680, padding: 36,
+            background: 'var(--paper)',
+            border: '1.5px solid var(--ink)',
+            borderRadius: 12,
+            fontFamily: 'var(--sketch-font)',
+            color: 'var(--ink)',
+            overflow: 'auto',
+          }}>
+            <div className="sk-label" style={{ marginBottom: 6 }}>Wireframes mobile · v1</div>
+            <div style={{ fontWeight: 700, fontSize: 28, marginBottom: 10 }}>
+              Les 3 écrans retenus, déclinés mobile.
+            </div>
+            <div style={{ fontSize: 14, color: 'var(--ink-3)', marginBottom: 18, lineHeight: 1.5 }}>
+              On garde le langage low-fi B&W des wireframes desktop. Cible : iPhone 390×844 (modèle standard).
+            </div>
+
+            <div className="sk-line" style={{ marginBottom: 12 }}></div>
+
+            <div className="sk-label" style={{ marginBottom: 8 }}>Décisions clés</div>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.55 }}>
+              <li><b>Navigation</b> : tab bar bas (Feed · Mes listes · <b>+</b> central · Amis · Profil). La topbar desktop ne tient pas, on isole la nav du contenu.</li>
+              <li><b>Landing B</b> : hero vertical full-width, CTA empilés, les 2 cards tiltées passent dans une zone dédiée sous le hero (et non plus à droite).</li>
+              <li><b>Dashboard A</b> : grille 1 colonne pour la lisibilité, chips de filtre scrollables horizontalement.</li>
+              <li><b>Wishlist masonry</b> : 3★ en cards pleine largeur, 1-2★ en 2 colonnes en dessous. Pas de FAB — le <b>+</b> central de la tab bar est contextuel et ajoute directement à la liste en cours.</li>
+            </ul>
+
+            <div className="sk-line" style={{ margin: '16px 0 12px' }}></div>
+
+            <div className="sk-label" style={{ marginBottom: 8 }}>Patterns mobiles ajoutés</div>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.55 }}>
+              <li>Tab bar bas avec bouton central <b>+</b> en relief, <b>contextuel</b> (ajoute à la liste en cours, sinon ouvre un selector)</li>
+              <li>Filtres scrollables horizontaux (chip carousel)</li>
+              <li>Status bar + home indicator iOS pour ancrer le contexte mobile</li>
+            </ul>
+
+            <div className="sk-line" style={{ margin: '16px 0 12px' }}></div>
+
+            <div className="sk-label" style={{ marginBottom: 8 }}>À explorer ensuite si OK</div>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.55, color: 'var(--ink-3)' }}>
+              <li>Vue gift-giver mobile (bandeau d'identité)</li>
+              <li>Modal d'ajout (bottom sheet)</li>
+              <li>Feed social</li>
+              <li>Onboarding 4 étapes plein écran</li>
+            </ul>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="m-landing" title="1 · Landing B — mobile" subtitle="Hero vertical · CTAs empilés · stack de cards tiltées en bas">
+        <DCArtboard id="m-landing-a" label="Landing B · mobile" width={430} height={880}>
+          <div style={{ width: 430, height: 880, padding: 20, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <MLanding />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="m-dashboard" title="4 · Dashboard A — mobile" subtitle="Mes wishlists · tab bar bas · vignette d'invitation WhatsApp (disparaît une fois connecté)">
+        <DCArtboard id="m-dashboard-a" label="Dashboard · WhatsApp non connecté" width={430} height={880}>
+          <div style={{ width: 430, height: 880, padding: 20, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <MDashboard />
+          </div>
+        </DCArtboard>
+        <DCArtboard id="m-dashboard-b" label="Dashboard · WhatsApp connecté (vignette masquée)" width={430} height={880}>
+          <div style={{ width: 430, height: 880, padding: 20, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <MDashboard whatsappConnected />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="m-wishlist" title="5 · Wishlist masonry — mobile" subtitle="Vue propriétaire · masonry 2 colonnes · FAB d'ajout">
+        <DCArtboard id="m-wishlist-a" label="Wishlist masonry · mobile" width={430} height={880}>
+          <div style={{ width: 430, height: 880, padding: 20, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <MWishlistMasonry />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="m-compare" title="Comparaison côte à côte" subtitle="Les 3 écrans mobile alignés pour comparer le rythme global">
+        <DCArtboard id="m-row" label="Les 3 écrans mobile" width={1380} height={900}>
+          <div style={{
+            width: 1380, height: 900, padding: 20,
+            background: 'var(--paper)',
+            display: 'flex', gap: 30, justifyContent: 'center', alignItems: 'center',
+          }}>
+            <MLanding />
+            <MDashboard />
+            <MWishlistMasonry />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

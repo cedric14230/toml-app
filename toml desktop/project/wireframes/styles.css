@@ -1,0 +1,407 @@
+/* Toml wireframes - sketchy B&W vibe */
+
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Kalam:wght@300;400;700&family=Inconsolata:wght@400;500;600;700&display=swap');
+
+:root {
+  --ink: #1a1a1a;
+  --ink-2: #333;
+  --ink-3: #555;
+  --ink-4: #888;
+  --paper: #fdfcf8;
+  --paper-2: #f4f1ea;
+  --accent: #e8704a;
+  --accent-soft: #fbe3d6;
+  --blue: #4a6fa5;
+  --green: #6a8e5a;
+  --yellow: #f5d76e;
+
+  --sketch-font: 'Kalam', 'Caveat', sans-serif;
+  --hand-font: 'Caveat', cursive;
+  --mono-font: 'Inconsolata', monospace;
+}
+
+.wf {
+  font-family: var(--sketch-font);
+  color: var(--ink);
+  background: var(--paper);
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.wf *,
+.wf *::before,
+.wf *::after {
+  box-sizing: border-box;
+}
+
+/* Sketchy borders via SVG filters could be heavy; use dashed + slight rotation quirks */
+.sk-box {
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  background: var(--paper);
+  position: relative;
+}
+
+.sk-box-soft {
+  border: 1.5px solid var(--ink-3);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.sk-dashed {
+  border: 1.5px dashed var(--ink-3);
+  border-radius: 6px;
+  background: transparent;
+}
+
+.sk-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-family: var(--sketch-font);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.sk-btn-dark {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.sk-btn-ghost {
+  background: transparent;
+  border-color: var(--ink-3);
+  color: var(--ink-2);
+}
+
+.sk-btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.sk-btn-lg {
+  padding: 12px 22px;
+  font-size: 16px;
+}
+
+.sk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1.2px solid var(--ink-3);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: var(--ink-2);
+  background: var(--paper);
+}
+
+.sk-label {
+  font-family: var(--mono-font);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+.sk-title {
+  font-family: var(--sketch-font);
+  font-weight: 700;
+}
+
+.sk-hand {
+  font-family: var(--hand-font);
+  font-weight: 600;
+}
+
+.sk-line {
+  background: var(--ink-3);
+  height: 1.5px;
+  border-radius: 2px;
+}
+
+.sk-line-soft {
+  background: var(--ink-4);
+  opacity: 0.5;
+  height: 1.2px;
+  border-radius: 2px;
+}
+
+/* placeholder image / product */
+.sk-img {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      var(--paper-2) 0px,
+      var(--paper-2) 6px,
+      #e9e4da 6px,
+      #e9e4da 7px
+    );
+  border: 1.3px solid var(--ink-3);
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sk-img::after {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border: 1.2px dashed var(--ink-4);
+  opacity: 0.55;
+  border-radius: 4px;
+}
+
+.sk-img.plain {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      #f1ede4 0px,
+      #f1ede4 6px,
+      #e5e0d5 6px,
+      #e5e0d5 7px
+    );
+}
+
+.sk-img.plain::after {
+  display: none;
+}
+
+.sk-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1.3px solid var(--ink);
+  background: var(--paper-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sketch-font);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.sk-avatar.md { width: 40px; height: 40px; font-size: 16px; }
+.sk-avatar.lg { width: 56px; height: 56px; font-size: 20px; }
+.sk-avatar.xl { width: 88px; height: 88px; font-size: 28px; }
+
+.sk-avatar.story {
+  border: 2.5px solid var(--accent);
+  padding: 2px;
+  background: var(--paper);
+}
+
+.sk-avatar.story-inner {
+  border: 1.3px solid var(--ink);
+  background: var(--paper-2);
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sketch-font);
+  font-weight: 700;
+}
+
+/* star sketch */
+.sk-star {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background: var(--ink);
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+.sk-star.dim { background: var(--ink-4); opacity: 0.3; }
+
+.sk-heart {
+  width: 16px;
+  height: 14px;
+  display: inline-block;
+  background: transparent;
+  border: 1.5px solid var(--ink);
+  transform: rotate(-45deg);
+  border-radius: 4px 4px 0 0;
+  position: relative;
+}
+.sk-heart::before, .sk-heart::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+}
+.sk-heart::before { top: -6px; left: -2px; }
+.sk-heart::after { left: 4px; top: -2px; background: var(--paper); }
+
+/* scribble underline */
+.sk-underline {
+  position: relative;
+  display: inline-block;
+}
+.sk-underline::after {
+  content: "";
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: -6px;
+  height: 6px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 8'><path d='M2 5 Q 20 1 40 4 T 80 4 T 118 3' stroke='%23e8704a' stroke-width='2' fill='none' stroke-linecap='round'/></svg>") no-repeat center/100% 100%;
+}
+
+/* arrow annotation */
+.sk-note {
+  font-family: var(--hand-font);
+  font-size: 16px;
+  color: var(--accent);
+  line-height: 1.1;
+  font-weight: 600;
+}
+
+.sk-note-arrow {
+  display: inline-block;
+  margin-right: 6px;
+}
+
+/* grid paper background for artboards */
+.paper-grid {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.paper-dots {
+  background-color: var(--paper);
+  background-image: radial-gradient(rgba(0,0,0,0.1) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* browser chrome */
+.browser {
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.browser-bar {
+  border-bottom: 1.5px solid var(--ink);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--paper-2);
+  flex-shrink: 0;
+}
+.browser-dots {
+  display: flex;
+  gap: 6px;
+}
+.browser-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1.2px solid var(--ink);
+  background: var(--paper);
+}
+.browser-url {
+  flex: 1;
+  border: 1.3px solid var(--ink-3);
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-family: var(--mono-font);
+  font-size: 11px;
+  color: var(--ink-3);
+  background: var(--paper);
+}
+.browser-body {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.input-box {
+  border: 1.3px solid var(--ink-3);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-family: var(--sketch-font);
+  font-size: 13px;
+  color: var(--ink-3);
+  background: var(--paper);
+}
+
+/* sketchy annotation block */
+.annotation {
+  position: absolute;
+  font-family: var(--hand-font);
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 15px;
+  line-height: 1.15;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.annotation svg {
+  display: block;
+  overflow: visible;
+}
+
+/* subtle rotation for personality */
+.tilt-l { transform: rotate(-0.6deg); }
+.tilt-r { transform: rotate(0.5deg); }
+
+/* status dots */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: 1.2px solid var(--ink);
+  background: var(--paper);
+}
+.status-dot.reserved { background: var(--yellow); }
+.status-dot.available { background: var(--green); }
+
+/* bookmarklet pill */
+.bookmarklet {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: var(--sketch-font);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* gift-giver banner */
+.giver-banner {
+  background: var(--accent-soft);
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: var(--sketch-font);
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 13px;
+}

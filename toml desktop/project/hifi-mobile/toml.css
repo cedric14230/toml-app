@@ -1,0 +1,293 @@
+/* TOML — Design System v1
+   Direction: Snap Family adulte/familial
+   Palette: Bleu glacé · Denim · Rose terre
+*/
+
+/* Only two families: Sora (display) + Inter (UI). The "voice" is
+   Sora italic in rose terre — we explicitly avoid a third handwritten font. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:ital,wght@0,400..800;1,400..800&display=swap');
+
+:root {
+  /* === Couleurs === */
+  --t-bg: #e6ecf2;
+  --t-bg-2: #d4dae0;
+  --t-bg-3: #c4ced8;
+  --t-surface: #f5f8fb;
+  --t-paper: #ffffff;
+
+  --t-ink: #1a1f2e;
+  --t-ink-2: #4a4f5e;
+  --t-ink-3: #7a7f8e;
+  --t-ink-4: #a8acb8;
+
+  --t-denim: #5a6f9c;
+  --t-denim-d: #3d527a;
+  --t-denim-soft: #c8d0e0;
+
+  --t-rose: #c47884;
+  --t-rose-d: #a45868;
+  --t-rose-soft: #ecd0d4;
+
+  --t-mustard: #d4a73c;
+  --t-mustard-soft: #f0dca8;
+
+  --t-sage: #7a8a9c;
+
+  --t-success: #4a8a6e;
+  --t-warning: #d4a73c;
+  --t-danger: #c47878;
+
+  --t-line: #d4dae0;
+  --t-line-soft: #e0e4ea;
+
+  /* === Typo === */
+  --t-font-display: 'Sora', 'Inter', sans-serif;
+  --t-font-ui: 'Inter', -apple-system, sans-serif;
+  /* The TOML "voice" — not a separate family. Sora italic, colored. */
+  --t-font-voice: 'Sora', 'Inter', sans-serif;
+
+  /* === Radii === */
+  --t-r-xs: 6px;
+  --t-r-sm: 10px;
+  --t-r-md: 14px;
+  --t-r-lg: 18px;
+  --t-r-xl: 24px;
+  --t-r-pill: 999px;
+
+  /* === Spacing scale === */
+  --t-s-1: 4px;
+  --t-s-2: 8px;
+  --t-s-3: 12px;
+  --t-s-4: 16px;
+  --t-s-5: 20px;
+  --t-s-6: 24px;
+  --t-s-8: 32px;
+  --t-s-10: 40px;
+  --t-s-12: 48px;
+  --t-s-16: 64px;
+
+  /* === Shadows === */
+  --t-shadow-stamp: 3px 3px 0 var(--t-ink);
+  --t-shadow-stamp-lg: 5px 5px 0 var(--t-ink);
+  --t-shadow-sm: 0 1px 2px rgba(26, 31, 46, 0.06), 0 1px 3px rgba(26, 31, 46, 0.04);
+  --t-shadow-md: 0 4px 12px rgba(26, 31, 46, 0.08);
+
+  /* === Borders === */
+  --t-border: 1.5px solid var(--t-ink);
+  --t-border-soft: 1px solid var(--t-line);
+}
+
+.toml-ds {
+  font-family: var(--t-font-ui);
+  font-weight: 500;
+  color: var(--t-ink);
+  background: var(--t-bg);
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+.toml-ds *, .toml-ds *::before, .toml-ds *::after { box-sizing: border-box; }
+
+/* === TYPOGRAPHIE === */
+.toml-ds .display { font-family: var(--t-font-display); font-weight: 700; letter-spacing: -0.025em; line-height: 1; margin: 0; }
+.toml-ds .display-2 { font-family: var(--t-font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; margin: 0; }
+.toml-ds .voice { font-family: var(--t-font-voice); font-style: italic; font-weight: 500; color: var(--t-rose); letter-spacing: -0.005em; }
+.toml-ds .hand { font-family: var(--t-font-voice); font-style: italic; font-weight: 500; color: var(--t-rose); letter-spacing: -0.005em; } /* @deprecated alias of .voice */
+.toml-ds .label {
+  font-family: var(--t-font-ui); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--t-ink-3);
+}
+
+/* === BUTTONS === */
+.toml-ds .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: var(--t-font-ui); font-weight: 600; font-size: 14px;
+  border: 1.5px solid transparent; padding: 11px 20px; border-radius: var(--t-r-pill);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.toml-ds .btn-primary { background: var(--t-ink); color: var(--t-bg); }
+.toml-ds .btn-primary:hover { background: var(--t-denim); }
+.toml-ds .btn-accent { background: var(--t-mustard); color: var(--t-ink); border-color: var(--t-ink); }
+.toml-ds .btn-rose { background: var(--t-rose); color: var(--t-paper); }
+.toml-ds .btn-outline { background: transparent; color: var(--t-ink); border-color: var(--t-ink); }
+.toml-ds .btn-ghost { background: var(--t-bg-2); color: var(--t-ink); }
+.toml-ds .btn-sm { padding: 7px 14px; font-size: 13px; }
+.toml-ds .btn-lg { padding: 13px 24px; font-size: 15px; }
+.toml-ds .btn-stamp { box-shadow: var(--t-shadow-stamp); border: 1.5px solid var(--t-ink); }
+
+/* === INPUTS === */
+.toml-ds .input {
+  width: 100%; background: var(--t-paper);
+  border: 1.5px solid var(--t-ink); border-radius: var(--t-r-md);
+  padding: 11px 14px;
+  font-family: var(--t-font-ui); font-size: 14px; font-weight: 500;
+  color: var(--t-ink);
+}
+.toml-ds .input::placeholder { color: var(--t-ink-3); }
+.toml-ds .input:focus { outline: 2px solid var(--t-denim); outline-offset: 1px; }
+.toml-ds .input-soft {
+  background: var(--t-paper); border: 1px solid var(--t-line); border-radius: var(--t-r-md);
+}
+
+/* === CHIPS === */
+.toml-ds .chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--t-font-ui); font-size: 12.5px; font-weight: 600;
+  padding: 5px 12px; border-radius: var(--t-r-pill);
+  background: var(--t-bg-2); color: var(--t-ink); border: 1px solid var(--t-line);
+}
+.toml-ds .chip-active { background: var(--t-ink); color: var(--t-bg); border-color: var(--t-ink); }
+.toml-ds .chip-mustard { background: var(--t-mustard-soft); border-color: var(--t-mustard); }
+.toml-ds .chip-rose { background: var(--t-rose-soft); border-color: var(--t-rose); }
+.toml-ds .chip-denim { background: var(--t-denim-soft); border-color: var(--t-denim); }
+
+/* === BADGES === */
+.toml-ds .badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--t-font-ui); font-size: 11px; font-weight: 700;
+  min-width: 18px; height: 18px; padding: 0 6px;
+  border-radius: var(--t-r-pill); background: var(--t-rose); color: var(--t-paper);
+}
+.toml-ds .badge-dot {
+  width: 8px; height: 8px; border-radius: var(--t-r-pill); padding: 0; min-width: 0;
+}
+
+/* === STICKERS ===
+   Stickers stay in Sora italic — same family as the rest of the system,
+   slight rotation, ink border. The handwritten energy comes from the italic
+   + the tilt, not from a separate font. */
+.toml-ds .sticker {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--t-font-display); font-style: italic; font-weight: 700; font-size: 14px;
+  color: var(--t-ink); background: #f5c948;
+  border: 1.5px solid var(--t-ink); border-radius: 8px; padding: 3px 12px;
+  letter-spacing: -0.01em;
+  transform: rotate(-3deg);
+}
+.toml-ds .sticker-rose { background: var(--t-rose); color: var(--t-paper); }
+.toml-ds .sticker-denim { background: var(--t-denim); color: var(--t-paper); }
+.toml-ds .sticker-soft { background: var(--t-bg-2); }
+
+/* === CARDS === */
+.toml-ds .card {
+  background: var(--t-paper); border: 1.5px solid var(--t-ink);
+  border-radius: var(--t-r-lg); overflow: hidden;
+  box-shadow: var(--t-shadow-stamp);
+}
+.toml-ds .card-soft {
+  background: var(--t-paper); border: 1px solid var(--t-line);
+  border-radius: var(--t-r-lg); overflow: hidden;
+  box-shadow: var(--t-shadow-sm);
+}
+.toml-ds .card-flat {
+  background: var(--t-paper); border: 1px solid var(--t-line);
+  border-radius: var(--t-r-md); overflow: hidden;
+}
+
+/* === AVATARS === */
+.toml-ds .avatar {
+  width: 40px; height: 40px; border-radius: var(--t-r-pill);
+  background: linear-gradient(140deg, var(--t-mustard), var(--t-rose));
+  border: 1.5px solid var(--t-ink);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--t-font-display); font-weight: 700; color: var(--t-ink);
+  flex-shrink: 0;
+}
+.toml-ds .avatar-xs { width: 24px; height: 24px; font-size: 11px; border-width: 1px; }
+.toml-ds .avatar-sm { width: 32px; height: 32px; font-size: 13px; }
+.toml-ds .avatar-md { width: 48px; height: 48px; font-size: 18px; }
+.toml-ds .avatar-lg { width: 64px; height: 64px; font-size: 24px; }
+.toml-ds .avatar-xl { width: 96px; height: 96px; font-size: 36px; }
+
+.toml-ds .avatar-1 { background: linear-gradient(140deg, #f5c948, #c47884); }
+.toml-ds .avatar-2 { background: linear-gradient(140deg, #c8d0e0, #5a6f9c); }
+.toml-ds .avatar-3 { background: linear-gradient(140deg, #d8e0d8, #7a8a9c); }
+.toml-ds .avatar-4 { background: linear-gradient(140deg, #ecd0d4, #c47884); }
+.toml-ds .avatar-5 { background: linear-gradient(140deg, #f0dca8, #d4a73c); }
+
+/* === IMAGES PLACEHOLDER === */
+.toml-ds .img {
+  background: linear-gradient(140deg, var(--t-bg-2), var(--t-denim-soft));
+  position: relative; overflow: hidden;
+}
+.toml-ds .img-1 { background: linear-gradient(140deg, var(--t-rose-soft), var(--t-rose)); }
+.toml-ds .img-2 { background: linear-gradient(140deg, var(--t-denim-soft), var(--t-denim)); }
+.toml-ds .img-3 { background: linear-gradient(140deg, #d8e0d8, var(--t-sage)); }
+.toml-ds .img-4 { background: linear-gradient(140deg, var(--t-mustard-soft), var(--t-mustard)); }
+.toml-ds .img-5 { background: linear-gradient(140deg, #ecd8f0, #a878a8); }
+.toml-ds .img-6 { background: linear-gradient(140deg, #e0d8c8, #b09878); }
+
+/* === SWATCH (for color spec display) === */
+.toml-ds .swatch {
+  aspect-ratio: 1; border-radius: var(--t-r-md);
+  border: 1.5px solid var(--t-ink);
+}
+.toml-ds .swatch-flat {
+  aspect-ratio: 1; border-radius: var(--t-r-md); border: 1px solid var(--t-line);
+}
+
+/* === STARS (priority) === */
+.toml-ds .star {
+  display: inline-block; width: 12px; height: 12px;
+  background: var(--t-mustard);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+.toml-ds .star-dim { background: var(--t-ink-4); opacity: 0.4; }
+
+/* === DIVIDER === */
+.toml-ds .divider { height: 1px; background: var(--t-line); border: 0; }
+.toml-ds .divider-dashed { height: 1px; background-image: linear-gradient(to right, var(--t-ink-3) 50%, transparent 50%); background-size: 6px 1px; background-repeat: repeat-x; border: 0; }
+
+/* === STATUS DOTS === */
+.toml-ds .dot { display: inline-block; width: 8px; height: 8px; border-radius: var(--t-r-pill); }
+.toml-ds .dot-available { background: var(--t-success); }
+.toml-ds .dot-reserved { background: var(--t-mustard); }
+.toml-ds .dot-gifted { background: var(--t-ink-3); }
+
+/* === BOOKMARKLET === */
+.toml-ds .bookmarklet {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--t-ink); color: var(--t-bg);
+  padding: 8px 14px; border-radius: var(--t-r-md);
+  font-family: var(--t-font-ui); font-weight: 600; font-size: 13px;
+  border: 2px dashed var(--t-bg);
+}
+
+/* === GIFT-GIVER BANNER === */
+.toml-ds .giver-banner {
+  background: linear-gradient(95deg, var(--t-rose-soft), var(--t-mustard-soft));
+  border: 1.5px solid var(--t-ink); border-radius: var(--t-r-lg);
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 14px; font-weight: 500;
+}
+
+/* === SEMANTIC TYPOGRAPHY ===
+   Use these directly inside .toml-ds; they are paired to the brand voice.
+   "display" for marketing, "h1/h2" for app, "body" + "small" for prose,
+   "voice" for emotional notes (Sora italic rose), "label" for eyebrows.
+*/
+.toml-ds .h-display { font-family: var(--t-font-display); font-weight: 700; letter-spacing: -0.025em; line-height: 1; font-size: clamp(48px, 6vw, 88px); margin: 0; }
+.toml-ds .h-h1      { font-family: var(--t-font-display); font-weight: 700; letter-spacing: -0.02em;  line-height: 1.05; font-size: 40px; margin: 0; }
+.toml-ds .h-h2      { font-family: var(--t-font-display); font-weight: 700; letter-spacing: -0.015em; line-height: 1.1;  font-size: 28px; margin: 0; }
+.toml-ds .h-h3      { font-family: var(--t-font-display); font-weight: 600; letter-spacing: -0.01em;  line-height: 1.2;  font-size: 20px; margin: 0; }
+.toml-ds .h-body    { font-family: var(--t-font-ui); font-weight: 500; font-size: 15px; line-height: 1.5; color: var(--t-ink-2); margin: 0; }
+.toml-ds .h-small   { font-family: var(--t-font-ui); font-weight: 500; font-size: 13px; line-height: 1.5; color: var(--t-ink-2); margin: 0; }
+.toml-ds .h-eyebrow { font-family: var(--t-font-ui); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--t-ink-3); margin: 0; }
+.toml-ds .h-mono    { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--t-ink); background: var(--t-bg-2); padding: 1px 6px; border-radius: 4px; }
+
+/* === SECTION LAYOUT === */
+.t-section {
+  margin-bottom: 40px;
+}
+.t-section-head {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 16px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--t-ink);
+}
+.t-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.t-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.t-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.t-grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.t-grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }

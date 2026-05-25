@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>TOML — 3 Design Systems</title>
+<meta name="viewport" content="width=1440" />
+<link rel="stylesheet" href="design-systems/styles-v1.css" />
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="design-systems/screens-v1.jsx"></script>
+<script type="text/babel">
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="ds-1" title="Option 01 — Sézane" subtitle="Premium chaleureux · blanc cassé + bordeaux + camel · Fraunces + Inter">
+        <DCArtboard id="ds-sezane" label="Sezane DS" width={1100} height={1500}>
+          <DSSezane />
+        </DCArtboard>
+      </DCSection>
+      <DCSection id="ds-2" title="Option 02 — Nike" subtitle="Bold & energetic · noir/blanc/orange · Anton + Inter Tight">
+        <DCArtboard id="ds-nike" label="Nike DS" width={1100} height={1500}>
+          <DSNike />
+        </DCArtboard>
+      </DCSection>
+      <DCSection id="ds-3" title="Option 03 — Instagram" subtitle="Clean social · blanc + gradient + Inter · stories rondes & grille carrée">
+        <DCArtboard id="ds-insta" label="Instagram DS" width={1100} height={1500}>
+          <DSInsta />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

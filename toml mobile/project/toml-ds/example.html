@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>Toml DS — example</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="toml.css" />
+<style>html,body{margin:0;background:var(--t-bg);}</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="toml-icons.jsx"></script>
+<script type="text/babel" src="toml-kit.jsx"></script>
+<script type="text/babel">
+function Example() {
+  return (
+    <TomlRoot style={{ padding: 48, minHeight: '100vh' }}>
+      <TomlLabel color="var(--t-rose)" style={{ marginBottom: 6 }}>example · toml-ds</TomlLabel>
+      <h1 className="display" style={{ fontSize: 72, marginBottom: 6 }}>Bonjour Toml.</h1>
+      <p style={{ fontSize: 16, color: 'var(--t-ink-2)', maxWidth: 540, marginTop: 0 }}>
+        Tout ce qu'il faut pour démarrer un nouvel écran avec le design system Toml.
+        Copie ce fichier comme point de départ.
+      </p>
+
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32 }}>
+        <TomlButton variant="primary" icon="plus">Créer ma wishlist</TomlButton>
+        <TomlButton variant="accent" icon="gift">Réserver</TomlButton>
+        <TomlButton variant="outline">Découvrir</TomlButton>
+        <TomlButton variant="ghost" size="sm">Plus tard</TomlButton>
+        <TomlIconButton icon="heart" variant="outline" />
+        <TomlIconButton icon="share" variant="ghost" />
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 32 }}>
+        <TomlChip active>Tout (12)</TomlChip>
+        <TomlChip>Mode</TomlChip>
+        <TomlChip variant="mustard">★ Priorité</TomlChip>
+        <TomlChip variant="rose">♥ Coup de cœur</TomlChip>
+        <TomlSticker>Réservé !</TomlSticker>
+        <TomlSticker variant="rose">surprise</TomlSticker>
+        <TomlHand>« mon coup de cœur »</TomlHand>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18, maxWidth: 980 }}>
+        <TomlCard variant="stamp">
+          <TomlImage tone={1} height={160} />
+          <div style={{ padding: 14 }}>
+            <TomlLabel color="var(--t-rose)" style={{ marginBottom: 4 }}>Sézane</TomlLabel>
+            <div className="display-2" style={{ fontSize: 17, marginBottom: 4 }}>Robe Liliana</div>
+            <TomlHand size={17}>« En taille S 🙏 »</TomlHand>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+              <span style={{ fontWeight: 700 }}>89 €</span>
+              <TomlStars value={3} />
+            </div>
+          </div>
+        </TomlCard>
+
+        <TomlCard variant="soft" style={{ padding: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <TomlAvatar initial="L" tone={2} size="md" />
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 14 }}>Léa Martin</div>
+              <div style={{ fontSize: 12, color: 'var(--t-ink-3)' }}>3 wishlists</div>
+            </div>
+          </div>
+          <TomlAvatarStack people={[{initial:'L'},{initial:'M'},{initial:'A'},{initial:'J'},{initial:'S'}]} max={3} />
+          <TomlDivider style={{ margin: '14px 0' }} />
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <TomlDot status="available" /><span style={{ fontSize: 12 }}>Disponible</span>
+            <TomlDot status="reserved" /><span style={{ fontSize: 12 }}>Réservé</span>
+          </div>
+        </TomlCard>
+
+        <TomlCard variant="soft" style={{ padding: 20 }}>
+          <TomlLabel style={{ marginBottom: 8 }}>Inscription</TomlLabel>
+          <TomlInput placeholder="Email" defaultValue="sophie@famille.fr" />
+          <div style={{ height: 10 }} />
+          <TomlInput placeholder="Mot de passe" type="password" />
+          <div style={{ height: 14 }} />
+          <TomlButton variant="primary" style={{ width: '100%' }}>Continuer</TomlButton>
+        </TomlCard>
+      </div>
+
+      <div style={{ marginTop: 28, maxWidth: 600 }}>
+        <TomlGiverBanner
+          title="Tu consultes la wishlist de Sophie."
+          body="Tes réservations sont invisibles pour elle. Promis 🤐"
+          badge="Mode invité"
+        />
+      </div>
+    </TomlRoot>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Example />);
+</script>
+</body>
+</html>

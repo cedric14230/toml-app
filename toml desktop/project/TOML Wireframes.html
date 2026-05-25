@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>TOML — Wireframes desktop</title>
+<meta name="viewport" content="width=1440" />
+<link rel="stylesheet" href="wireframes/styles.css" />
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; font-family: 'Kalam', sans-serif; }
+  .wf { width: 100%; height: 100%; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="wireframes/primitives.jsx"></script>
+<script type="text/babel" src="wireframes/screens-1-landing.jsx"></script>
+<script type="text/babel" src="wireframes/screens-2-dashboard.jsx"></script>
+<script type="text/babel" src="wireframes/screens-3-social.jsx"></script>
+<script type="text/babel">
+
+const DEFAULTS = /*EDITMODE-BEGIN*/{
+  "density": "comfy",
+  "nav": "topbar",
+  "listLayout": "grid",
+  "stories": true
+}/*EDITMODE-END*/;
+
+const Wrap = ({ w = 900, h = 620, children }) => (
+  <div className="wf" style={{ width: w, height: h, background: 'var(--paper)' }}>
+    {children}
+  </div>
+);
+
+function App() {
+  const [tw, setTw, open, setOpen] = useTweaks(DEFAULTS);
+
+  return (
+    <>
+      <DesignCanvas>
+        {/* === LANDING / HOME === */}
+        <DCSection id="landing" title="1 · Landing page" subtitle="Home publique (non connecté)">
+          <DCArtboard id="landing-a" label="A · Centré (proto actuel)" width={900} height={620}>
+            <Wrap><LandingHero variant="centered" /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="landing-b" label="B · Split + stack cards" width={900} height={620}>
+            <Wrap><LandingHero variant="split" /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="landing-c" label="C · Éditorial / magazine" width={900} height={620}>
+            <Wrap><LandingHero variant="editorial" /></Wrap>
+          </DCArtboard>
+        </DCSection>
+
+        {/* === AUTH === */}
+        <DCSection id="auth" title="2 · Inscription / Connexion">
+          <DCArtboard id="auth-a" label="A · Card classique" width={900} height={560}>
+            <Wrap h={560}><AuthScreen variant="classic" /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="auth-b" label="B · Social-first split" width={900} height={560}>
+            <Wrap h={560}><AuthScreen variant="social-first" /></Wrap>
+          </DCArtboard>
+        </DCSection>
+
+        {/* === ONBOARDING === */}
+        <DCSection id="onboard" title="3 · Onboarding — 1ère wishlist" subtitle="Moment signature">
+          <DCArtboard id="ob-a" label="A · Nom de la liste" width={900} height={560}>
+            <Wrap h={560}><OnboardingScreen variant="guided" /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="ob-b" label="B · Choix méthode de capture" width={900} height={560}>
+            <Wrap h={560}><OnboardingScreen variant="capture" /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="ob-c" label="C · Invitation" width={900} height={620}>
+            <Wrap><OnboardingScreen variant="invite" /></Wrap>
+          </DCArtboard>
+        </DCSection>
+
+        {/* === DASHBOARD (Mes wishlists) === */}
+        <DCSection id="dash" title="4 · Dashboard (Mes wishlists)" subtitle="Exploration nav : topbar vs sidebar vs mini sidebar">
+          <DCArtboard id="dash-a" label="A · Topbar horizontale" width={900} height={620}>
+            <Wrap><DashboardTopbar density="comfy" /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="dash-b" label="B · Sidebar avec labels" width={900} height={620}>
+            <Wrap><DashboardSidebar mini={false} /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="dash-c" label="C · Sidebar mini (icônes)" width={900} height={620}>
+            <Wrap><DashboardSidebar mini={true} /></Wrap>
+          </DCArtboard>
+        </DCSection>
+
+        {/* === WISHLIST OWNER === */}
+        <DCSection id="wl-owner" title="5 · Vue wishlist — Propriétaire" subtitle="3 layouts d'affichage des articles">
+          <DCArtboard id="wl-grid" label="A · Grille 3 col." width={900} height={620}>
+            <Wrap><WishlistOwner layout="grid" /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="wl-list" label="B · Liste verticale" width={900} height={620}>
+            <Wrap><WishlistOwner layout="list" /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="wl-mas" label="C · Masonry (Pinterest)" width={900} height={620}>
+            <Wrap><WishlistOwner layout="masonry" /></Wrap>
+          </DCArtboard>
+        </DCSection>
+
+        {/* === WISHLIST GIFT-GIVER === */}
+        <DCSection id="wl-giver" title="6 · Vue Gift-Giver" subtitle="Lien partagé · bandeau orange distingue clairement la vue">
+          <DCArtboard id="giver-pub" label="A · Accès public (non connecté)" width={900} height={620}>
+            <Wrap><WishlistGiver variant="public" /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="giver-auth" label="B · Ami connecté (réactions)" width={900} height={620}>
+            <Wrap><WishlistGiver variant="auth" /></Wrap>
+          </DCArtboard>
+        </DCSection>
+
+        {/* === ADD ITEM MODAL === */}
+        <DCSection id="add" title="7 · Ajout / édition d'un article" subtitle="3 méthodes de capture en tabs">
+          <DCArtboard id="add-url" label="A · Via URL (preview auto)" width={900} height={600}>
+            <Wrap h={600}><AddItemModal variant="url" /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="add-man" label="B · Saisie manuelle" width={900} height={600}>
+            <Wrap h={600}><AddItemModal variant="manual" /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="add-book" label="C · Bookmarklet" width={900} height={600}>
+            <Wrap h={600}><AddItemModal variant="book" /></Wrap>
+          </DCArtboard>
+        </DCSection>
+
+        {/* === FEED === */}
+        <DCSection id="feed" title="8 · Feed social" subtitle="3 directions : liste d'événements / cards insta / grille mixte">
+          <DCArtboard id="feed-a" label="A · Liste d'événements (proto)" width={900} height={640}>
+            <Wrap h={640}><FeedList /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="feed-b" label="B · Cards façon Insta + stories" width={900} height={640}>
+            <Wrap h={640}><FeedSocial /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="feed-c" label="C · Grille mixte (découvrir)" width={900} height={640}>
+            <Wrap h={640}><FeedGrid /></Wrap>
+          </DCArtboard>
+        </DCSection>
+
+        {/* === FRIENDS === */}
+        <DCSection id="friends" title="9 · Amis" subtitle="2 propositions pour garder les demandes visibles avec beaucoup d'amis">
+          <DCArtboard id="fr-tabs" label="A · Tabs + bandeau alerte" width={900} height={620}>
+            <Wrap><FriendsTabs /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="fr-2col" label="B · 2 colonnes (amis + demandes)" width={900} height={620}>
+            <Wrap><FriendsTwoCol /></Wrap>
+          </DCArtboard>
+        </DCSection>
+
+        {/* === PROFILE + SETTINGS === */}
+        <DCSection id="profile" title="10 · Profil & Paramètres">
+          <DCArtboard id="prof" label="Profil public d'un ami" width={900} height={620}>
+            <Wrap><PublicProfile /></Wrap>
+          </DCArtboard>
+          <DCArtboard id="set" label="Paramètres du compte" width={900} height={620}>
+            <Wrap><Settings /></Wrap>
+          </DCArtboard>
+        </DCSection>
+
+      </DesignCanvas>
+
+      {open && (
+        <TweaksPanel onClose={() => setOpen(false)} title="Tweaks">
+          <TweakSection label="Aperçu global">
+            <div style={{ fontSize: 12, color: '#666', lineHeight: 1.4 }}>
+              Ce document présente les wireframes low-fi B&W pour toutes les vues desktop de TOML. Chaque section explore 2–3 variations.
+            </div>
+          </TweakSection>
+          <TweakSection label="Information">
+            <div style={{ fontSize: 11, color: '#888', lineHeight: 1.4 }}>
+              Les 3 variations de navigation (Section 4), 3 de layout wishlist (Section 5), stories on/off et densités sont déjà présentes comme variantes côte-à-côte sur le canvas — il suffit de naviguer entre les artboards.
+            </div>
+          </TweakSection>
+        </TweaksPanel>
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

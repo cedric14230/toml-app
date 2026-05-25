@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>TOML — Hi-fi desktop</title>
+<meta name="viewport" content="width=1440" />
+<link rel="stylesheet" href="hifi-mobile/toml.css" />
+<style>
+  html, body { margin: 0; padding: 0; background: #d4dae0; font-family: 'Inter', sans-serif; }
+  .dc-card { background: var(--t-bg) !important; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="hifi-mobile/toml-icons.jsx"></script>
+<script type="text/babel" src="hifi-mobile/toml-kit.jsx"></script>
+<script type="text/babel" src="hifi-mobile/mobile-shell.jsx"></script>
+<script type="text/babel" src="hifi-mobile/screen-dashboard.jsx"></script>
+<script type="text/babel" src="hifi-desktop/desktop-shell.jsx"></script>
+<script type="text/babel" src="hifi-desktop/screen-landing.jsx"></script>
+<script type="text/babel" src="hifi-desktop/screen-dashboard.jsx"></script>
+<script type="text/babel" src="hifi-desktop/screen-wishlist.jsx"></script>
+<script type="text/babel" src="hifi-desktop/screen-feed.jsx"></script>
+<script type="text/babel" src="hifi-desktop/screen-friends.jsx"></script>
+<script type="text/babel" src="hifi-desktop/screen-profile.jsx"></script>
+<script type="text/babel">
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection
+        id="hd-intro"
+        title="Hi-fi desktop · v1"
+        subtitle="DS Snap Family appliqué à 3 écrans desktop · top nav branded · navigation par lien actif (dot rose)"
+      >
+        <DCArtboard id="hd-notes" label="Système desktop" width={1200} height={520}>
+          <div className="toml-ds" style={{
+            width: 1200, height: 520, padding: 40, background: 'var(--t-bg)', overflow: 'auto',
+          }}>
+            <div className="label" style={{ marginBottom: 6 }}>Hi-fi desktop · v1</div>
+            <h2 className="display-2" style={{ fontSize: 32, marginBottom: 14, letterSpacing: '-0.02em' }}>
+              Le DS <span style={{ color: 'var(--t-rose)', fontStyle: 'italic', fontWeight: 600 }}>Toml</span> en grand.
+            </h2>
+            <p style={{ fontSize: 14, color: 'var(--t-ink-2)', lineHeight: 1.55, marginTop: 0, marginBottom: 24, maxWidth: 720 }}>
+              Les 3 écrans Feed / Amis / Profil transposés en desktop 1440. On garde la même grammaire que le mobile :
+              fond bleu glacé, cards stamp 3px, sticker mustard, voice rose italic. Le chrome change : top nav horizontale
+              avec les 4 liens principaux (lien actif souligné d'un dot rose), search inline, bouton + en stamp, badge
+              cloche, avatar profil. Le bookmarklet — geste desktop par excellence — revient ici en card hero sombre sur
+              le profil.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20 }}>
+              <div>
+                <div className="label" style={{ marginBottom: 8 }}>Layout Feed</div>
+                <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.6, color: 'var(--t-ink-2)' }}>
+                  <li>Sidebar gauche : filtres + cercles</li>
+                  <li>Stream centre en card stamp</li>
+                  <li>Right rail : anniv + WhatsApp + suggestions</li>
+                </ul>
+              </div>
+              <div>
+                <div className="label" style={{ marginBottom: 8 }}>Layout Amis</div>
+                <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.6, color: 'var(--t-ink-2)' }}>
+                  <li>Hero search + invite</li>
+                  <li>Cercles en grille 4 colonnes</li>
+                  <li>Anniv en carrousel horizontal</li>
+                  <li>Grid 3 colonnes pour tous les amis</li>
+                </ul>
+              </div>
+              <div>
+                <div className="label" style={{ marginBottom: 8 }}>Layout Profil</div>
+                <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.6, color: 'var(--t-ink-2)' }}>
+                  <li>Hero card stamp XL (avatar 120 + stats)</li>
+                  <li>2 colonnes : bookmarklet + connexions / paramètres</li>
+                  <li>Settings rows avec icône pastille</li>
+                </ul>
+              </div>
+            </div>
+
+            <div style={{ marginTop: 24, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+              <button className="btn btn-primary btn-stamp">+ Action principale</button>
+              <button className="btn btn-outline">Outline</button>
+              <button className="btn btn-accent btn-stamp">Sticker accent</button>
+              <span className="chip chip-active">Filtre actif</span>
+              <span className="chip chip-mustard">Réservé</span>
+              <span className="sticker">top wishlist</span>
+              <span className="voice" style={{ fontSize: 16 }}>« voice rose italic »</span>
+            </div>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="hd-landing"
+        title="1 · Landing — desktop"
+        subtitle="Hero split : copy + headline 84px à gauche · stack cards wishlist tiltées à droite · bookmarklet pinné"
+      >
+        <DCArtboard id="hd-landing-a" label="Landing · desktop 1440" width={1480} height={920}>
+          <div style={{ width: 1480, height: 920, padding: 20, background: 'var(--t-bg-2)' }}>
+            <HDLanding />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="hd-dashboard"
+        title="2 · Dashboard (Mes wishlists) — desktop"
+        subtitle="Grid 3 colonnes de cards stamp · carte créer dashed · promo bookmarklet en bas"
+      >
+        <DCArtboard id="hd-dashboard-a" label="Dashboard · desktop 1440" width={1480} height={1180}>
+          <div style={{ width: 1480, height: 1180, padding: 20, background: 'var(--t-bg-2)' }}>
+            <HDDashboard />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="hd-wishlist"
+        title="3 · Wishlist Noël 2026 — desktop"
+        subtitle="Hero avec thumb stamp + titre italique rose · filter bar avec toggle vue · masonry 3 colonnes"
+      >
+        <DCArtboard id="hd-wishlist-a" label="Wishlist masonry · desktop 1440" width={1480} height={1500}>
+          <div style={{ width: 1480, height: 1500, padding: 20, background: 'var(--t-bg-2)' }}>
+            <HDWishlist />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="hd-feed"
+        title="4 · Feed — desktop"
+        subtitle="3 colonnes · sidebar filtres+cercles · stream centre · right rail anniv + suggestions"
+      >
+        <DCArtboard id="hd-feed-a" label="Feed · desktop 1440" width={1480} height={960}>
+          <div style={{ width: 1480, height: 960, padding: 20, background: 'var(--t-bg-2)' }}>
+            <HDFeed />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="hd-friends"
+        title="5 · Amis — desktop"
+        subtitle="Hero search · cercles en 4-grid · anniv carrousel · demandes · grid tous amis"
+      >
+        <DCArtboard id="hd-friends-a" label="Amis · desktop 1440" width={1480} height={1280}>
+          <div style={{ width: 1480, height: 1280, padding: 20, background: 'var(--t-bg-2)' }}>
+            <HDFriends />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="hd-profile"
+        title="6 · Profil — desktop"
+        subtitle="Hero stamp XL + stats inline · 2 colonnes · bookmarklet card sombre · settings list"
+      >
+        <DCArtboard id="hd-profile-a" label="Profil · desktop 1440" width={1480} height={1100}>
+          <div style={{ width: 1480, height: 1100, padding: 20, background: 'var(--t-bg-2)' }}>
+            <HDProfile />
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

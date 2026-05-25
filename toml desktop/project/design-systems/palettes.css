@@ -1,0 +1,147 @@
+/* TOML — Snap Family — palette variations (sans crème) */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&family=Caveat:wght@500;600;700&display=swap');
+
+.pal {
+  -webkit-font-smoothing: antialiased;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  position: relative;
+  box-sizing: border-box;
+  padding: 32px 36px;
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+.pal *, .pal *::before, .pal *::after { box-sizing: border-box; }
+
+.pal h1, .pal .display {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin: 0;
+}
+.pal .label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.pal .hand { font-family: 'Caveat', cursive; font-weight: 600; }
+
+.pal .swatch-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px; }
+.pal .sw { aspect-ratio: 1; border-radius: 14px; }
+.pal .sw-label { font-size: 11px; font-weight: 600; margin-top: 4px; }
+.pal .sw-hex { font-size: 10px; opacity: 0.6; font-family: 'JetBrains Mono', monospace; }
+
+.pal .preview {
+  flex: 1;
+  border-radius: 18px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.pal .card-mini {
+  border-radius: 14px;
+  border: 1.5px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  overflow: hidden;
+}
+
+.pal .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-weight: 600; font-size: 13px;
+  border: 1.5px solid var(--ink); padding: 8px 16px; border-radius: 999px;
+  cursor: pointer;
+}
+.pal .chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--ink); 
+}
+.pal .sticker {
+  display: inline-flex; font-family: 'Caveat'; font-weight: 700; font-size: 14px;
+  border: 1.5px solid var(--ink); border-radius: 6px; padding: 1px 8px;
+  transform: rotate(-3deg);
+}
+
+/* === P1 — Blanc cassé + Indigo + Corail === */
+.pal-1 {
+  --bg: #f4f1ec; --ink: #1a1a2e;
+  --c1: #f5c948; --c1l: #fef0c4;
+  --c2: #3d4a8c; --c2l: #c8d0e8;
+  --c3: #e87358; --c3l: #fbdcd0;
+  --c4: #5a8c87;
+  background: var(--bg); color: var(--ink);
+}
+
+/* === P2 — Gris perle + Sapin + Brique === */
+.pal-2 {
+  --bg: #ebe8e3; --ink: #1f2418;
+  --c1: #e8b942; --c1l: #f5e0b0;
+  --c2: #2e5945; --c2l: #c4d8cc;
+  --c3: #c75a3c; --c3l: #f0c8b8;
+  --c4: #8a6f4a;
+  background: var(--bg); color: var(--ink);
+}
+
+/* === P3 — Bleu glacé + Moutarde + Rose terre === */
+.pal-3 {
+  --bg: #e6ecf2; --ink: #1a1f2e;
+  --c1: #d4a73c; --c1l: #f0dca8;
+  --c2: #5a6f9c; --c2l: #c8d0e0;
+  --c3: #c47884; --c3l: #ecd0d4;
+  --c4: #7a8a9c;
+  background: var(--bg); color: var(--ink);
+}
+
+/* === P4 — Vert tilleul + Terracotta + Sauge === */
+.pal-4 {
+  --bg: #e8edd8; --ink: #1f2a18;
+  --c1: #f0c068; --c1l: #f8e0b8;
+  --c2: #4a7a6c; --c2l: #c4d8cc;
+  --c3: #d87858; --c3l: #f0d0c0;
+  --c4: #8aa098;
+  background: var(--bg); color: var(--ink);
+}
+
+/* === P5 — Lavande + Aubergine + Rose pâle === */
+.pal-5 {
+  --bg: #ebe6ef; --ink: #2a1a2a;
+  --c1: #d4a040; --c1l: #f0d8a0;
+  --c2: #6b3a5c; --c2l: #d8c0d0;
+  --c3: #d89090; --c3l: #f3d8d8;
+  --c4: #b08a78;
+  background: var(--bg); color: var(--ink);
+}
+
+/* === P6 — Sable rosé + Denim + Tomate === */
+.pal-6 {
+  --bg: #f1e9e2; --ink: #1a1f2e;
+  --c1: #f0b840; --c1l: #fae0a0;
+  --c2: #3a5878; --c2l: #c4d4e4;
+  --c3: #d85842; --c3l: #f0c8c0;
+  --c4: #7a6a4a;
+  background: var(--bg); color: var(--ink);
+}
+
+/* === P7 — Gris chaud + Bordeaux + Olive === */
+.pal-7 {
+  --bg: #e8e3dc; --ink: #1f1a18;
+  --c1: #d8a85c; --c1l: #f0d8b0;
+  --c2: #6b1e2e; --c2l: #ecd0d4;
+  --c3: #8a8a3c; --c3l: #d8d8a8;
+  --c4: #b08864;
+  background: var(--bg); color: var(--ink);
+}
+
+/* === P8 — Jade pâle + Pétrole + Pêche === */
+.pal-8 {
+  --bg: #dee8e5; --ink: #1a2424;
+  --c1: #e8b85c; --c1l: #f5dca0;
+  --c2: #1f4a52; --c2l: #b8d0d4;
+  --c3: #e88a6a; --c3l: #f3d4c8;
+  --c4: #7a8a8a;
+  background: var(--bg); color: var(--ink);
+}

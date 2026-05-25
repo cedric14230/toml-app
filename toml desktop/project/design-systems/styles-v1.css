@@ -1,0 +1,254 @@
+/* TOML — 3 Design System variations */
+
+/* === SHARED RESET === */
+.ds {
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  box-sizing: border-box;
+}
+.ds *, .ds *::before, .ds *::after { box-sizing: border-box; }
+
+/* ============================================ */
+/* === DS1 — SEZANE                          === */
+/* === Premium chaleureux, blanc cassé,      === */
+/* === bordeaux, camel, serif éditorial      === */
+/* ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600;700&family=Inter+Tight:wght@400;500;600;700;800;900&family=Anton&family=Roboto+Mono:wght@400;500&display=swap');
+
+.ds-sezane {
+  --paper: #faf6f0;
+  --paper-2: #f3ece1;
+  --paper-3: #ebe1d2;
+  --ink: #1f1812;
+  --ink-2: #4a3d31;
+  --ink-3: #7a6b5c;
+  --ink-4: #a89884;
+  --burgundy: #6b1f2a;
+  --burgundy-d: #4a141d;
+  --burgundy-soft: #f0d8d8;
+  --camel: #b88a5e;
+  --camel-d: #8e6841;
+  --camel-soft: #ecdcc6;
+  --sage: #6e7a5e;
+  --gold: #c89b4a;
+  --rose: #e9a89a;
+  --line: #e3d8c6;
+  --line-2: #d4c4a8;
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-pill: 999px;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+}
+.ds-sezane h1, .ds-sezane h2, .ds-sezane h3, .ds-sezane .serif {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  font-optical-sizing: auto;
+}
+.ds-sezane .hand { font-family: 'Caveat', cursive; font-weight: 600; }
+.ds-sezane .label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.ds-sezane .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: 'Inter'; font-weight: 600; font-size: 14px;
+  border: 1px solid transparent; padding: 10px 18px; border-radius: 999px;
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.ds-sezane .btn-primary { background: var(--burgundy); color: var(--paper); }
+.ds-sezane .btn-primary:hover { background: var(--burgundy-d); }
+.ds-sezane .btn-outline { background: transparent; color: var(--ink); border-color: var(--ink-2); }
+.ds-sezane .btn-ghost { background: var(--paper-2); color: var(--ink); }
+.ds-sezane .chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 999px;
+  background: var(--paper-2); color: var(--ink-2); border: 1px solid var(--line);
+}
+.ds-sezane .chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.ds-sezane .card {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 16px;
+  overflow: hidden;
+}
+.ds-sezane .swatch {
+  aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--line);
+}
+.ds-sezane .sticker {
+  display: inline-flex; font-family: 'Caveat'; font-weight: 700; font-size: 14px;
+  color: var(--burgundy); background: var(--paper); border: 1.5px solid var(--burgundy);
+  border-radius: 4px; padding: 2px 10px; transform: rotate(-3deg);
+}
+.ds-sezane .img-1 { background: linear-gradient(140deg, #d4b89a, #b88a5e); }
+.ds-sezane .img-2 { background: linear-gradient(140deg, #f0d8d8, #c98a9a); }
+.ds-sezane .img-3 { background: linear-gradient(140deg, #e0e6d4, #8e9a78); }
+.ds-sezane .img-4 { background: linear-gradient(140deg, #f3ece1, #c4a888); }
+.ds-sezane .input {
+  background: var(--paper); border: 1px solid var(--line-2); border-radius: 10px;
+  padding: 11px 14px; font-family: 'Inter'; font-size: 14px; width: 100%;
+}
+
+/* ============================================ */
+/* === DS2 — NIKE                            === */
+/* === Bold, high-contrast, condensed,       === */
+/* === noir, blanc, orange, italique fort    === */
+/* ============================================ */
+
+.ds-nike {
+  --bg: #ffffff;
+  --bg-2: #f5f5f5;
+  --bg-3: #e5e5e5;
+  --ink: #111111;
+  --ink-2: #757575;
+  --ink-3: #aaaaaa;
+  --accent: #fa5400;
+  --accent-2: #ff7300;
+  --red: #fe0000;
+  --line: #e5e5e5;
+  font-family: 'Inter Tight', 'Helvetica Neue', sans-serif;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--bg);
+}
+.ds-nike h1, .ds-nike h2, .ds-nike h3, .ds-nike .display {
+  font-family: 'Anton', 'Inter Tight', sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  line-height: 0.95;
+}
+.ds-nike .italic-display {
+  font-family: 'Inter Tight', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+}
+.ds-nike .label {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink);
+}
+.ds-nike .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: 'Inter Tight'; font-weight: 700; font-size: 14px;
+  border: 1.5px solid transparent; padding: 12px 22px; border-radius: 999px;
+  cursor: pointer; transition: all .12s; white-space: nowrap;
+}
+.ds-nike .btn-primary { background: var(--ink); color: var(--bg); }
+.ds-nike .btn-primary:hover { background: var(--accent); }
+.ds-nike .btn-accent { background: var(--accent); color: var(--bg); }
+.ds-nike .btn-outline { background: transparent; color: var(--ink); border-color: var(--ink); }
+.ds-nike .btn-square { border-radius: 0; padding: 14px 26px; }
+.ds-nike .chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 13px; font-weight: 600; padding: 6px 14px;
+  background: transparent; color: var(--ink); border: 1.5px solid var(--ink);
+}
+.ds-nike .chip.active { background: var(--ink); color: var(--bg); }
+.ds-nike .chip.flat { border: none; background: var(--bg-2); padding: 5px 12px; }
+.ds-nike .card {
+  background: var(--bg-2); border: none; overflow: hidden;
+}
+.ds-nike .swatch { aspect-ratio: 1; }
+.ds-nike .sticker {
+  display: inline-flex; font-family: 'Inter Tight'; font-weight: 800; font-size: 11px;
+  color: var(--bg); background: var(--accent); padding: 4px 10px; letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.ds-nike .img-1 { background: linear-gradient(140deg, #1a1a1a, #333); }
+.ds-nike .img-2 { background: linear-gradient(140deg, #fa5400, #ff7300); }
+.ds-nike .img-3 { background: linear-gradient(140deg, #f5f5f5, #d4d4d4); }
+.ds-nike .img-4 { background: linear-gradient(140deg, #e5e5e5, #a8a8a8); }
+.ds-nike .input {
+  background: var(--bg); border: 1.5px solid var(--ink); border-radius: 0;
+  padding: 12px 14px; font-family: 'Inter Tight'; font-size: 14px; width: 100%;
+}
+.ds-nike .swoosh {
+  display: inline-block; font-style: italic; font-weight: 900;
+  color: var(--accent);
+}
+
+/* ============================================ */
+/* === DS3 — INSTAGRAM                       === */
+/* === Clean, white, gradient accent,        === */
+/* === Inter, rounded, very minimal          === */
+/* ============================================ */
+
+.ds-insta {
+  --bg: #ffffff;
+  --bg-2: #fafafa;
+  --bg-3: #efefef;
+  --ink: #262626;
+  --ink-2: #737373;
+  --ink-3: #a8a8a8;
+  --ink-4: #c7c7c7;
+  --blue: #0095f6;
+  --blue-d: #1877f2;
+  --grad-1: #f09433;
+  --grad-2: #e6683c;
+  --grad-3: #dc2743;
+  --grad-4: #cc2366;
+  --grad-5: #bc1888;
+  --line: #dbdbdb;
+  --red: #ed4956;
+  font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+.ds-insta h1, .ds-insta h2, .ds-insta h3 {
+  font-weight: 600; letter-spacing: -0.02em;
+}
+.ds-insta .billabong {
+  font-family: 'Caveat', cursive; font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.ds-insta .label {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-2);
+}
+.ds-insta .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: 'Inter'; font-weight: 600; font-size: 14px;
+  border: 1px solid transparent; padding: 8px 16px; border-radius: 8px;
+  cursor: pointer; transition: all .12s; white-space: nowrap;
+}
+.ds-insta .btn-primary { background: var(--blue); color: var(--bg); }
+.ds-insta .btn-primary:hover { background: var(--blue-d); }
+.ds-insta .btn-outline { background: transparent; color: var(--ink); border-color: var(--line); }
+.ds-insta .btn-ghost { background: var(--bg-3); color: var(--ink); }
+.ds-insta .btn-grad {
+  background: linear-gradient(45deg, var(--grad-1), var(--grad-3) 40%, var(--grad-5));
+  color: var(--bg);
+}
+.ds-insta .chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 8px;
+  background: var(--bg-3); color: var(--ink);
+}
+.ds-insta .chip.active { background: var(--ink); color: var(--bg); }
+.ds-insta .card {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+  overflow: hidden;
+}
+.ds-insta .story {
+  padding: 2px; border-radius: 999px;
+  background: linear-gradient(45deg, var(--grad-1), var(--grad-3) 40%, var(--grad-5));
+  display: inline-block;
+}
+.ds-insta .story > div {
+  border: 2px solid var(--bg); border-radius: 999px;
+}
+.ds-insta .swatch { aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--line); }
+.ds-insta .img-1 { background: linear-gradient(140deg, #ffd6a5, #ffa07a); }
+.ds-insta .img-2 { background: linear-gradient(140deg, #c4d3f0, #8ba6e0); }
+.ds-insta .img-3 { background: linear-gradient(140deg, #d8f0d4, #88c08a); }
+.ds-insta .img-4 { background: linear-gradient(140deg, #f0d4e8, #c088c0); }
+.ds-insta .input {
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px 14px; font-family: 'Inter'; font-size: 14px; width: 100%;
+}
+.ds-insta .grad-text {
+  background: linear-gradient(45deg, var(--grad-1), var(--grad-3) 40%, var(--grad-5));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}

@@ -1,0 +1,343 @@
+/* TOML — DS variations v2 : Snapchat / Vinted / Pinterest */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&family=DM+Serif+Display&family=Caveat:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+.ds {
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  box-sizing: border-box;
+}
+.ds *, .ds *::before, .ds *::after { box-sizing: border-box; }
+
+/* ============================================ */
+/* === DS0 — SNAP FAMILY                     === */
+/* === Snap esprit, mais adulte & familial   === */
+/* === Crème + jaune doux + indigo + corail  === */
+/* ============================================ */
+
+.ds-snapfam {
+  --bg: #fdf9f0;
+  --bg-2: #f5efdd;
+  --bg-3: #ebe3cc;
+  --ink: #1a1a2e;
+  --ink-2: #4a4a5e;
+  --ink-3: #7a7a8a;
+  --yellow: #f5c948;
+  --yellow-soft: #fef0c4;
+  --indigo: #3d4a8c;
+  --indigo-d: #2a3568;
+  --coral: #e87358;
+  --coral-soft: #fbdcd0;
+  --teal: #5a8c87;
+  --line: #e3dcc8;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--bg);
+}
+.ds-snapfam h1, .ds-snapfam h2, .ds-snapfam h3, .ds-snapfam .display {
+  font-family: 'Sora', 'Inter', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.ds-snapfam .hand { font-family: 'Caveat', cursive; font-weight: 600; }
+.ds-snapfam .label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.ds-snapfam .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: 'Inter'; font-weight: 600; font-size: 14px;
+  border: 1.5px solid transparent; padding: 11px 20px; border-radius: 999px;
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.ds-snapfam .btn-primary { background: var(--ink); color: var(--bg); }
+.ds-snapfam .btn-primary:hover { background: var(--indigo); }
+.ds-snapfam .btn-yellow { background: var(--yellow); color: var(--ink); }
+.ds-snapfam .btn-outline { background: transparent; color: var(--ink); border-color: var(--ink); }
+.ds-snapfam .btn-ghost { background: var(--bg-2); color: var(--ink); }
+.ds-snapfam .chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12.5px; font-weight: 600; padding: 5px 12px; border-radius: 999px;
+  background: var(--bg-2); color: var(--ink); border: 1px solid var(--line);
+}
+.ds-snapfam .chip.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.ds-snapfam .chip.yellow { background: var(--yellow-soft); border-color: var(--yellow); color: var(--ink); }
+.ds-snapfam .card {
+  background: var(--bg); border: 1.5px solid var(--ink); border-radius: 18px;
+  overflow: hidden; box-shadow: 3px 3px 0 var(--ink);
+}
+.ds-snapfam .swatch {
+  aspect-ratio: 1; border-radius: 16px; border: 1.5px solid var(--ink);
+}
+.ds-snapfam .sticker {
+  display: inline-flex; font-family: 'Caveat'; font-weight: 700; font-size: 16px;
+  color: var(--ink); background: var(--yellow); border: 1.5px solid var(--ink);
+  border-radius: 8px; padding: 1px 10px; transform: rotate(-3deg);
+}
+.ds-snapfam .input {
+  background: var(--bg); border: 1.5px solid var(--ink); border-radius: 14px;
+  padding: 11px 14px; font-family: 'Inter'; font-weight: 500; font-size: 14px; width: 100%;
+}
+.ds-snapfam .ghost-icon {
+  width: 52px; height: 52px; border-radius: 999px;
+  background: var(--yellow); border: 1.5px solid var(--ink);
+  display: flex; align-items: center; justify-content: center;
+}
+.ds-snapfam .img-1 { background: linear-gradient(140deg, #fbdcd0, #e87358); }
+.ds-snapfam .img-2 { background: linear-gradient(140deg, #c8d0e8, #3d4a8c); }
+.ds-snapfam .img-3 { background: linear-gradient(140deg, #d4e0d8, #5a8c87); }
+.ds-snapfam .img-4 { background: linear-gradient(140deg, #fef0c4, #f5c948); }
+.ds-snapfam .avatar {
+  width: 52px; height: 52px; border-radius: 999px;
+  background: linear-gradient(140deg, #f5c948, #e87358);
+  border: 1.5px solid var(--ink);
+}
+
+/* ============================================ */
+/* === DS1 — SNAPCHAT                        === */
+/* === Playful, jeune, jaune électrique,     === */
+/* === noir franc, formes rondes, fun        === */
+/* ============================================ */
+.ds-snap {
+  --bg: #ffffff;
+  --bg-2: #f5f5f7;
+  --bg-3: #ebebef;
+  --ink: #0b0b0b;
+  --ink-2: #4b4b50;
+  --ink-3: #8a8a8f;
+  --yellow: #fffc00;
+  --yellow-d: #f3e600;
+  --pink: #ff5fa2;
+  --purple: #8a3df7;
+  --teal: #00d6c0;
+  --blue: #2477ff;
+  --line: #ececef;
+  --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-pill: 999px;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--bg);
+}
+.ds-snap h1, .ds-snap h2, .ds-snap h3, .ds-snap .display {
+  font-family: 'Sora', 'Inter', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+.ds-snap .label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink-2);
+}
+.ds-snap .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: 'Inter'; font-weight: 700; font-size: 14px;
+  border: 2px solid transparent; padding: 11px 20px; border-radius: 999px;
+  cursor: pointer; transition: all .12s; white-space: nowrap;
+}
+.ds-snap .btn-primary { background: var(--yellow); color: var(--ink); border-color: var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+.ds-snap .btn-primary:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+.ds-snap .btn-dark { background: var(--ink); color: var(--bg); }
+.ds-snap .btn-outline { background: transparent; color: var(--ink); border-color: var(--ink); }
+.ds-snap .btn-ghost { background: var(--bg-2); color: var(--ink); }
+.ds-snap .chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 999px;
+  background: var(--bg-2); color: var(--ink); border: 1.5px solid var(--ink);
+}
+.ds-snap .chip.active { background: var(--yellow); color: var(--ink); }
+.ds-snap .card {
+  background: var(--bg); border: 2px solid var(--ink); border-radius: 20px;
+  overflow: hidden; box-shadow: 4px 4px 0 var(--ink);
+}
+.ds-snap .swatch {
+  aspect-ratio: 1; border-radius: 18px; border: 2px solid var(--ink);
+}
+.ds-snap .sticker {
+  display: inline-flex; font-family: 'Sora'; font-weight: 800; font-size: 12px;
+  color: var(--ink); background: var(--yellow); border: 2px solid var(--ink);
+  border-radius: 999px; padding: 4px 12px; transform: rotate(-4deg);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.ds-snap .input {
+  background: var(--bg); border: 2px solid var(--ink); border-radius: 14px;
+  padding: 12px 14px; font-family: 'Inter'; font-weight: 500; font-size: 14px; width: 100%;
+}
+.ds-snap .ghost-icon {
+  width: 56px; height: 56px; border-radius: 999px;
+  background: var(--yellow); border: 2px solid var(--ink);
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.ds-snap .img-1 { background: linear-gradient(140deg, #ff8da8, #ff5fa2); }
+.ds-snap .img-2 { background: linear-gradient(140deg, #c4f0ff, #2477ff); }
+.ds-snap .img-3 { background: linear-gradient(140deg, #d8f7d6, #00d6c0); }
+.ds-snap .img-4 { background: linear-gradient(140deg, #fff8a8, #fffc00); }
+.ds-snap .bitmoji {
+  width: 56px; height: 56px; border-radius: 999px;
+  background: linear-gradient(140deg, #ffd6a8, #ff9b6c);
+  border: 2px solid var(--ink);
+}
+
+/* ============================================ */
+/* === DS2 — VINTED                          === */
+/* === Friendly, confiance, vert sapin,      === */
+/* === blanc, cards rounded, lisible         === */
+/* ============================================ */
+.ds-vinted {
+  --bg: #ffffff;
+  --bg-2: #f4f5f0;
+  --bg-3: #e8eae0;
+  --ink: #0c2418;
+  --ink-2: #4a5b50;
+  --ink-3: #8a9a90;
+  --green: #07875e;
+  --green-d: #066a4a;
+  --green-soft: #d6efe4;
+  --teal: #007782;
+  --orange: #ff7a50;
+  --warn: #ffd84d;
+  --line: #e5e7df;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--bg-2);
+}
+.ds-vinted h1, .ds-vinted h2, .ds-vinted h3 {
+  font-family: 'Inter Tight', 'Inter', sans-serif;
+  font-weight: 700; letter-spacing: -0.02em;
+}
+.ds-vinted .label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-2);
+}
+.ds-vinted .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: 'Inter'; font-weight: 700; font-size: 14px;
+  border: 1px solid transparent; padding: 11px 18px; border-radius: 8px;
+  cursor: pointer; transition: all .12s; white-space: nowrap;
+}
+.ds-vinted .btn-primary { background: var(--green); color: var(--bg); }
+.ds-vinted .btn-primary:hover { background: var(--green-d); }
+.ds-vinted .btn-outline { background: var(--bg); color: var(--green); border-color: var(--green); }
+.ds-vinted .btn-ghost { background: var(--bg); color: var(--ink); border: 1px solid var(--line); }
+.ds-vinted .btn-warn { background: var(--orange); color: var(--bg); }
+.ds-vinted .chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
+  background: var(--bg); color: var(--ink); border: 1px solid var(--line);
+}
+.ds-vinted .chip.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.ds-vinted .chip.success { background: var(--green-soft); color: var(--green-d); border-color: var(--green-soft); }
+.ds-vinted .card {
+  background: var(--bg); border-radius: 14px;
+  overflow: hidden; border: 1px solid var(--line);
+}
+.ds-vinted .swatch { aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--line); }
+.ds-vinted .badge {
+  display: inline-flex; font-weight: 700; font-size: 11px;
+  color: var(--bg); background: var(--green); border-radius: 999px;
+  padding: 3px 10px; letter-spacing: 0.02em;
+}
+.ds-vinted .sticker {
+  display: inline-flex; font-family: 'Inter'; font-weight: 700; font-size: 11px;
+  color: var(--bg); background: var(--orange); border-radius: 999px;
+  padding: 4px 10px; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.ds-vinted .input {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 11px 14px; font-family: 'Inter'; font-size: 14px; width: 100%;
+}
+.ds-vinted .input:focus { outline: 2px solid var(--green); outline-offset: -1px; }
+.ds-vinted .img-1 { background: linear-gradient(140deg, #f0d8c8, #d4a888); }
+.ds-vinted .img-2 { background: linear-gradient(140deg, #d6efe4, #07875e); }
+.ds-vinted .img-3 { background: linear-gradient(140deg, #e0e8f0, #a8b8c8); }
+.ds-vinted .img-4 { background: linear-gradient(140deg, #f8e0d0, #ff9b7a); }
+.ds-vinted .avatar {
+  width: 40px; height: 40px; border-radius: 999px;
+  background: linear-gradient(140deg, #d6efe4, #07875e);
+  border: 2px solid var(--bg);
+}
+
+/* ============================================ */
+/* === DS3 — PINTEREST                       === */
+/* === Editorial, masonry, rouge,            === */
+/* === cards très arrondies, beige doux      === */
+/* ============================================ */
+.ds-pin {
+  --bg: #ffffff;
+  --bg-2: #fbf9f6;
+  --bg-3: #f3eee7;
+  --ink: #1a1a1a;
+  --ink-2: #555150;
+  --ink-3: #8c8786;
+  --red: #e60023;
+  --red-d: #ad081b;
+  --red-soft: #fde6ea;
+  --beige: #efe7d8;
+  --beige-d: #d8c9ad;
+  --olive: #5a5635;
+  --line: #ece8e0;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--bg);
+}
+.ds-pin h1, .ds-pin h2, .ds-pin h3, .ds-pin .display {
+  font-family: 'DM Serif Display', 'Inter', serif;
+  font-weight: 400; letter-spacing: -0.015em;
+  line-height: 1.05;
+}
+.ds-pin .editorial-italic { font-style: italic; }
+.ds-pin .label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-2);
+}
+.ds-pin .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: 'Inter'; font-weight: 700; font-size: 14px;
+  border: 1px solid transparent; padding: 12px 20px; border-radius: 999px;
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.ds-pin .btn-primary { background: var(--red); color: var(--bg); }
+.ds-pin .btn-primary:hover { background: var(--red-d); }
+.ds-pin .btn-dark { background: var(--ink); color: var(--bg); }
+.ds-pin .btn-outline { background: var(--bg); color: var(--ink); border-color: var(--line); }
+.ds-pin .btn-ghost { background: var(--bg-3); color: var(--ink); }
+.ds-pin .chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 999px;
+  background: var(--bg-3); color: var(--ink);
+}
+.ds-pin .chip.active { background: var(--ink); color: var(--bg); }
+.ds-pin .card {
+  background: var(--bg); border-radius: 18px;
+  overflow: hidden; border: 1px solid var(--line);
+}
+.ds-pin .pin {
+  border-radius: 18px; overflow: hidden; position: relative;
+  break-inside: avoid; margin-bottom: 10px;
+}
+.ds-pin .swatch { aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--line); }
+.ds-pin .badge {
+  display: inline-flex; font-weight: 700; font-size: 11px;
+  color: var(--bg); background: var(--red); border-radius: 999px;
+  padding: 4px 10px;
+}
+.ds-pin .sticker {
+  display: inline-flex; font-family: 'DM Serif Display'; font-style: italic; font-size: 14px;
+  color: var(--bg); background: var(--ink); border-radius: 999px;
+  padding: 4px 14px;
+}
+.ds-pin .input {
+  background: var(--bg-3); border: 1px solid transparent; border-radius: 999px;
+  padding: 12px 18px; font-family: 'Inter'; font-size: 14px; width: 100%;
+}
+.ds-pin .input:focus { outline: none; border-color: var(--ink); background: var(--bg); }
+.ds-pin .img-1 { background: linear-gradient(140deg, #efe7d8, #d8c9ad); }
+.ds-pin .img-2 { background: linear-gradient(140deg, #f3d8d8, #b86060); }
+.ds-pin .img-3 { background: linear-gradient(140deg, #d8e0d0, #6a7858); }
+.ds-pin .img-4 { background: linear-gradient(140deg, #e8d8e0, #a07a90); }
+.ds-pin .img-5 { background: linear-gradient(140deg, #f8e8d0, #e0a070); }
+.ds-pin .img-6 { background: linear-gradient(140deg, #d0d8e8, #6878a0); }
