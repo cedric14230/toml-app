@@ -50,10 +50,10 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
-  // Profil public (pour le prénom)
+  // Profil public (prénom + statut WhatsApp)
   const { data: profile } = await supabase
     .from('users')
-    .select('name')
+    .select('name, phone_verified')
     .eq('id', user.id)
     .single()
 
@@ -61,6 +61,8 @@ export default async function DashboardPage() {
     profile?.name?.split(' ')[0] ??
     user.email?.split('@')[0] ??
     'toi'
+
+  const phoneVerified = profile?.phone_verified ?? false
 
   // Wishlists actives + items imbriqués (status + created_at pour calculs)
   const { data: raw } = await supabase
@@ -87,7 +89,7 @@ export default async function DashboardPage() {
         <HDDashboard wishlists={wishlists} firstName={firstName} />
       </div>
       <div className="md:hidden">
-        <HMDashboard wishlists={wishlists} firstName={firstName} />
+        <HMDashboard wishlists={wishlists} firstName={firstName} phoneVerified={phoneVerified} />
       </div>
     </>
   )

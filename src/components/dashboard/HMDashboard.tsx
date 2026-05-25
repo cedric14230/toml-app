@@ -25,7 +25,13 @@ const WhatsAppGlyph = ({ size = 22, color = '#fff' }: { size?: number; color?: s
 
 // ── WhatsApp onboarding card ──────────────────────────────────────────────────
 
-const WhatsAppCard = ({ onDismiss }: { onDismiss: () => void }) => (
+interface WhatsAppCardProps {
+  onDismiss: () => void
+  onConnect: () => void
+  connecting: boolean
+}
+
+const WhatsAppCard = ({ onDismiss, onConnect, connecting }: WhatsAppCardProps) => (
   <div className="card" style={{
     margin: '14px 18px 4px', padding: 14,
     display: 'flex', gap: 12, alignItems: 'flex-start',
@@ -57,11 +63,13 @@ const WhatsAppCard = ({ onDismiss }: { onDismiss: () => void }) => (
         Envoie un lien produit à Toml sur WhatsApp → il apparaît direct dans ta wishlist.
       </div>
       <button
+        onClick={onConnect}
+        disabled={connecting}
         className="btn btn-stamp btn-sm"
-        style={{ background: '#25D366', color: '#fff', borderColor: 'var(--t-ink)' }}
+        style={{ background: '#25D366', color: '#fff', borderColor: 'var(--t-ink)', opacity: connecting ? 0.7 : 1 }}
       >
         <WhatsAppGlyph size={14} color="#fff" />
-        Connecter WhatsApp
+        {connecting ? 'Ouverture…' : 'Connecter WhatsApp'}
       </button>
     </div>
 
@@ -86,11 +94,29 @@ const WhatsAppCard = ({ onDismiss }: { onDismiss: () => void }) => (
 interface HMDashboardProps {
   wishlists: WishlistRow[]
   firstName: string
+  phoneVerified: boolean
 }
 
-export const HMDashboard = ({ wishlists, firstName }: HMDashboardProps) => {
-  const [waVisible, setWaVisible] = useState(true)
+export const HMDashboard = ({ wishlists, firstName, phoneVerified }: HMDashboardProps) => {
+  const [waVisible, setWaVisible] = useState(!phoneVerified)
+  const [waConnecting, setWaConnecting] = useState(false)
   const initial = firstName.charAt(0).toUpperCase()
+
+  async function handleConnectWhatsApp() {
+    setWaConnecting(true)
+    try {
+      const res = await fetch('/api/whatsapp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      const data = await res.json()
+      if (res.ok) {
+        window.open(data.waUrl, '_blank')
+      }
+    } finally {
+      setWaConnecting(false)
+    }
+  }
 
   return (
     <HMShell>
@@ -109,7 +135,13 @@ export const HMDashboard = ({ wishlists, firstName }: HMDashboardProps) => {
         }
       />
 
-      {waVisible && <WhatsAppCard onDismiss={() => setWaVisible(false)} />}
+      {waVisible && (
+        <WhatsAppCard
+          onDismiss={() => setWaVisible(false)}
+          onConnect={handleConnectWhatsApp}
+          connecting={waConnecting}
+        />
+      )}
 
       {/* Header */}
       <div style={{
