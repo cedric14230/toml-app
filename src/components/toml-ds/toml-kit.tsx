@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import type {
   CSSProperties,
   ReactNode,
@@ -360,7 +361,51 @@ export const TomlGiverBanner = ({ emoji = '🤫', title, body, badge }: TomlGive
 )
 
 // ── Bookmarklet ───────────────────────────────────────────────────────────────
+// Même logique que BookmarkletInstall.tsx : le href javascript: est injecté
+// via useEffect pour éviter les problèmes de hydration SSR.
 
-export const TomlBookmarklet = ({ children = '+ Ajouter à Toml' }: { children?: ReactNode }) => (
-  <span className="bookmarklet">{children}</span>
-)
+export const TomlBookmarklet = ({ children = '+ Ajouter à Toml' }: { children?: ReactNode }) => {
+  const linkRef = useRef<HTMLAnchorElement>(null)
+
+  useEffect(() => {
+    if (!linkRef.current) return
+    const origin = window.location.origin
+    const code = `(function(){
+function g(p){var e=document.querySelector('meta[property="'+p+'"]')||document.querySelector('meta[name="'+p+'"]');return e?e.getAttribute('content'):'';}
+var t=g('og:title')||g('twitter:title')||document.title||'';
+var im=g('og:image')||g('og:image:url')||g('twitter:image')||'';
+var pr=g('og:price:amount')||g('product:price:amount')||'';
+var ss=document.querySelectorAll('script[type="application/ld+json"]');
+for(var k=0;k<ss.length;k++){
+  try{
+    var d=JSON.parse(ss[k].textContent||'');
+    var ns=d['@graph']?d['@graph']:(Array.isArray(d)?d:[d]);
+    for(var j=0;j<ns.length;j++){
+      var n=ns[j];
+      if(n['@type']==='Product'){
+        t=t||n.name||'';
+        var imd=n.image;
+        if(!im){if(typeof imd==='string')im=imd;else if(imd&&imd.url)im=imd.url;else if(Array.isArray(imd)&&imd[0])im=typeof imd[0]==='string'?imd[0]:(imd[0].url||'');}
+        if(!pr){var of=Array.isArray(n.offers)?n.offers[0]:n.offers;if(of&&of.price)pr=String(of.price);}
+        break;
+      }
+    }
+  }catch(e){}
+}
+window.open('${origin}/add-item?'+new URLSearchParams({title:t,image:im,price:pr,sourceUrl:window.location.href}).toString(),'_blank');
+})()`.replace(/\n/g, '')
+    linkRef.current.setAttribute('href', 'javascript:' + code)
+  }, [])
+
+  return (
+    <a
+      ref={linkRef}
+      href="#"
+      className="bookmarklet"
+      draggable="true"
+      aria-label="Bookmarklet TOML — glisser dans les favoris"
+    >
+      {children}
+    </a>
+  )
+}

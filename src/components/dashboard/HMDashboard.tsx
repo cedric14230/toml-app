@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { HMShell, HMTopBar, HMLogo } from '@/components/landing/shells'
 import { TomlAvatar } from '@/components/toml-ds/toml-kit'
 import { TomlIcon } from '@/components/toml-ds/toml-icons'
+import CreateWishlistModal from '@/components/wishlists/CreateWishlistModal'
 import type { WishlistRow } from './types'
 
 // ── Visibility helpers ────────────────────────────────────────────────────────
@@ -98,8 +100,10 @@ interface HMDashboardProps {
 }
 
 export const HMDashboard = ({ wishlists, firstName, phoneVerified }: HMDashboardProps) => {
-  const [waVisible, setWaVisible] = useState(!phoneVerified)
+  const router = useRouter()
+  const [waVisible, setWaVisible]       = useState(!phoneVerified)
   const [waConnecting, setWaConnecting] = useState(false)
+  const [createOpen, setCreateOpen]     = useState(false)
   const initial = firstName.charAt(0).toUpperCase()
 
   async function handleConnectWhatsApp() {
@@ -152,14 +156,13 @@ export const HMDashboard = ({ wishlists, firstName, phoneVerified }: HMDashboard
           <div className="label" style={{ marginBottom: 4 }}>Tableau de bord</div>
           <h1 className="display-2" style={{ fontSize: 28 }}>Mes wishlists</h1>
         </div>
-        <Link
-          href="/wishlist/new"
+        <button
+          onClick={() => setCreateOpen(true)}
           className="btn btn-primary btn-stamp btn-sm"
-          style={{ textDecoration: 'none' }}
         >
           <TomlIcon name="plus" size={14} />
           Créer
-        </Link>
+        </button>
       </div>
 
       {/* Wishlist cards */}
@@ -199,8 +202,9 @@ export const HMDashboard = ({ wishlists, firstName, phoneVerified }: HMDashboard
         })}
 
         {/* Dashed create card */}
-        <Link href="/wishlist/new" style={{ textDecoration: 'none' }}>
-          <button style={{
+        <button
+          onClick={() => setCreateOpen(true)}
+          style={{
             width: '100%',
             background: 'transparent',
             border: '1.5px dashed var(--t-ink-3)',
@@ -209,12 +213,19 @@ export const HMDashboard = ({ wishlists, firstName, phoneVerified }: HMDashboard
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             color: 'var(--t-ink-2)', cursor: 'pointer',
             fontFamily: 'var(--t-font-ui)', fontWeight: 600, fontSize: 14,
-          }}>
-            <TomlIcon name="plus" size={18} />
-            Créer une nouvelle wishlist
-          </button>
-        </Link>
+          }}
+        >
+          <TomlIcon name="plus" size={18} />
+          Créer une nouvelle wishlist
+        </button>
       </div>
+
+      {createOpen && (
+        <CreateWishlistModal
+          onClose={() => setCreateOpen(false)}
+          onSuccess={id => router.push(`/wishlist/${id}`)}
+        />
+      )}
     </HMShell>
   )
 }

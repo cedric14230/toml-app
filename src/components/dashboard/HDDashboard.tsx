@@ -1,8 +1,13 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import { HDShell } from '@/components/landing/shells'
 import { TomlBookmarklet } from '@/components/toml-ds/toml-kit'
 import { TomlIcon } from '@/components/toml-ds/toml-icons'
 import type { WishlistRow } from './types'
+
+type Filter = 'all' | 'public' | 'friends' | 'private' | 'archived'
 
 // ── Visibility helpers ────────────────────────────────────────────────────────
 
@@ -78,12 +83,18 @@ interface HDDashboardProps {
 }
 
 export const HDDashboard = ({ wishlists, firstName }: HDDashboardProps) => {
+  const [activeFilter, setActiveFilter] = useState<Filter>('all')
+
   const counts = {
     all:     wishlists.length,
     public:  wishlists.filter(w => w.visibility === 'public').length,
     friends: wishlists.filter(w => w.visibility === 'friends').length,
     private: wishlists.filter(w => w.visibility === 'private').length,
   }
+
+  const displayed = activeFilter === 'all' || activeFilter === 'archived'
+    ? wishlists
+    : wishlists.filter(w => w.visibility === activeFilter)
 
   return (
     <HDShell active="lists" authed>
@@ -102,11 +113,22 @@ export const HDDashboard = ({ wishlists, firstName }: HDDashboardProps) => {
             </h1>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span className="chip chip-active">Toutes ({counts.all})</span>
-            {counts.public  > 0 && <span className="chip">Publiques ({counts.public})</span>}
-            {counts.friends > 0 && <span className="chip">Amis ({counts.friends})</span>}
-            {counts.private > 0 && <span className="chip">Privées ({counts.private})</span>}
-            <span className="chip">Archivées</span>
+            {([
+              { key: 'all',     label: `Toutes (${counts.all})` },
+              ...(counts.public  > 0 ? [{ key: 'public',  label: `Publiques (${counts.public})` }]  : []),
+              ...(counts.friends > 0 ? [{ key: 'friends', label: `Amis (${counts.friends})` }]       : []),
+              ...(counts.private > 0 ? [{ key: 'private', label: `Privées (${counts.private})` }]   : []),
+              { key: 'archived', label: 'Archivées' },
+            ] as { key: Filter; label: string }[]).map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setActiveFilter(key)}
+                className={`chip ${activeFilter === key ? 'chip-active' : ''}`}
+                style={{ border: 'none', cursor: 'pointer' }}
+              >
+                {label}
+              </button>
+            ))}
             <Link
               href="/wishlist/new"
               className="btn btn-primary btn-stamp"
@@ -120,7 +142,7 @@ export const HDDashboard = ({ wishlists, firstName }: HDDashboardProps) => {
 
         {/* Cards grid 3 cols */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 24 }}>
-          {wishlists.map(w => <DashboardCard key={w.id} w={w} />)}
+          {displayed.map(w => <DashboardCard key={w.id} w={w} />)}
 
           {/* Dashed create card */}
           <Link href="/wishlist/new" style={{ textDecoration: 'none' }}>

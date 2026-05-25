@@ -8,7 +8,7 @@ type Visibility = Wishlist['visibility']
 
 type Props = {
   onClose: () => void
-  onSuccess: () => void
+  onSuccess: (id: string) => void
 }
 
 const VISIBILITY_OPTIONS: {
@@ -89,21 +89,24 @@ export default function CreateWishlistModal({ onClose, onSuccess }: Props) {
       return
     }
 
-    const { error } = await supabase.from('wishlists').insert({
-      user_id: user.id,
-      title: title.trim(),
-      description: description.trim() || null,
-      visibility,
-    })
+    const { data, error } = await supabase
+      .from('wishlists')
+      .insert({
+        user_id: user.id,
+        title: title.trim(),
+        description: description.trim() || null,
+        visibility,
+      })
+      .select('id')
+      .single()
 
-    if (error) {
-      setError(error.message)
+    if (error || !data) {
+      setError(error?.message ?? 'Erreur lors de la création.')
       setLoading(false)
       return
     }
 
-    // onSuccess ferme le modal et déclenche router.refresh() dans WishlistGrid
-    onSuccess()
+    onSuccess(data.id)
   }
 
   return (
