@@ -54,22 +54,23 @@ function eventDay(dateStr: string): string {
 
 // ── Raw Supabase types ────────────────────────────────────────────────────────
 
+// Supabase retourne les jointures FK comme des tableaux même pour les relations 1-1
 type RawEvent = {
   id: string
   kind: string
   reaction_type: string | null
   created_at: string
-  actor:       { id: string; name: string | null } | null
-  wishlist:    { id: string; title: string } | null
-  item:        { id: string; title: string; image_url: string | null; price: number | null; note: string | null; priority: string } | null
-  target_user: { id: string; name: string | null } | null
+  actor:       { id: string; name: string | null }[]
+  wishlist:    { id: string; title: string }[]
+  item:        { id: string; title: string; image_url: string | null; price: number | null; note: string | null; priority: string }[]
+  target_user: { id: string; name: string | null }[]
 }
 
 type RawFriendship = {
   user_id_1: string
   user_id_2: string
-  u1: { id: string; name: string | null; birthday: string | null } | null
-  u2: { id: string; name: string | null; birthday: string | null } | null
+  u1: { id: string; name: string | null; birthday: string | null }[]
+  u2: { id: string; name: string | null; birthday: string | null }[]
 }
 
 type RawReservation = {
@@ -80,9 +81,9 @@ type RawReservation = {
     wishlist: {
       id: string
       title: string
-      owner: { name: string | null } | null
-    } | null
-  } | null
+      owner: { name: string | null }[]
+    }[]
+  }[]
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -139,8 +140,11 @@ export default async function FeedPage() {
   ])
 
   // ── Transform activity + group item_added ─────────────────────────────────
+  // Supabase retourne les jointures comme des tableaux — on prend toujours [0]
 
-  function toFeedItem(it: RawEvent['item']): FeedItem | undefined {
+  type RawItemRow = RawEvent['item'][0]
+
+  function toFeedItem(it: RawItemRow | undefined): FeedItem | undefined {
     if (!it) return undefined
     return {
       id:        it.id,
@@ -157,27 +161,32 @@ export default async function FeedPage() {
   const groupMap = new Map<string, FeedEvent>()
 
   for (const e of ((rawActivity ?? []) as RawEvent[])) {
-    if (!e.actor) continue
+    const actorRow  = e.actor?.[0]
+    const wishlistRow = e.wishlist?.[0]
+    const itemRow     = e.item?.[0]
+    const targetRow   = e.target_user?.[0]
+
+    if (!actorRow) continue
 
     const actor = {
-      id:      e.actor.id,
-      name:    e.actor.name ?? 'Utilisateur',
-      initial: initial(e.actor.name),
-      tone:    actorTone(e.actor.id),
+      id:      actorRow.id,
+      name:    actorRow.name ?? 'Utilisateur',
+      initial: initial(actorRow.name),
+      tone:    actorTone(actorRow.id),
     }
 
-    if (e.kind === 'item_added' && e.wishlist && e.item) {
-      const key = `${actor.id}:${e.wishlist.id}:${eventDay(e.created_at)}`
+    if (e.kind === 'item_added' && wishlistRow && itemRow) {
+      const key = `${actor.id}:${wishlistRow.id}:${eventDay(e.created_at)}`
       if (groupMap.has(key)) {
-        groupMap.get(key)!.items!.push(toFeedItem(e.item)!)
+        groupMap.get(key)!.items!.push(toFeedItem(itemRow)!)
         continue
       }
       const ev: FeedEvent = {
         id:         e.id,
         kind:       'item_added',
         actor,
-        wishlist:   e.wishlist,
-        items:      [toFeedItem(e.item)!],
+        wishlist:   wishlistRow,
+        items:      [toFeedItem(itemRow)!],
         time:       timeAgo(e.created_at),
         created_at: e.created_at,
       }
@@ -190,10 +199,10 @@ export default async function FeedPage() {
       id:           e.id,
       kind:         e.kind as FeedEvent['kind'],
       actor,
-      wishlist:     e.wishlist ?? undefined,
-      item:         toFeedItem(e.item),
-      targetUser:   e.target_user
-        ? { name: e.target_user.name ?? 'Utilisateur', initial: initial(e.target_user.name) }
+      wishlist:     wishlistRow,
+      item:         toFeedItem(itemRow),
+      targetUser:   targetRow
+        ? { name: targetRow.name ?? 'Utilisateur', initial: initial(targetRow.name) }
         : undefined,
       reactionType: e.reaction_type ?? undefined,
       time:         timeAgo(e.created_at),
@@ -205,7 +214,7 @@ export default async function FeedPage() {
 
   const birthdays: BirthdayEntry[] = ((rawFriendships ?? []) as RawFriendship[])
     .map(f => {
-      const friend = f.user_id_1 === user.id ? f.u2 : f.u1
+      const friend = (f.user_id_1 === user.id ? f.u2 : f.u1)?.[0]
       if (!friend || !friend.birthday) return null
       const bd = nextBirthday(friend.birthday)
       if (!bd) return null
@@ -224,14 +233,20 @@ export default async function FeedPage() {
   // ── My reservations ───────────────────────────────────────────────────────
 
   const myReservations: MyReservation[] = ((rawReservations ?? []) as RawReservation[])
-    .filter(r => r.item?.wishlist)
-    .map(r => ({
-      itemId:        r.item!.id,
-      itemTitle:     r.item!.title,
-      wishlistId:    r.item!.wishlist!.id,
-      wishlistTitle: r.item!.wishlist!.title,
-      ownerName:     r.item!.wishlist!.owner?.name ?? 'Quelqu\'un',
-    }))
+    .map(r => {
+      const item     = r.item?.[0]
+      const wishlist = item?.wishlist?.[0]
+      const owner    = wishlist?.owner?.[0]
+      if (!item || !wishlist) return null
+      return {
+        itemId:        item.id,
+        itemTitle:     item.title,
+        wishlistId:    wishlist.id,
+        wishlistTitle: wishlist.title,
+        ownerName:     owner?.name ?? 'Quelqu\'un',
+      }
+    })
+    .filter((r): r is MyReservation => r !== null)
 
   return (
     <>
