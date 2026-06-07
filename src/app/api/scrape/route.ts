@@ -143,6 +143,7 @@ async function fetchScrapingBee(url: string, timeoutMs = 30_000): Promise<string
     `&block_ads=true` +
     `&wait=2000`
 
+  console.log("CALLING SCRAPINGBEE")
   const res = await fetch(endpoint, { signal: AbortSignal.timeout(timeoutMs) })
   console.log(`[ScrapingBee] HTTP ${res.status}`)
 
@@ -152,6 +153,7 @@ async function fetchScrapingBee(url: string, timeoutMs = 30_000): Promise<string
 
   const html = await res.text()
   console.log(`[ScrapingBee] HTML reçu — ${html.length} chars`)
+  console.log("SCRAPINGBEE result: " + JSON.stringify(html?.slice(0, 500)))
   return html || null
 }
 
@@ -550,8 +552,10 @@ export async function GET(request: NextRequest) {
   for (const [level, fn] of levels) {
     try {
       const result = await fn(url)
+      if (level === 1) console.log("LEVEL1 result: " + JSON.stringify(result))
       if (result?.title) {
         console.log(`[scrape] ✓ niveau ${level} retenu — title: "${result.title}", image: ${result.image ? 'présente' : 'null'}, price: ${result.price ?? 'null'}`)
+        console.log("FINAL result: " + JSON.stringify(result))
         return NextResponse.json(result)
       }
       console.log(`[scrape] niveau ${level} — résultat incomplet, passage au suivant`)
