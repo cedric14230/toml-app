@@ -454,7 +454,7 @@ async function scrapeAntibotDomain(url: string): Promise<ScrapeResult | null> {
 
   let html: string
   try {
-    html = (await fetchScrapingBee(url)) ?? ''
+    html = (await fetchScrapingBee(url, 45_000)) ?? ''
   } catch (err) {
     console.warn(`[antibot] ScrapingBee échoué — ${(err as Error).message}`)
     return null
