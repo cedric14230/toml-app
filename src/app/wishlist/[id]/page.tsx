@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import type { ItemRow, ItemPriority, WishlistData, WishlistStats } from '@/components/wishlist/types'
+import type { ItemRow, ItemPriority, WishlistData, WishlistStats, ReactionType } from '@/components/wishlist/types'
 import { HDWishlist } from '@/components/wishlist/HDWishlist'
 import { HMWishlist } from '@/components/wishlist/HMWishlist'
 
@@ -29,6 +29,7 @@ type RawItem = {
   image_url: string | null
   source_url: string | null
   created_at: string
+  reactions: Array<{ reaction_type: string; user_id: string }> | null
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -56,23 +57,32 @@ export default async function WishlistPage({
   // Fetch items
   const { data: rawItems } = await supabase
     .from('items')
-    .select('id, title, price, note, priority, status, image_url, source_url, created_at')
+    .select('id, title, price, note, priority, status, image_url, source_url, created_at, reactions(reaction_type, user_id)')
     .eq('wishlist_id', params.id)
     .order('created_at', { ascending: false })
 
-  const items: ItemRow[] = ((rawItems ?? []) as RawItem[]).map(it => ({
-    id:         it.id,
-    title:      it.title,
-    price:      it.price,
-    note:       it.note,
-    priority:   it.priority as ItemPriority,
-    status:     it.status as ItemRow['status'],
-    image_url:  it.image_url,
-    source_url: it.source_url,
-    created_at: it.created_at,
-    stars:      PRIORITY_STARS[it.priority as ItemPriority],
-    tone:       toneFromId(it.id),
-  }))
+  const items: ItemRow[] = ((rawItems ?? []) as RawItem[]).map(it => {
+    const rxs = it.reactions ?? []
+    return {
+      id:         it.id,
+      title:      it.title,
+      price:      it.price,
+      note:       it.note,
+      priority:   it.priority as ItemPriority,
+      status:     it.status as ItemRow['status'],
+      image_url:  it.image_url,
+      source_url: it.source_url,
+      created_at: it.created_at,
+      stars:      PRIORITY_STARS[it.priority as ItemPriority],
+      tone:       toneFromId(it.id),
+      reactionCounts: {
+        love:        rxs.filter(r => r.reaction_type === 'love').length,
+        useful:      rxs.filter(r => r.reaction_type === 'useful').length,
+        interesting: rxs.filter(r => r.reaction_type === 'interesting').length,
+      },
+      myReaction: (rxs.find(r => r.user_id === user.id)?.reaction_type ?? null) as ReactionType | null,
+    }
+  })
 
   const stats: WishlistStats = {
     total:     items.length,

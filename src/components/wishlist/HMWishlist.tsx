@@ -7,6 +7,8 @@ import { HMShell, HMTopBar } from '@/components/landing/shells'
 import { TomlStars } from '@/components/toml-ds/toml-kit'
 import { TomlIcon } from '@/components/toml-ds/toml-icons'
 import AddItemModal from '@/components/items/AddItemModal'
+import EditItemModal from '@/components/items/EditItemModal'
+import ReactionBar from '@/components/items/ReactionBar'
 import type { ItemRow, WishlistData, WishlistStats } from './types'
 
 // ── Visibility helpers ────────────────────────────────────────────────────────
@@ -20,7 +22,13 @@ const HEIGHTS = [180, 200, 160, 220, 170]
 
 // ── Featured card (3★ — full width) ──────────────────────────────────────────
 
-const FeaturedCard = ({ item, isOwner }: { item: ItemRow; isOwner: boolean }) => (
+const FeaturedCard = ({
+  item, isOwner, onEdit,
+}: {
+  item: ItemRow
+  isOwner: boolean
+  onEdit?: () => void
+}) => (
   <div className="card" style={{ opacity: item.status !== 'available' ? 0.55 : 1, position: 'relative' }}>
     <div
       className={`img img-${item.tone}`}
@@ -72,12 +80,22 @@ const FeaturedCard = ({ item, isOwner }: { item: ItemRow; isOwner: boolean }) =>
           {item.price != null ? `${item.price} €` : '—'}
         </div>
         {isOwner && (
-          <button className="btn btn-outline btn-sm">
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={e => { e.preventDefault(); e.stopPropagation(); onEdit?.() }}
+          >
             <TomlIcon name="edit" size={13} />
             Modifier
           </button>
         )}
       </div>
+      {item.reactionCounts && (
+        <ReactionBar
+          itemId={item.id}
+          initialCounts={item.reactionCounts}
+          initialMyReaction={item.myReaction ?? null}
+        />
+      )}
     </div>
   </div>
 )
@@ -115,6 +133,13 @@ const SmallCard = ({ item, h }: { item: ItemRow; h: number }) => (
         </div>
         <TomlStars value={item.stars} size={9} />
       </div>
+      {item.reactionCounts && (
+        <ReactionBar
+          itemId={item.id}
+          initialCounts={item.reactionCounts}
+          initialMyReaction={item.myReaction ?? null}
+        />
+      )}
     </div>
   </div>
 )
@@ -130,7 +155,16 @@ interface HMWishlistProps {
 
 export const HMWishlist = ({ wishlist, items, stats, isOwner }: HMWishlistProps) => {
   const router = useRouter()
-  const [addItemOpen, setAddItemOpen] = useState(false)
+  const [addItemOpen, setAddItemOpen]   = useState(false)
+  const [editingItem, setEditingItem]   = useState<ItemRow | null>(null)
+  const [shareCopied, setShareCopied]   = useState(false)
+
+  function handleShare() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 2000)
+    })
+  }
 
   const featured = items.filter(it => it.stars === 3)
   const others   = items.filter(it => it.stars < 3)
@@ -156,10 +190,16 @@ export const HMWishlist = ({ wishlist, items, stats, isOwner }: HMWishlistProps)
         }
         right={
           <>
-            <button className="btn btn-ghost" style={{
-              width: 36, height: 36, padding: 0, borderRadius: 999,
-              background: 'var(--t-paper)', border: '1px solid var(--t-line)',
-            }}>
+            <button
+              className="btn btn-ghost"
+              style={{
+                width: 36, height: 36, padding: 0, borderRadius: 999,
+                background: shareCopied ? 'var(--t-mustard)' : 'var(--t-paper)',
+                border: '1px solid var(--t-line)',
+              }}
+              onClick={handleShare}
+              aria-label={shareCopied ? 'Lien copié !' : 'Partager'}
+            >
               <TomlIcon name="share" size={16} />
             </button>
             {isOwner && (
@@ -205,7 +245,7 @@ export const HMWishlist = ({ wishlist, items, stats, isOwner }: HMWishlistProps)
         <div style={{ padding: '60px 18px', textAlign: 'center', color: 'var(--t-ink-3)' }}>
           <div className="display-2" style={{ fontSize: 18, marginBottom: 8 }}>Aucun article</div>
           <div style={{ fontSize: 13 }}>
-            {isOwner ? 'Ajoute ton premier article !' : 'Cette wishlist est encore vide.'}
+            {isOwner ? 'Ajoutez votre premier article !' : 'Cette wishlist est encore vide.'}
           </div>
         </div>
       )}
@@ -213,11 +253,17 @@ export const HMWishlist = ({ wishlist, items, stats, isOwner }: HMWishlistProps)
       {/* Featured 3★ — full width */}
       {featured.length > 0 && (
         <div style={{ padding: '12px 18px 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {featured.map(it => (
-            <Link key={it.id} href={`/wishlist/${wishlist.id}/item/${it.id}`} style={{ textDecoration: 'none', display: 'block' }}>
-              <FeaturedCard item={it} isOwner={isOwner} />
-            </Link>
-          ))}
+          {featured.map(it =>
+            isOwner ? (
+              <div key={it.id} onClick={() => setEditingItem(it)} style={{ cursor: 'pointer' }}>
+                <FeaturedCard item={it} isOwner onEdit={() => setEditingItem(it)} />
+              </div>
+            ) : (
+              <Link key={it.id} href={`/wishlist/${wishlist.id}/item/${it.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+                <FeaturedCard item={it} isOwner={false} />
+              </Link>
+            )
+          )}
         </div>
       )}
 
@@ -229,18 +275,30 @@ export const HMWishlist = ({ wishlist, items, stats, isOwner }: HMWishlistProps)
           </div>
           <div style={{ padding: '0 14px 24px', display: 'flex', gap: 10 }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              {col1.map((it, i) => (
-                <Link key={it.id} href={`/wishlist/${wishlist.id}/item/${it.id}`} style={{ textDecoration: 'none', display: 'block' }}>
-                  <SmallCard item={it} h={HEIGHTS[i % HEIGHTS.length]} />
-                </Link>
-              ))}
+              {col1.map((it, i) =>
+                isOwner ? (
+                  <div key={it.id} onClick={() => setEditingItem(it)} style={{ cursor: 'pointer' }}>
+                    <SmallCard item={it} h={HEIGHTS[i % HEIGHTS.length]} />
+                  </div>
+                ) : (
+                  <Link key={it.id} href={`/wishlist/${wishlist.id}/item/${it.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+                    <SmallCard item={it} h={HEIGHTS[i % HEIGHTS.length]} />
+                  </Link>
+                )
+              )}
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              {col2.map((it, i) => (
-                <Link key={it.id} href={`/wishlist/${wishlist.id}/item/${it.id}`} style={{ textDecoration: 'none', display: 'block' }}>
-                  <SmallCard item={it} h={HEIGHTS[(i + 1) % HEIGHTS.length]} />
-                </Link>
-              ))}
+              {col2.map((it, i) =>
+                isOwner ? (
+                  <div key={it.id} onClick={() => setEditingItem(it)} style={{ cursor: 'pointer' }}>
+                    <SmallCard item={it} h={HEIGHTS[(i + 1) % HEIGHTS.length]} />
+                  </div>
+                ) : (
+                  <Link key={it.id} href={`/wishlist/${wishlist.id}/item/${it.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+                    <SmallCard item={it} h={HEIGHTS[(i + 1) % HEIGHTS.length]} />
+                  </Link>
+                )
+              )}
             </div>
           </div>
         </>
@@ -252,6 +310,14 @@ export const HMWishlist = ({ wishlist, items, stats, isOwner }: HMWishlistProps)
         wishlistId={wishlist.id}
         onClose={() => setAddItemOpen(false)}
         onSuccess={() => { setAddItemOpen(false); router.refresh() }}
+      />
+    )}
+
+    {editingItem && (
+      <EditItemModal
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+        onSuccess={() => { setEditingItem(null); router.refresh() }}
       />
     )}
     </>

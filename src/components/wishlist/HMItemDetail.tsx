@@ -1,10 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { HMShell, HMTopBar } from '@/components/landing/shells'
 import { TomlStars } from '@/components/toml-ds/toml-kit'
 import { TomlIcon } from '@/components/toml-ds/toml-icons'
 import ReserveButton from '@/components/items/ReserveButton'
+import EditItemModal from '@/components/items/EditItemModal'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import type { ItemRow, WishlistData } from './types'
 
 interface HMItemDetailProps {
@@ -15,8 +18,16 @@ interface HMItemDetailProps {
 
 export const HMItemDetail = ({ wishlist, item, isOwner }: HMItemDetailProps) => {
   const router = useRouter()
+  const [editOpen, setEditOpen] = useState(false)
+
+  async function handleDelete() {
+    const supabase = createSupabaseBrowserClient()
+    const { error } = await supabase.from('items').delete().eq('id', item.id)
+    if (!error) router.push(`/wishlist/${wishlist.id}`)
+  }
 
   return (
+  <>
   <HMShell>
     <HMTopBar
       title={item.title}
@@ -115,7 +126,11 @@ export const HMItemDetail = ({ wishlist, item, isOwner }: HMItemDetailProps) => 
         )}
 
         {isOwner && (
-          <button className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }}>
+          <button
+            className="btn btn-outline"
+            style={{ width: '100%', justifyContent: 'center' }}
+            onClick={() => setEditOpen(true)}
+          >
             <TomlIcon name="edit" size={13} />
             Modifier
           </button>
@@ -123,5 +138,15 @@ export const HMItemDetail = ({ wishlist, item, isOwner }: HMItemDetailProps) => 
       </div>
     </div>
   </HMShell>
+
+  {editOpen && (
+    <EditItemModal
+      item={item}
+      onClose={() => setEditOpen(false)}
+      onSuccess={() => { setEditOpen(false); router.refresh() }}
+      onDelete={handleDelete}
+    />
+  )}
+  </>
   )
 }

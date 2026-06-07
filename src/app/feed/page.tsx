@@ -94,33 +94,37 @@ export default async function FeedPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
-  const [
-    { data: rawActivity },
-    { data: rawFriendships },
-    { data: rawReservations },
-  ] = await Promise.all([
+  // Étape 1 : récupérer les amis acceptés
+  const { data: rawFriendships } = await supabase
+    .from('friendships')
+    .select(`
+      user_id_1, user_id_2,
+      u1:users!user_id_1(id, name, birthday),
+      u2:users!user_id_2(id, name, birthday)
+    `)
+    .or(`user_id_1.eq.${user.id},user_id_2.eq.${user.id}`)
+    .eq('status', 'accepted')
 
-    supabase
-      .from('activity')
-      .select(`
-        id, kind, reaction_type, created_at,
-        actor:users!actor_id(id, name),
-        wishlist:wishlists!wishlist_id(id, title),
-        item:items!item_id(id, title, image_url, price, note, priority),
-        target_user:users!target_user_id(id, name)
-      `)
-      .order('created_at', { ascending: false })
-      .limit(60),
+  const friendIds: string[] = ((rawFriendships ?? []) as RawFriendship[]).map(f =>
+    f.user_id_1 === user.id ? f.user_id_2 : f.user_id_1
+  )
 
-    supabase
-      .from('friendships')
-      .select(`
-        user_id_1, user_id_2,
-        u1:users!user_id_1(id, name, birthday),
-        u2:users!user_id_2(id, name, birthday)
-      `)
-      .or(`user_id_1.eq.${user.id},user_id_2.eq.${user.id}`)
-      .eq('status', 'accepted'),
+  // Étape 2 : activité filtrée par amis + réservations en parallèle
+  const [rawActivityResult, { data: rawReservations }] = await Promise.all([
+    friendIds.length > 0
+      ? supabase
+          .from('activity')
+          .select(`
+            id, kind, reaction_type, created_at,
+            actor:users!actor_id(id, name),
+            wishlist:wishlists!wishlist_id(id, title),
+            item:items!item_id(id, title, image_url, price, note, priority),
+            target_user:users!target_user_id(id, name)
+          `)
+          .in('actor_id', friendIds)
+          .order('created_at', { ascending: false })
+          .limit(60)
+      : Promise.resolve({ data: null }),
 
     supabase
       .from('reservations')
@@ -138,6 +142,8 @@ export default async function FeedPage() {
       .order('created_at', { ascending: false })
       .limit(20),
   ])
+
+  const rawActivity = rawActivityResult.data ?? []
 
   // ── Transform activity + group item_added ─────────────────────────────────
   // Supabase retourne les jointures comme des tableaux — on prend toujours [0]
@@ -160,7 +166,7 @@ export default async function FeedPage() {
   const events: FeedEvent[] = []
   const groupMap = new Map<string, FeedEvent>()
 
-  for (const e of ((rawActivity ?? []) as RawEvent[])) {
+  for (const e of (rawActivity as RawEvent[])) {
     const actorRow  = e.actor?.[0]
     const wishlistRow = e.wishlist?.[0]
     const itemRow     = e.item?.[0]

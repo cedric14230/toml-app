@@ -1,10 +1,14 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { HDShell } from '@/components/landing/shells'
 import { TomlStars } from '@/components/toml-ds/toml-kit'
 import { TomlIcon } from '@/components/toml-ds/toml-icons'
 import ReserveButton from '@/components/items/ReserveButton'
+import EditItemModal from '@/components/items/EditItemModal'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import type { ItemRow, WishlistData } from './types'
 
 interface HDItemDetailProps {
@@ -13,7 +17,18 @@ interface HDItemDetailProps {
   isOwner: boolean
 }
 
-export const HDItemDetail = ({ wishlist, item, isOwner }: HDItemDetailProps) => (
+export const HDItemDetail = ({ wishlist, item, isOwner }: HDItemDetailProps) => {
+  const router = useRouter()
+  const [editOpen, setEditOpen] = useState(false)
+
+  async function handleDelete() {
+    const supabase = createSupabaseBrowserClient()
+    const { error } = await supabase.from('items').delete().eq('id', item.id)
+    if (!error) router.push(`/wishlist/${wishlist.id}`)
+  }
+
+  return (
+  <>
   <HDShell active="lists" authed>
     <div style={{ padding: '24px 40px 60px', maxWidth: 760 }}>
 
@@ -110,7 +125,7 @@ export const HDItemDetail = ({ wishlist, item, isOwner }: HDItemDetailProps) => 
             )}
 
             {isOwner && (
-              <button className="btn btn-outline">
+              <button className="btn btn-outline" onClick={() => setEditOpen(true)}>
                 <TomlIcon name="edit" size={13} />
                 Modifier
               </button>
@@ -120,4 +135,15 @@ export const HDItemDetail = ({ wishlist, item, isOwner }: HDItemDetailProps) => 
       </div>
     </div>
   </HDShell>
-)
+
+  {editOpen && (
+    <EditItemModal
+      item={item}
+      onClose={() => setEditOpen(false)}
+      onSuccess={() => { setEditOpen(false); router.refresh() }}
+      onDelete={handleDelete}
+    />
+  )}
+  </>
+  )
+}

@@ -1,182 +1,240 @@
 'use client'
 
+import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { HMShell, HMTopBar } from '@/components/landing/shells'
 import { TomlAvatar } from '@/components/toml-ds/toml-kit'
 import { TomlIcon } from '@/components/toml-ds/toml-icons'
+import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+import type { ProfilePageProps, WishlistCard, FriendshipStatus } from './types'
 
-// ── WhatsApp glyph ────────────────────────────────────────────────────────────
+// ── Visibility helpers ────────────────────────────────────────────────────────
 
-const WhatsAppGlyph = ({ size = 18 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="#fff">
-    <path d="M17.5 14.4c-.3-.1-1.6-.8-1.9-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-1 1.1-.2.2-.4.2-.7.1-.3-.2-1.2-.5-2.3-1.4-.8-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.7-1-2.3-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4s-1 1-1 2.5.7 2.8.7 3c.1.2 1.5 2.4 3.7 3.4.5.2.9.3 1.2.4.5.2 1 .1 1.4.1.4-.1 1.3-.5 1.5-1 .2-.6.2-1 .1-1.1-.1-.2-.3-.3-.6-.4zM12 2C6.5 2 2 6.5 2 12c0 1.7.5 3.4 1.3 4.8L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.5 0-3-.4-4.3-1.1l-.3-.2-3.1.8.8-3-.2-.3C4.4 15 4 13.5 4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8z" />
-  </svg>
-)
-
-// ── Stat ──────────────────────────────────────────────────────────────────────
-
-const Stat = ({ value, label }: { value: string; label: string }) => (
-  <div style={{ flex: 1, textAlign: 'center', padding: '4px 0' }}>
-    <div className="display" style={{ fontSize: 24, marginBottom: 2 }}>{value}</div>
-    <div className="label" style={{ fontSize: 10 }}>{label}</div>
-  </div>
-)
-
-// ── Setting row ───────────────────────────────────────────────────────────────
-
-interface SettingRowProps {
-  icon: string; title: string; value?: string
-  badge?: string; danger?: boolean; last?: boolean
+const VIS_ICON: Record<string, string> = {
+  private: 'lock', friends: 'friends', public: 'eye',
+}
+const VIS_LABEL: Record<string, string> = {
+  private: 'Privée', friends: 'Amis', public: 'Publique',
 }
 
-const SettingRow = ({ icon, title, value, badge, danger = false, last = false }: SettingRowProps) => (
-  <div style={{
-    display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px',
-    borderBottom: last ? 'none' : '1px solid var(--t-line-soft)', cursor: 'pointer',
-  }}>
+// ── Wishlist row ──────────────────────────────────────────────────────────────
+
+const WishlistRow = ({ w, isOwner }: { w: WishlistCard; isOwner: boolean }) => (
+  <Link href={`/wishlist/${w.id}`} style={{ textDecoration: 'none', display: 'block' }}>
     <div style={{
-      width: 36, height: 36, borderRadius: 10,
-      background: danger ? 'var(--t-rose-soft)' : 'var(--t-bg-2)',
-      border: '1px solid var(--t-line)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      flexShrink: 0, color: danger ? 'var(--t-danger)' : 'var(--t-ink)',
+      display: 'flex', alignItems: 'center', gap: 14,
+      padding: '12px 18px', borderBottom: '1px solid var(--t-line-soft)',
+      background: 'var(--t-bg)',
     }}>
-      <TomlIcon name={icon} size={18} />
+      <div
+        className={`img img-${w.tone}`}
+        style={{ width: 52, height: 52, borderRadius: 'var(--t-r-md)', flexShrink: 0, border: '1.5px solid var(--t-ink)' }}
+      />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="display-2" style={{ fontSize: 15, marginBottom: 2 }}>{w.title}</div>
+        <div style={{ fontSize: 12, color: 'var(--t-ink-3)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span>{w.itemCount} article{w.itemCount !== 1 ? 's' : ''}</span>
+          {isOwner && w.visibility !== 'public' && (
+            <>
+              <span style={{ color: 'var(--t-ink-4)' }}>·</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <TomlIcon name={VIS_ICON[w.visibility]} size={10} />
+                {VIS_LABEL[w.visibility]}
+              </span>
+            </>
+          )}
+        </div>
+      </div>
+      <TomlIcon name="arrow" size={13} style={{ color: 'var(--t-ink-3)', flexShrink: 0 }} />
     </div>
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ fontSize: 14, fontWeight: 600, color: danger ? 'var(--t-danger)' : 'var(--t-ink)' }}>{title}</div>
-      {value && <div style={{ fontSize: 11, color: 'var(--t-ink-3)', marginTop: 1 }}>{value}</div>}
-    </div>
-    {badge && <span className="chip chip-rose" style={{ fontSize: 10 }}>{badge}</span>}
-    {!danger && <TomlIcon name="arrow" size={14} style={{ color: 'var(--t-ink-3)', flexShrink: 0 }} />}
-  </div>
+  </Link>
 )
+
+// ── Add-friend button ─────────────────────────────────────────────────────────
+
+const AddFriendButton = ({
+  profileId,
+  viewerId,
+  initialStatus,
+}: {
+  profileId: string
+  viewerId: string
+  initialStatus: FriendshipStatus
+}) => {
+  const [status, setStatus]   = useState<FriendshipStatus>(initialStatus)
+  const [loading, setLoading] = useState(false)
+
+  async function handleAdd() {
+    if (loading || status !== 'none') return
+    setLoading(true)
+    const supabase = createSupabaseBrowserClient()
+    const { error } = await supabase
+      .from('friendships')
+      .insert({ user_id_1: viewerId, user_id_2: profileId, status: 'pending' })
+    if (!error) setStatus('pending_out')
+    setLoading(false)
+  }
+
+  if (status === 'accepted') return null
+
+  if (status === 'pending_in') {
+    return (
+      <Link
+        href="/friends"
+        className="btn btn-outline btn-sm"
+        style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+      >
+        <TomlIcon name="check" size={12} />
+        Demande reçue — Répondre
+      </Link>
+    )
+  }
+
+  return (
+    <button
+      className={status === 'pending_out' ? 'btn btn-ghost btn-sm' : 'btn btn-primary btn-stamp btn-sm'}
+      onClick={handleAdd}
+      disabled={loading || status === 'pending_out'}
+    >
+      <TomlIcon name={status === 'pending_out' ? 'check' : 'plus'} size={12} />
+      {loading ? 'Envoi…' : status === 'pending_out' ? 'Demande envoyée' : 'Ajouter en ami'}
+    </button>
+  )
+}
 
 // ── Mobile profile ────────────────────────────────────────────────────────────
 
-export const HMProfile = () => (
-  <HMShell>
-    <HMTopBar
-      showBurger
-      left={<div className="display-2" style={{ fontSize: 22 }}>Profil</div>}
-      right={
-        <button className="btn btn-ghost" style={{
-          width: 38, height: 38, padding: 0, borderRadius: 999,
-          background: 'var(--t-paper)', border: '1px solid var(--t-line)',
-        }}>
-          <TomlIcon name="settings" size={18} />
-        </button>
-      }
-    />
+export const HMProfile = ({
+  profile,
+  wishlists,
+  viewerContext,
+  friendshipStatus,
+  viewerId,
+}: ProfilePageProps) => {
+  const router  = useRouter()
+  const isOwner = viewerContext === 'owner'
 
-    {/* Hero */}
-    <div style={{
-      padding: '20px 24px 24px',
-      background:
-        'radial-gradient(120% 70% at 0% 0%, var(--t-rose-soft) 0%, transparent 55%),' +
-        'radial-gradient(110% 70% at 100% 0%, var(--t-mustard-soft) 0%, transparent 55%),' +
-        'var(--t-bg)',
-      borderBottom: '1px solid var(--t-line-soft)',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ position: 'relative' }}>
-          <TomlAvatar initial="C" tone={1} size="xl" />
-          <button style={{
-            position: 'absolute', bottom: 0, right: 0,
-            width: 30, height: 30, borderRadius: 999,
-            background: 'var(--t-ink)', color: 'var(--t-bg)',
-            border: '2px solid var(--t-bg)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', padding: 0,
-          }}>
-            <TomlIcon name="edit" size={14} />
+  return (
+    <HMShell>
+      <HMTopBar
+        left={
+          <button
+            className="btn btn-ghost"
+            onClick={() => router.back()}
+            style={{ width: 36, height: 36, padding: 0, borderRadius: 999, background: 'var(--t-paper)', border: '1px solid var(--t-line)' }}
+          >
+            <TomlIcon name="arrow" size={16} style={{ transform: 'rotate(180deg)' }} />
           </button>
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="display-2" style={{ fontSize: 22, marginBottom: 2 }}>Camille Chapon</div>
-          <div style={{ fontSize: 13, color: 'var(--t-ink-3)', fontWeight: 600 }}>@camille</div>
-          <div style={{
-            fontFamily: 'var(--t-font-display)', fontStyle: 'italic', fontWeight: 500,
-            fontSize: 14, marginTop: 6, lineHeight: 1.3, color: 'var(--t-ink-2)',
-          }}>
-            « Les jolies choses, l&apos;art de vivre, et pas mal de céramique »
-          </div>
-        </div>
-      </div>
+        }
+        title={profile.name}
+        right={
+          isOwner ? (
+            <button className="btn btn-ghost" style={{
+              width: 36, height: 36, padding: 0, borderRadius: 999,
+              background: 'var(--t-paper)', border: '1px solid var(--t-line)',
+            }}>
+              <TomlIcon name="settings" size={16} />
+            </button>
+          ) : undefined
+        }
+      />
 
-      {/* Stats */}
+      {/* Hero */}
       <div style={{
-        display: 'flex', marginTop: 20,
-        background: 'var(--t-paper)', border: '1.5px solid var(--t-ink)',
-        borderRadius: 'var(--t-r-lg)', boxShadow: 'var(--t-shadow-stamp)', overflow: 'hidden',
+        padding: '20px 18px 20px',
+        background:
+          'radial-gradient(120% 70% at 0% 0%, var(--t-rose-soft) 0%, transparent 55%),' +
+          'radial-gradient(110% 70% at 100% 0%, var(--t-mustard-soft) 0%, transparent 55%),' +
+          'var(--t-bg)',
+        borderBottom: '1px solid var(--t-line-soft)',
       }}>
-        <Stat value="3" label="Wishlists" />
-        <div style={{ width: 1, background: 'var(--t-line)' }} />
-        <Stat value="24" label="Articles" />
-        <div style={{ width: 1, background: 'var(--t-line)' }} />
-        <Stat value="18" label="Amis" />
-      </div>
-
-      <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-        <button className="btn btn-outline btn-sm" style={{ flex: 1 }}>
-          <TomlIcon name="share" size={13} />
-          Partager mon profil
-        </button>
-        <button className="btn btn-ghost btn-sm" style={{ width: 38, height: 36, padding: 0, background: 'var(--t-paper)', border: '1px solid var(--t-line)' }}>
-          <TomlIcon name="link" size={15} />
-        </button>
-      </div>
-    </div>
-
-    {/* Connexions */}
-    <div style={{ padding: '20px 18px 10px' }}>
-      <div className="label">Connexions</div>
-    </div>
-    <div style={{ background: 'var(--t-paper)', borderTop: '1px solid var(--t-line-soft)', borderBottom: '1px solid var(--t-line-soft)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', borderBottom: '1px solid var(--t-line-soft)' }}>
-        <div style={{
-          width: 36, height: 36, borderRadius: 999, flexShrink: 0,
-          background: '#25D366', border: '1.5px solid var(--t-ink)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <WhatsAppGlyph size={18} />
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 600 }}>WhatsApp</div>
-          <div style={{ fontSize: 11, color: 'var(--t-success)', marginTop: 1, fontWeight: 600 }}>
-            <span className="dot" style={{ background: 'var(--t-success)', marginRight: 4 }}></span>
-            Connecté · +33 6 12 ••• •••
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+          <TomlAvatar initial={profile.initial} tone={profile.avatarTone} size="xl" />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h1 className="display-2" style={{ fontSize: 22, marginBottom: 2 }}>{profile.name}</h1>
+            {viewerContext === 'friend' && (
+              <div style={{ fontSize: 12, color: 'var(--t-success)', fontWeight: 600, marginBottom: 4 }}>
+                ● Ami
+              </div>
+            )}
+            {profile.bio && (
+              <div style={{
+                fontFamily: 'var(--t-font-display)', fontStyle: 'italic',
+                fontWeight: 500, fontSize: 13, lineHeight: 1.35, color: 'var(--t-ink-2)',
+              }}>
+                « {profile.bio} »
+              </div>
+            )}
           </div>
         </div>
-        <button className="btn btn-ghost btn-sm" style={{ background: 'transparent', color: 'var(--t-ink-3)' }}>Gérer</button>
+
+        {/* Stats */}
+        <div style={{
+          display: 'flex', marginBottom: 14,
+          background: 'var(--t-paper)', border: '1.5px solid var(--t-ink)',
+          borderRadius: 'var(--t-r-lg)', boxShadow: 'var(--t-shadow-stamp)', overflow: 'hidden',
+        }}>
+          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px' }}>
+            <div className="display" style={{ fontSize: 24, marginBottom: 2 }}>{wishlists.length}</div>
+            <div className="label" style={{ fontSize: 10 }}>Wishlists</div>
+          </div>
+          <div style={{ width: 1, background: 'var(--t-line)' }} />
+          <div style={{ flex: 1, textAlign: 'center', padding: '10px 4px' }}>
+            <div className="display" style={{ fontSize: 24, marginBottom: 2 }}>{profile.friendCount}</div>
+            <div className="label" style={{ fontSize: 10 }}>Amis</div>
+          </div>
+        </div>
+
+        {/* Add friend / owner actions */}
+        {isOwner ? (
+          <Link href="/dashboard" className="btn btn-outline btn-sm" style={{ width: '100%', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <TomlIcon name="plus" size={13} />
+            Nouvelle wishlist
+          </Link>
+        ) : viewerId ? (
+          <AddFriendButton
+            profileId={profile.id}
+            viewerId={viewerId}
+            initialStatus={friendshipStatus}
+          />
+        ) : null}
       </div>
-      <SettingRow icon="link" title="Extension navigateur" value="Chrome · activée" last />
-    </div>
 
-    {/* Paramètres */}
-    <div style={{ padding: '20px 18px 10px' }}>
-      <div className="label">Paramètres</div>
-    </div>
-    <div style={{ background: 'var(--t-paper)', borderTop: '1px solid var(--t-line-soft)', borderBottom: '1px solid var(--t-line-soft)' }}>
-      <SettingRow icon="bell"    title="Notifications"        value="Push · Email"              badge="3 nouvelles" />
-      <SettingRow icon="eye"     title="Confidentialité"      value="Listes par défaut : Amis" />
-      <SettingRow icon="friends" title="Cercles & invitations" value="4 cercles · 18 amis" />
-      <SettingRow icon="gift"    title="Adresses de livraison" value="2 adresses enregistrées" />
-      <SettingRow icon="sparkle" title="Apparence"             value="Clair · Sora + Inter"     last />
-    </div>
-
-    {/* Compte */}
-    <div style={{ padding: '20px 18px 10px' }}>
-      <div className="label">Compte</div>
-    </div>
-    <div style={{ background: 'var(--t-paper)', borderTop: '1px solid var(--t-line-soft)', borderBottom: '1px solid var(--t-line-soft)' }}>
-      <SettingRow icon="user" title="Données du compte" value="camille@chapon.com" />
-      <SettingRow icon="x"   title="Se déconnecter" danger last />
-    </div>
-
-    <div style={{ padding: '24px 18px 30px', textAlign: 'center' }}>
-      <div style={{ fontSize: 11, color: 'var(--t-ink-3)', fontWeight: 600, letterSpacing: '0.04em' }}>
-        TOML v1.0 · Made in France
+      {/* Wishlists */}
+      <div style={{ padding: '14px 18px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <div className="label">
+          {isOwner ? 'Mes wishlists' : `Wishlists de ${profile.name}`}
+        </div>
+        <span style={{ fontSize: 11, color: 'var(--t-ink-3)', fontWeight: 600 }}>
+          {wishlists.length} liste{wishlists.length !== 1 ? 's' : ''}
+        </span>
       </div>
-    </div>
-  </HMShell>
-)
+
+      {wishlists.length === 0 ? (
+        <div style={{ padding: '40px 18px', textAlign: 'center', color: 'var(--t-ink-3)' }}>
+          <div className="display-2" style={{ fontSize: 16, marginBottom: 8 }}>
+            {isOwner ? 'Aucune wishlist pour le moment' : 'Aucune liste publique pour le moment'}
+          </div>
+          <div style={{ fontSize: 13, marginBottom: isOwner ? 16 : 0 }}>
+            {isOwner
+              ? 'Créez votre première wishlist depuis le tableau de bord.'
+              : `${profile.name} n'a pas encore partagé de listes.`}
+          </div>
+          {isOwner && (
+            <Link href="/dashboard" className="btn btn-primary btn-stamp btn-sm" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <TomlIcon name="bookmark" size={13} />
+              Tableau de bord
+            </Link>
+          )}
+        </div>
+      ) : (
+        wishlists.map(w => (
+          <WishlistRow key={w.id} w={w} isOwner={isOwner} />
+        ))
+      )}
+
+      <div style={{ height: 24 }} />
+    </HMShell>
+  )
+}

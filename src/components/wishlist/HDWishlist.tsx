@@ -7,6 +7,9 @@ import { HDShell } from '@/components/landing/shells'
 import { TomlStars } from '@/components/toml-ds/toml-kit'
 import { TomlIcon } from '@/components/toml-ds/toml-icons'
 import AddItemModal from '@/components/items/AddItemModal'
+import EditItemModal from '@/components/items/EditItemModal'
+import EditWishlistModal from '@/components/wishlists/EditWishlistModal'
+import ReactionBar from '@/components/items/ReactionBar'
 import type { ItemRow, WishlistData, WishlistStats } from './types'
 
 // ── Visibility helpers ────────────────────────────────────────────────────────
@@ -17,11 +20,12 @@ const VIS_ICON  = { private: 'lock',   friends: 'friends', public: 'eye'   } as 
 // ── Item card ─────────────────────────────────────────────────────────────────
 
 const ItemCard = ({
-  item, isOwner, big,
+  item, isOwner, big, onEdit,
 }: {
   item: ItemRow
   isOwner: boolean
   big: boolean
+  onEdit?: () => void
 }) => (
   <div
     className={big ? 'card' : 'card-soft'}
@@ -73,12 +77,22 @@ const ItemCard = ({
         </div>
         {!big && <TomlStars value={item.stars} size={10} />}
         {big && isOwner && (
-          <button className="btn btn-outline btn-sm">
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={e => { e.preventDefault(); e.stopPropagation(); onEdit?.() }}
+          >
             <TomlIcon name="edit" size={12} />
             Modifier
           </button>
         )}
       </div>
+      {item.reactionCounts && (
+        <ReactionBar
+          itemId={item.id}
+          initialCounts={item.reactionCounts}
+          initialMyReaction={item.myReaction ?? null}
+        />
+      )}
     </div>
   </div>
 )
@@ -98,8 +112,18 @@ interface HDWishlistProps {
 
 export const HDWishlist = ({ wishlist, items, stats, isOwner }: HDWishlistProps) => {
   const router = useRouter()
-  const [activeFilter, setActiveFilter] = useState<Filter>('all')
-  const [addItemOpen, setAddItemOpen]   = useState(false)
+  const [activeFilter, setActiveFilter]   = useState<Filter>('all')
+  const [addItemOpen, setAddItemOpen]     = useState(false)
+  const [editingItem, setEditingItem]     = useState<ItemRow | null>(null)
+  const [editWlOpen, setEditWlOpen]       = useState(false)
+  const [shareCopied, setShareCopied]     = useState(false)
+
+  function handleShare() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 2000)
+    })
+  }
 
   const displayed =
     activeFilter === 'available' ? items.filter(it => it.status === 'available')
@@ -115,18 +139,19 @@ export const HDWishlist = ({ wishlist, items, stats, isOwner }: HDWishlistProps)
     <>
     <HDShell active="lists" authed>
       <div style={{ padding: '24px 40px 60px' }}>
-        {/* Breadcrumb */}
-        <Link
-          href="/dashboard"
+        {/* Bouton retour */}
+        <button
+          onClick={() => router.back()}
           style={{
             fontSize: 13, color: 'var(--t-ink-3)', marginBottom: 18,
             display: 'inline-flex', alignItems: 'center', gap: 6,
-            fontWeight: 600, textDecoration: 'none',
+            fontWeight: 600, background: 'none', border: 'none',
+            cursor: 'pointer', padding: 0,
           }}
         >
           <TomlIcon name="arrow" size={12} style={{ transform: 'rotate(180deg)' }} />
           Mes wishlists
-        </Link>
+        </button>
 
         {/* Hero */}
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 28, marginBottom: 28, flexWrap: 'wrap' }}>
@@ -169,11 +194,15 @@ export const HDWishlist = ({ wishlist, items, stats, isOwner }: HDWishlistProps)
 
           {isOwner && (
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', flexShrink: 0 }}>
-              <button className="btn btn-outline">
+              <button className="btn btn-outline" onClick={handleShare}>
                 <TomlIcon name="share" size={14} />
-                Partager
+                {shareCopied ? 'Lien copié !' : 'Partager'}
               </button>
-              <button className="btn btn-ghost" style={{ background: 'var(--t-paper)', border: '1px solid var(--t-line)' }}>
+              <button
+                className="btn btn-ghost"
+                style={{ background: 'var(--t-paper)', border: '1px solid var(--t-line)' }}
+                onClick={() => setEditWlOpen(true)}
+              >
                 <TomlIcon name="menu" size={14} />
                 Modifier
               </button>
@@ -219,19 +248,29 @@ export const HDWishlist = ({ wishlist, items, stats, isOwner }: HDWishlistProps)
         {displayed.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--t-ink-3)' }}>
             <div className="display-2" style={{ fontSize: 18, marginBottom: 8 }}>Aucun article</div>
-            <div style={{ fontSize: 13 }}>Essaie un autre filtre ou ajoute des articles.</div>
+            <div style={{ fontSize: 13 }}>Essayez un autre filtre ou ajoutez des articles.</div>
           </div>
         ) : (
           <div style={{ columnCount: 3, columnGap: 18 }}>
-            {displayed.map(it => (
-              <Link
-                key={it.id}
-                href={`/wishlist/${wishlist.id}/item/${it.id}`}
-                style={{ textDecoration: 'none', display: 'block' }}
-              >
-                <ItemCard item={it} isOwner={isOwner} big={it.stars === 3} />
-              </Link>
-            ))}
+            {displayed.map(it =>
+              isOwner ? (
+                <div
+                  key={it.id}
+                  onClick={() => setEditingItem(it)}
+                  style={{ cursor: 'pointer', display: 'block' }}
+                >
+                  <ItemCard item={it} isOwner big={it.stars === 3} onEdit={() => setEditingItem(it)} />
+                </div>
+              ) : (
+                <Link
+                  key={it.id}
+                  href={`/wishlist/${wishlist.id}/item/${it.id}`}
+                  style={{ textDecoration: 'none', display: 'block' }}
+                >
+                  <ItemCard item={it} isOwner={false} big={it.stars === 3} />
+                </Link>
+              )
+            )}
           </div>
         )}
       </div>
@@ -242,6 +281,22 @@ export const HDWishlist = ({ wishlist, items, stats, isOwner }: HDWishlistProps)
         wishlistId={wishlist.id}
         onClose={() => setAddItemOpen(false)}
         onSuccess={() => { setAddItemOpen(false); router.refresh() }}
+      />
+    )}
+
+    {editingItem && (
+      <EditItemModal
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+        onSuccess={() => { setEditingItem(null); router.refresh() }}
+      />
+    )}
+
+    {editWlOpen && (
+      <EditWishlistModal
+        wishlist={wishlist}
+        onClose={() => setEditWlOpen(false)}
+        onSuccess={() => { setEditWlOpen(false); router.refresh() }}
       />
     )}
     </>

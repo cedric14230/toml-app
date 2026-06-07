@@ -165,65 +165,101 @@ export const HMDashboard = ({ wishlists, firstName, phoneVerified }: HMDashboard
         </button>
       </div>
 
-      {/* Wishlist cards */}
+      {/* Wishlist cards — ou état vide */}
       <div style={{ padding: '0 18px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {wishlists.map(w => {
-          const { label, icon } = VIS[w.visibility]
-          return (
-            <Link key={w.id} href={`/wishlist/${w.id}`} style={{ textDecoration: 'none' }}>
-              <div className="card">
-                <div className={`img img-${w.tone}`} style={{ height: 130, position: 'relative' }}>
-                  <span className="chip" style={{
-                    position: 'absolute', top: 10, right: 10,
-                    background: 'rgba(255,255,255,0.92)',
-                    backdropFilter: 'blur(4px)',
-                    fontSize: 11,
-                  }}>
-                    <TomlIcon name={icon} size={11} />
-                    {label}
-                  </span>
-                </div>
-                <div style={{ padding: '14px 16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                    <div className="display-2" style={{ fontSize: 18 }}>{w.title}</div>
-                    <div style={{ fontSize: 13, color: 'var(--t-ink-2)', fontWeight: 600, flexShrink: 0, marginLeft: 8 }}>
-                      {w.item_count} article{w.item_count !== 1 ? 's' : ''}
+        {wishlists.length === 0 ? (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', gap: 16, padding: '40px 16px', textAlign: 'center',
+          }}>
+            <div style={{
+              width: 80, height: 80, borderRadius: 999,
+              background: 'var(--t-bg-2)', border: '2px dashed var(--t-ink-3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <TomlIcon name="bookmark" size={32} />
+            </div>
+            <div>
+              <div className="display-2" style={{ fontSize: 22, marginBottom: 8 }}>
+                Votre première wishlist vous attend
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--t-ink-2)', lineHeight: 1.6 }}>
+                Anniversaire, liste de naissance, envies déco…
+                Tout ce dont vous rêvez, au même endroit.
+              </div>
+            </div>
+            <button
+              onClick={() => setCreateOpen(true)}
+              className="btn btn-primary btn-stamp"
+            >
+              <TomlIcon name="plus" size={14} />
+              Créer ma première wishlist
+            </button>
+          </div>
+        ) : (
+          <>
+            {wishlists.map(w => {
+              const { label, icon } = VIS[w.visibility]
+              return (
+                <Link key={w.id} href={`/wishlist/${w.id}`} style={{ textDecoration: 'none' }}>
+                  <div className="card">
+                    <div className={`img img-${w.tone}`} style={{ height: 130, position: 'relative' }}>
+                      <span className="chip" style={{
+                        position: 'absolute', top: 10, right: 10,
+                        background: 'rgba(255,255,255,0.92)',
+                        backdropFilter: 'blur(4px)',
+                        fontSize: 11,
+                      }}>
+                        <TomlIcon name={icon} size={11} />
+                        {label}
+                      </span>
+                    </div>
+                    <div style={{ padding: '14px 16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                        <div className="display-2" style={{ fontSize: 18 }}>{w.title}</div>
+                        <div style={{ fontSize: 13, color: 'var(--t-ink-2)', fontWeight: 600, flexShrink: 0, marginLeft: 8 }}>
+                          {w.item_count} article{w.item_count !== 1 ? 's' : ''}
+                        </div>
+                      </div>
+                      {w.latest && (
+                        <div style={{ fontSize: 12, color: 'var(--t-rose)', fontWeight: 600 }}>
+                          {w.latest}
+                        </div>
+                      )}
                     </div>
                   </div>
-                  {w.latest && (
-                    <div style={{ fontSize: 12, color: 'var(--t-rose)', fontWeight: 600 }}>
-                      {w.latest}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Link>
-          )
-        })}
+                </Link>
+              )
+            })}
 
-        {/* Dashed create card */}
-        <button
-          onClick={() => setCreateOpen(true)}
-          style={{
-            width: '100%',
-            background: 'transparent',
-            border: '1.5px dashed var(--t-ink-3)',
-            borderRadius: 'var(--t-r-lg)',
-            padding: '22px 16px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            color: 'var(--t-ink-2)', cursor: 'pointer',
-            fontFamily: 'var(--t-font-ui)', fontWeight: 600, fontSize: 14,
-          }}
-        >
-          <TomlIcon name="plus" size={18} />
-          Créer une nouvelle wishlist
-        </button>
+            {/* Dashed create card */}
+            <button
+              onClick={() => setCreateOpen(true)}
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: '1.5px dashed var(--t-ink-3)',
+                borderRadius: 'var(--t-r-lg)',
+                padding: '22px 16px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                color: 'var(--t-ink-2)', cursor: 'pointer',
+                fontFamily: 'var(--t-font-ui)', fontWeight: 600, fontSize: 14,
+              }}
+            >
+              <TomlIcon name="plus" size={18} />
+              Créer une nouvelle wishlist
+            </button>
+          </>
+        )}
       </div>
 
       {createOpen && (
         <CreateWishlistModal
           onClose={() => setCreateOpen(false)}
-          onSuccess={id => router.push(`/wishlist/${id}`)}
+          onSuccess={() => {
+            setCreateOpen(false)
+            router.refresh()
+          }}
         />
       )}
     </HMShell>

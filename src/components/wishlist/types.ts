@@ -1,6 +1,13 @@
 export type ItemPriority   = 'low' | 'medium' | 'high'
 export type ItemStatus     = 'available' | 'reserved' | 'purchased'
 export type WishlistVis    = 'private' | 'friends' | 'public'
+export type ReactionType   = 'love' | 'useful' | 'interesting'
+
+export interface ReactionCounts {
+  love: number
+  useful: number
+  interesting: number
+}
 
 export interface ItemRow {
   id: string
@@ -15,6 +22,9 @@ export interface ItemRow {
   // computed
   stars: 1 | 2 | 3
   tone: 1 | 2 | 3 | 4 | 5 | 6
+  // reactions — populated on wishlist page, optional on item detail page
+  reactionCounts?: ReactionCounts
+  myReaction?: ReactionType | null
 }
 
 export interface WishlistData {

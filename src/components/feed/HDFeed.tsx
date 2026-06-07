@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { HDShell } from '@/components/landing/shells'
 import { TomlAvatar, TomlStars, TomlBookmarklet } from '@/components/toml-ds/toml-kit'
 import { TomlIcon } from '@/components/toml-ds/toml-icons'
@@ -142,6 +143,7 @@ const ReactionBody = ({ event }: { event: FeedEvent }) => {
 // ── Event row ─────────────────────────────────────────────────────────────────
 
 const EventRow = ({ event }: { event: FeedEvent }) => {
+  const router = useRouter()
   let verb = ''
   let target = ''
   let body: React.ReactNode = null
@@ -170,12 +172,29 @@ const EventRow = ({ event }: { event: FeedEvent }) => {
       break
   }
 
+  function handleClick(e: React.MouseEvent) {
+    if ((e.target as HTMLElement).closest('a')) return
+    switch (event.kind) {
+      case 'item_added':
+      case 'reaction_added':
+      case 'wishlist_created':
+        if (event.wishlist?.id) router.push(`/wishlist/${event.wishlist.id}`)
+        break
+      case 'friendship_accepted':
+        router.push(`/profile/${event.actor.id}`)
+        break
+    }
+  }
+
   return (
-    <div style={{
-      display: 'flex', gap: 14, padding: '20px 24px',
-      borderBottom: '1px solid var(--t-line-soft)',
-      background: 'var(--t-paper)',
-    }}>
+    <div
+      onClick={handleClick}
+      style={{
+        display: 'flex', gap: 14, padding: '20px 24px',
+        borderBottom: '1px solid var(--t-line-soft)',
+        background: 'var(--t-paper)', cursor: 'pointer',
+      }}
+    >
       <TomlAvatar initial={event.actor.initial} tone={event.actor.tone} size="md" />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 2, flexWrap: 'wrap' }}>
@@ -199,7 +218,7 @@ const ReservationsList = ({ reservations }: { reservations: MyReservation[] }) =
     return (
       <div style={{ padding: '60px 24px', textAlign: 'center', color: 'var(--t-ink-3)' }}>
         <div className="display-2" style={{ fontSize: 18, marginBottom: 8 }}>Aucune réservation</div>
-        <div style={{ fontSize: 13 }}>Tu n&apos;as encore rien réservé pour tes amis.</div>
+        <div style={{ fontSize: 13 }}>Vous n&apos;avez encore rien réservé pour vos amis.</div>
       </div>
     )
   }
@@ -306,10 +325,10 @@ const RightRail = ({ birthdays }: { birthdays: BirthdayEntry[] }) => (
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontFamily: 'var(--t-font-display)', fontWeight: 700, fontSize: 14, marginBottom: 4, lineHeight: 1.2, color: 'var(--t-bg)' }}>
-            Ajoute en 1 clic
+            Ajoutez en 1 clic
           </div>
           <div style={{ fontSize: 12, color: 'var(--t-bg-2)', marginBottom: 12, lineHeight: 1.4 }}>
-            Glisse ce bouton dans ta barre de favoris.
+            Glissez ce bouton dans votre barre de favoris.
           </div>
           <TomlBookmarklet />
         </div>
@@ -323,9 +342,13 @@ const RightRail = ({ birthdays }: { birthdays: BirthdayEntry[] }) => (
 const EmptyFeed = () => (
   <div style={{ padding: '60px 24px', textAlign: 'center', color: 'var(--t-ink-3)' }}>
     <div className="display-2" style={{ fontSize: 20, marginBottom: 10 }}>Aucune activité</div>
-    <div style={{ fontSize: 14, maxWidth: 320, margin: '0 auto', lineHeight: 1.5 }}>
-      Invite des amis et ajoute-les à ta liste pour voir leur activité ici.
+    <div style={{ fontSize: 14, maxWidth: 320, margin: '0 auto 20px', lineHeight: 1.5 }}>
+      Invitez des amis et ajoutez-les à votre liste pour voir leur activité ici.
     </div>
+    <Link href="/friends" className="btn btn-primary btn-stamp" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+      <TomlIcon name="friends" size={14} />
+      Trouver des amis
+    </Link>
   </div>
 )
 

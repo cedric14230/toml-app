@@ -144,39 +144,75 @@ export const HDDashboard = ({ wishlists, firstName }: HDDashboardProps) => {
           </div>
         </div>
 
-        {/* Cards grid 3 cols */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 24 }}>
-          {displayed.map(w => <DashboardCard key={w.id} w={w} />)}
-
-          {/* Dashed create card */}
-          <button
-            onClick={() => setCreateOpen(true)}
-            style={{
-              width: '100%',
-              background: 'transparent',
-              border: '1.5px dashed var(--t-ink-3)',
-              borderRadius: 'var(--t-r-lg)',
-              padding: '40px 20px',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10,
-              color: 'var(--t-ink-3)', cursor: 'pointer', minHeight: 360,
-              fontFamily: 'var(--t-font-ui)', fontWeight: 600, fontSize: 14,
-            }}
-          >
+        {/* Cards grid 3 cols — ou état vide */}
+        {wishlists.length === 0 ? (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', minHeight: 420, gap: 20, textAlign: 'center',
+            marginBottom: 24,
+          }}>
             <div style={{
-              width: 56, height: 56, borderRadius: 999,
-              background: 'var(--t-bg-2)', border: '1.5px dashed var(--t-ink-3)',
+              width: 96, height: 96, borderRadius: 999,
+              background: 'var(--t-bg-2)', border: '2px dashed var(--t-ink-3)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <TomlIcon name="plus" size={24} />
+              <TomlIcon name="bookmark" size={38} />
             </div>
-            <div className="display-2" style={{ fontSize: 17, color: 'var(--t-ink-2)' }}>
-              Nouvelle wishlist
+            <div>
+              <div className="display-2" style={{ fontSize: 26, marginBottom: 10 }}>
+                Votre première wishlist vous attend
+              </div>
+              <div style={{
+                fontSize: 14, color: 'var(--t-ink-2)', lineHeight: 1.6,
+                maxWidth: 420, margin: '0 auto',
+              }}>
+                Créez une liste pour vos cadeaux d&apos;anniversaire, vos envies déco
+                ou votre prochaine grande occasion.
+              </div>
             </div>
-            <div style={{ fontSize: 12, color: 'var(--t-ink-3)', textAlign: 'center', maxWidth: 200 }}>
-              Anniversaire, déménagement, liste de naissance…
-            </div>
-          </button>
-        </div>
+            <button
+              onClick={() => setCreateOpen(true)}
+              className="btn btn-primary btn-stamp"
+              style={{ marginTop: 4 }}
+            >
+              <TomlIcon name="plus" size={14} />
+              Créer ma première wishlist
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 24 }}>
+            {displayed.map(w => <DashboardCard key={w.id} w={w} />)}
+
+            {/* Dashed create card */}
+            <button
+              onClick={() => setCreateOpen(true)}
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: '1.5px dashed var(--t-ink-3)',
+                borderRadius: 'var(--t-r-lg)',
+                padding: '40px 20px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10,
+                color: 'var(--t-ink-3)', cursor: 'pointer', minHeight: 360,
+                fontFamily: 'var(--t-font-ui)', fontWeight: 600, fontSize: 14,
+              }}
+            >
+              <div style={{
+                width: 56, height: 56, borderRadius: 999,
+                background: 'var(--t-bg-2)', border: '1.5px dashed var(--t-ink-3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <TomlIcon name="plus" size={24} />
+              </div>
+              <div className="display-2" style={{ fontSize: 17, color: 'var(--t-ink-2)' }}>
+                Nouvelle wishlist
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--t-ink-3)', textAlign: 'center', maxWidth: 200 }}>
+                Anniversaire, déménagement, liste de naissance…
+              </div>
+            </button>
+          </div>
+        )}
 
         {/* Bookmarklet promo */}
         <div className="card" style={{ padding: 20, background: 'var(--t-ink)', color: 'var(--t-bg)' }}>
@@ -211,7 +247,10 @@ export const HDDashboard = ({ wishlists, firstName }: HDDashboardProps) => {
       {createOpen && (
         <CreateWishlistModal
           onClose={() => setCreateOpen(false)}
-          onSuccess={id => router.push(`/wishlist/${id}`)}
+          onSuccess={() => {
+            setCreateOpen(false)
+            router.refresh()
+          }}
         />
       )}
     </HDShell>
