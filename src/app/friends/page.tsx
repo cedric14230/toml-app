@@ -7,12 +7,17 @@ import { toTone, toInitial } from '@/components/friends/types'
 
 // ── Raw Supabase types ────────────────────────────────────────────────────────
 
-// Supabase retourne les jointures FK comme des tableaux même pour les relations 1-1
+// Friendships : on récupère uniquement les IDs pour éviter la double jointure
+// sur la même table users (u1 + u2), qui retourne des tableaux vides dans
+// certaines versions de PostgREST.
 type RawFriendship = {
   user_id_1: string
   user_id_2: string
-  u1: { id: string; name: string | null }[]
-  u2: { id: string; name: string | null }[]
+}
+
+type RawFriendUser = {
+  id:   string
+  name: string | null
 }
 
 type RawPending = {
@@ -28,15 +33,11 @@ export default async function FriendsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
-  // 1. Friendships acceptées + demandes reçues en parallèle
+  // 1. Friendships acceptées (IDs seulement) + demandes reçues en parallèle
   const [{ data: rawFriendships }, { data: rawPending }] = await Promise.all([
     supabase
       .from('friendships')
-      .select(`
-        user_id_1, user_id_2,
-        u1:users!user_id_1(id, name),
-        u2:users!user_id_2(id, name)
-      `)
+      .select('user_id_1, user_id_2')
       .or(`user_id_1.eq.${user.id},user_id_2.eq.${user.id}`)
       .eq('status', 'accepted'),
 
@@ -47,17 +48,25 @@ export default async function FriendsPage() {
       .eq('status', 'pending'),
   ])
 
-  // 2. Extraire les infos de chaque ami
-  const friendEntries = ((rawFriendships ?? []) as RawFriendship[])
-    .map(f => {
-      const friendUser = f.user_id_1 === user.id ? f.u2?.[0] : f.u1?.[0]
-      return friendUser ? { userId: friendUser.id, name: friendUser.name } : null
-    })
-    .filter((f): f is { userId: string; name: string | null } => f !== null)
+  // 2. Extraire l'ID de l'ami (celui qui n'est pas moi) dans chaque friendship
+  const friendUserIds = ((rawFriendships ?? []) as RawFriendship[]).map(f =>
+    f.user_id_1 === user.id ? f.user_id_2 : f.user_id_1
+  )
 
-  const friendUserIds = friendEntries.map(f => f.userId)
+  // 3. Récupérer les données utilisateurs des amis en une seule requête
+  const { data: rawFriendUsers } = friendUserIds.length > 0
+    ? await supabase
+        .from('users')
+        .select('id, name')
+        .in('id', friendUserIds)
+    : { data: [] as RawFriendUser[] }
 
-  // 3. Compter les wishlists visibles de chaque ami
+  const friendEntries = ((rawFriendUsers ?? []) as RawFriendUser[]).map(u => ({
+    userId: u.id,
+    name:   u.name,
+  }))
+
+  // 4. Compter les wishlists visibles de chaque ami
   const { data: rawWishlists } = friendUserIds.length > 0
     ? await supabase
         .from('wishlists')
@@ -71,7 +80,7 @@ export default async function FriendsPage() {
     wishlistCountMap.set(w.user_id, (wishlistCountMap.get(w.user_id) ?? 0) + 1)
   }
 
-  // 4. Construire les données typées
+  // 5. Construire les données typées
   const friends: FriendData[] = friendEntries.map(f => ({
     userId:        f.userId,
     name:          f.name ?? 'Utilisateur',
